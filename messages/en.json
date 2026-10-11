@@ -1,0 +1,37 @@
+{
+  "Common": {
+    "skipToContent": "Skip to main content",
+    "language": "Language",
+    "theme": "Theme",
+    "themeLight": "Light",
+    "themeDark": "Dark",
+    "themeSystem": "System",
+    "backToHome": "Back to home",
+    "tryAgain": "Try again"
+  },
+  "Home": {
+    "lead": "{tagline}",
+    "status": "{brand} is under construction. The foundations, design system and bilingual routing are in place."
+  },
+  "NotFound": {
+    "title": "Page not found",
+    "body": "That page doesn’t exist or has moved."
+  },
+  "Error": {
+    "title": "Something went wrong",
+    "body": "The page failed to load. Try again, and contact us if it keeps happening."
+  },
+  "Styleguide": {
+    "title": "Style guide",
+    "intro": "Development reference for the {brand} design system. Not indexed and hidden in production.",
+    "colors": "Color tokens",
+    "type": "Type",
+    "typeSample": "Graphics cards, memory and storage",
+    "controls": "Controls",
+    "primaryAction": "Add to cart",
+    "secondaryAction": "Compare",
+    "link": "Read the delivery policy",
+    "fieldLabel": "Email address",
+    "fieldHint": "We only use it for order updates."
+  }
+}

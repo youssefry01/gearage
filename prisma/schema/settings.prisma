@@ -1,0 +1,8 @@
+/// Key/value store settings (COD fee/max, free-shipping threshold, maintenance flag...). Typed access lives in server/services.
+model StoreSetting {
+  key       String   @id
+  value     Json
+  updatedAt DateTime @updatedAt
+
+  @@map("store_setting")
+}
