@@ -1,3 +1,4 @@
+import { parse, TYPE, type MessageFormatElement } from "@formatjs/icu-messageformat-parser";
 import { readdirSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
@@ -17,7 +18,26 @@ function flatten(tree: Tree, prefix = ""): Record<string, string> {
     return typeof v === "string" ? { ...acc, [key]: v } : { ...acc, ...flatten(v, key) };
   }, {});
 }
-const placeholders = (s: string) => [...s.matchAll(/\{(\w+)/g)].map((m) => m[1]).sort();
+/** Argument names AND rich-text tags of an ICU message, using the real parser (plural branches included). */
+function placeholders(message: string): string[] {
+  const out = new Set<string>();
+  const visit = (els: MessageFormatElement[]) => {
+    for (const el of els) {
+      if (el.type === TYPE.literal || el.type === TYPE.pound) continue;
+      if (el.type === TYPE.tag) {
+        out.add(`<${el.value}>`);
+        visit(el.children);
+      } else {
+        out.add(el.value);
+        if (el.type === TYPE.plural || el.type === TYPE.select) {
+          for (const option of Object.values(el.options)) visit(option.value);
+        }
+      }
+    }
+  };
+  visit(parse(message));
+  return [...out].sort();
+}
 
 describe("message files", () => {
   it("has exactly one file per registered locale", () => {

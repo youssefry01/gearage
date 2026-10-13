@@ -43,7 +43,13 @@ function choose(next: ThemePreference) {
 
 const LABEL_KEYS = { light: "themeLight", dark: "themeDark", system: "themeSystem" } as const;
 
-export function ThemeToggle() {
+const SIZE = {
+  full: "min-h-11 min-w-11",
+  // Dense desktop chrome (top bar): 32px with a fine pointer, still 44px on touch screens.
+  compact: "min-h-8 min-w-8 pointer-coarse:min-h-11 pointer-coarse:min-w-11",
+} as const;
+
+export function ThemeToggle({ compact = false }: { compact?: boolean }) {
   const t = useTranslations("Common");
   const current = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 
@@ -59,7 +65,7 @@ export function ThemeToggle() {
           type="button"
           aria-pressed={current === pref}
           onClick={() => choose(pref)}
-          className="text-small duration-fast ease-standard hover:bg-accent hover:text-accent-foreground aria-pressed:bg-primary aria-pressed:text-primary-foreground min-h-11 min-w-11 rounded-[calc(var(--radius-control)-2px)] px-3 font-medium transition-[background-color,color]"
+          className={`${compact ? SIZE.compact : SIZE.full} text-small duration-fast ease-standard hover:bg-accent hover:text-accent-foreground aria-pressed:bg-primary aria-pressed:text-primary-foreground rounded-[calc(var(--radius-control)-2px)] px-3 font-medium transition-[background-color,color]`}
         >
           {t(LABEL_KEYS[pref])}
         </button>

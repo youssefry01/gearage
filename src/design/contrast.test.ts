@@ -10,8 +10,8 @@ describe("contrast math", () => {
     expect(relativeLuminance("#FFFFFF")).toBeCloseTo(1, 5);
   });
   it("is symmetric", () => {
-    expect(contrastRatio("#F56514", "#0D1114")).toBeCloseTo(
-      contrastRatio("#0D1114", "#F56514"),
+    expect(contrastRatio("#FF5A00", "#0D1114")).toBeCloseTo(
+      contrastRatio("#0D1114", "#FF5A00"),
       10,
     );
   });
@@ -23,7 +23,7 @@ describe("contrast math", () => {
 
 describe("design tokens", () => {
   it("brand colors are the approved values", () => {
-    expect(brandColors).toEqual({ orange: "#F56514", ink: "#0D1114" });
+    expect(brandColors).toEqual({ orange: "#FF5A00", ink: "#0D1114" });
     expect(colorTokens.dark.background).toBe(brandColors.ink);
   });
   it("every theme defines every token as a 6-digit hex", () => {

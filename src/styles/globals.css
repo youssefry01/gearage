@@ -32,13 +32,71 @@
   --radius-panel: 0.75rem;
   --ease-standard: cubic-bezier(0.2, 0, 0, 1);
   --duration-fast: 120ms;
+  --duration-base: 200ms;
+
+  --animate-fade-in: fade-in var(--duration-base) var(--ease-standard);
+  --animate-fade-out: fade-out var(--duration-base) var(--ease-standard);
+  --animate-mega-in: mega-in 160ms var(--ease-standard);
+  --animate-drawer-in: drawer-in var(--duration-base) var(--ease-standard);
+  --animate-drawer-out: drawer-out var(--duration-base) var(--ease-standard);
+  --animate-accordion-down: accordion-down var(--duration-base) var(--ease-standard);
+  --animate-accordion-up: accordion-up var(--duration-base) var(--ease-standard);
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+  }
+  @keyframes fade-out {
+    to {
+      opacity: 0;
+    }
+  }
+  @keyframes mega-in {
+    from {
+      opacity: 0;
+      transform: translateY(-6px);
+    }
+  }
+  /* --drawer-offset is -100% in LTR and 100% in RTL (set on <html> below), so the drawer enters from the inline start. */
+  @keyframes drawer-in {
+    from {
+      transform: translateX(var(--drawer-offset));
+    }
+  }
+  @keyframes drawer-out {
+    to {
+      transform: translateX(var(--drawer-offset));
+    }
+  }
+  @keyframes accordion-down {
+    from {
+      height: 0;
+    }
+    to {
+      height: var(--radix-accordion-content-height);
+    }
+  }
+  @keyframes accordion-up {
+    from {
+      height: var(--radix-accordion-content-height);
+    }
+    to {
+      height: 0;
+    }
+  }
 }
 
 @layer base {
   html {
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
-    scroll-padding-top: 5rem;
+    scroll-padding-top: 8rem;
+    --drawer-offset: -100%;
+  }
+
+  html[dir="rtl"] {
+    --drawer-offset: 100%;
   }
 
   body {

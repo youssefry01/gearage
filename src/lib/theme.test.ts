@@ -1,5 +1,12 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { DEFAULT_THEME, parseTheme, THEME_STORAGE_KEY, themeInitScript } from "./theme";
+import {
+  applyTheme,
+  DEFAULT_THEME,
+  parseTheme,
+  readStoredTheme,
+  THEME_STORAGE_KEY,
+  themeInitScript,
+} from "./theme";
 
 describe("theme preference", () => {
   it("defaults to the brand-native dark theme", () => expect(DEFAULT_THEME).toBe("dark"));
@@ -25,12 +32,44 @@ describe("themeInitScript", () => {
     new Function(themeInitScript)();
     expect(document.documentElement.getAttribute("data-theme")).toBe("dark");
   });
-  it("never throws when storage is unavailable", () => {
+  it("sets the default theme when nothing is stored, so the attribute always exists", () => {
+    document.documentElement.removeAttribute("data-theme");
+    new Function(themeInitScript)();
+    expect(document.documentElement.getAttribute("data-theme")).toBe(DEFAULT_THEME);
+  });
+  it("never throws when storage is unavailable, and still sets the default", () => {
     const original = Storage.prototype.getItem;
     Storage.prototype.getItem = () => {
       throw new Error("denied");
     };
+    document.documentElement.removeAttribute("data-theme");
     expect(() => new Function(themeInitScript)()).not.toThrow();
+    expect(document.documentElement.getAttribute("data-theme")).toBe(DEFAULT_THEME);
     Storage.prototype.getItem = original;
+  });
+});
+
+describe("readStoredTheme / applyTheme (used by ThemeSync after a locale switch)", () => {
+  afterEach(() => localStorage.clear());
+
+  it("restores the stored preference, else the default", () => {
+    expect(readStoredTheme()).toBe(DEFAULT_THEME);
+    localStorage.setItem(THEME_STORAGE_KEY, "light");
+    expect(readStoredTheme()).toBe("light");
+    localStorage.setItem(THEME_STORAGE_KEY, "garbage");
+    expect(readStoredTheme()).toBe(DEFAULT_THEME);
+  });
+  it("falls back to the default when storage throws", () => {
+    expect(
+      readStoredTheme({
+        getItem: () => {
+          throw new Error("denied");
+        },
+      }),
+    ).toBe(DEFAULT_THEME);
+  });
+  it("writes data-theme", () => {
+    applyTheme("system");
+    expect(document.documentElement.getAttribute("data-theme")).toBe("system");
   });
 });

@@ -1,4 +1,5 @@
-import { expect, test, type Page } from "@playwright/test";
+import type { Page } from "@playwright/test";
+import { expect, test } from "./fixtures";
 import { brand, localized, storeName } from "../../src/config/brand";
 
 test.describe("locale routing (ADR 0006)", () => {
@@ -121,8 +122,8 @@ test.describe("theme", () => {
   }) => {
     await page.goto("/en");
     await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
-    await expect(page.locator("img.logo-on-dark")).toBeVisible();
-    await expect(page.locator("img.logo-on-light")).toBeHidden();
+    await expect(page.locator("header img.logo-on-dark")).toBeVisible();
+    await expect(page.locator("header img.logo-on-light")).toBeHidden();
 
     await page.getByRole("button", { name: "Light" }).click();
     await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
@@ -130,8 +131,8 @@ test.describe("theme", () => {
       "aria-pressed",
       "true",
     );
-    await expect(page.locator("img.logo-on-light")).toBeVisible();
-    await expect(page.locator("img.logo-on-dark")).toBeHidden();
+    await expect(page.locator("header img.logo-on-light")).toBeVisible();
+    await expect(page.locator("header img.logo-on-dark")).toBeHidden();
 
     await page.reload();
     await expect(page.locator("html")).toHaveAttribute("data-theme", "light");

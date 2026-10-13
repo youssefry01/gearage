@@ -7,7 +7,12 @@ function createClient(): PrismaClient {
   const connectionString = process.env.DATABASE_URL;
   if (!connectionString) throw new Error("DATABASE_URL is not set");
   // Pooled URL at runtime; the adapter owns the pg pool. Keep the pool small on serverless.
-  const adapter = new PrismaPg({ connectionString, max: Number(process.env.DB_POOL_MAX ?? 5) });
+  const adapter = new PrismaPg({
+    connectionString,
+    max: Number(process.env.DB_POOL_MAX ?? 5),
+    // Fail fast on an unreachable host instead of hanging a request (status and settings reads degrade gracefully).
+    connectionTimeoutMillis: 5_000,
+  });
   return new PrismaClient({ adapter });
 }
 

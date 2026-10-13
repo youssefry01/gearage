@@ -39,3 +39,12 @@ Local: `.env` from `.env.example`. Vercel: Project Settings > Environment Variab
 - **Brand**: `src/config/brand.ts` + `public/brand/` ([BRAND.md](BRAND.md)).
 - **Settings**: `StoreSetting` (contact/social) read through `server/services/store-settings.service.ts` with safe defaults.
 - **DB safety**: `prisma/guard.ts` makes `migrate dev|reset`, `db push|seed|execute` and `studio` refuse non-local hosts.
+
+## Added in M1b (the shell)
+
+- **Chrome** lives in the locale layout: `SiteHeader` (top bar, logo, `search` landmark, account/wishlist/cart, category row), `SiteFooter`, `CookieBanner`. The header is one sticky `<header>`; its top bar scrolls away (negative `top`) and it is static on short landscape phones.
+- **Navigation**: `MegaMenu` is the WAI-ARIA disclosure-navigation pattern (buttons with `aria-expanded`, plain-link panels), `MobileNav` is a Radix Dialog + Accordion drawer. Both read one locale-resolved tree (`menu-tree.ts`) built from `features/navigation/categories.ts` (static until M3a).
+- **Routes**: `config/routes.ts` is the registry; unbuilt routes render a noindex "coming soon" page through the `[locale]/[...rest]` catch-all, categories through `[locale]/c/[...slug]`.
+- **Status**: `domain/status.ts` (coarse states) -> `server/services/status.service.ts` (30s in-memory cache, single-flight, 2.5s timeout) -> `GET /api/status` (always 200, CDN-cacheable) -> footer `StatusDot` (cached poll every 5 min while visible).
+- **Consent**: `lib/consent.ts` + `CookieBanner`; first-party `consent` cookie (version, analytics flag, timestamp).
+- **Server-side structure** decision: [ADR 0013](adr/0013-server-side-structure.md).

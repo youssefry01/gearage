@@ -1,46 +1,59 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./fixtures";
 import { LOCALES, PAGES, VIEWPORTS } from "./viewports";
 
 for (const locale of LOCALES) {
-  for (const page of PAGES) {
-    test.describe(`responsive ${locale}${page || "/"}`, () => {
+  for (const path of PAGES) {
+    test.describe(`responsive ${locale}${path || "/"}`, () => {
       for (const vp of VIEWPORTS) {
-        test(`${vp.name} (${vp.width}x${vp.height}): no horizontal scroll, 44px targets, correct direction`, async ({
-          page: p,
-        }) => {
-          await p.setViewportSize({ width: vp.width, height: vp.height });
-          const response = await p.goto(`/${locale}${page}`);
-          expect(response?.status()).toBe(200);
-          await p.evaluate(() => document.fonts.ready);
+        test.describe(vp.name, () => {
+          test.use({
+            viewport: { width: vp.width, height: vp.height },
+            hasTouch: vp.touch,
+            isMobile: vp.touch,
+          });
 
-          await expect(p.locator("html")).toHaveAttribute("lang", locale);
-          await expect(p.locator("html")).toHaveAttribute("dir", locale === "ar" ? "rtl" : "ltr");
+          test(`(${vp.width}x${vp.height}${vp.touch ? ", touch" : ""}): no horizontal scroll, target sizes, direction`, async ({
+            page,
+          }) => {
+            const response = await page.goto(`/${locale}${path}`);
+            expect(response?.status()).toBe(200);
+            await page.evaluate(() => document.fonts.ready);
 
-          const overflow = await p.evaluate(() => ({
-            scrollWidth: document.documentElement.scrollWidth,
-            clientWidth: document.documentElement.clientWidth,
-          }));
-          expect(overflow.scrollWidth, "page scrolls horizontally").toBeLessThanOrEqual(
-            overflow.clientWidth,
-          );
+            await expect(page.locator("html")).toHaveAttribute("lang", locale);
+            await expect(page.locator("html")).toHaveAttribute(
+              "dir",
+              locale === "ar" ? "rtl" : "ltr",
+            );
 
-          const small = await p.evaluate(() => {
-            const selector =
-              "a[href], button, input:not([type=hidden]), select, textarea, [role=button]";
-            return (
-              [...document.querySelectorAll<HTMLElement>(selector)]
+            const overflow = await page.evaluate(() => ({
+              scrollWidth: document.documentElement.scrollWidth,
+              clientWidth: document.documentElement.clientWidth,
+            }));
+            expect(overflow.scrollWidth, "page scrolls horizontally").toBeLessThanOrEqual(
+              overflow.clientWidth,
+            );
+
+            // 44px everywhere. The ONE exception: the dense desktop top bar may be 32px with a fine pointer
+            // (`pointer-coarse:` variants lift it to 44px on touch screens).
+            const small = await page.evaluate(() => {
+              const coarse = window.matchMedia("(pointer: coarse)").matches;
+              const selector =
+                "a[href], button, input:not([type=hidden]), select, textarea, [role=button]";
+              return [...document.querySelectorAll<HTMLElement>(selector)]
                 .filter((el) => !el.classList.contains("inline-link") && !el.closest("table"))
                 .map((el) => ({ el, rect: el.getBoundingClientRect() }))
-                // sr-only elements (skip link while unfocused) are 1px by design
-                .filter(({ rect }) => rect.width > 1 && rect.height > 1)
-                .filter(({ rect }) => Math.round(rect.width) < 44 || Math.round(rect.height) < 44)
+                .filter(({ rect }) => rect.width > 1 && rect.height > 1) // sr-only (unfocused skip link) is 1px
+                .filter(({ el, rect }) => {
+                  const min = !coarse && el.closest("[data-topbar]") ? 32 : 44;
+                  return Math.round(rect.width) < min || Math.round(rect.height) < min;
+                })
                 .map(
                   ({ el, rect }) =>
-                    `${el.tagName.toLowerCase()} "${(el.textContent ?? "").trim().slice(0, 24)}" ${Math.round(rect.width)}x${Math.round(rect.height)}`,
-                )
-            );
+                    `${el.tagName.toLowerCase()} "${(el.textContent ?? el.getAttribute("aria-label") ?? "").trim().slice(0, 24)}" ${Math.round(rect.width)}x${Math.round(rect.height)}`,
+                );
+            });
+            expect(small, "interactive elements below the minimum target size").toEqual([]);
           });
-          expect(small, "interactive elements under 44x44px").toEqual([]);
         });
       }
     });

@@ -11,7 +11,7 @@
   },
   "Home": {
     "lead": "{tagline}",
-    "status": "{brand} is under construction. The foundations, design system and bilingual routing are in place."
+    "status": "{brand} is under construction. The catalog and checkout are coming soon."
   },
   "NotFound": {
     "title": "Page not found",
@@ -33,5 +33,93 @@
     "link": "Read the delivery policy",
     "fieldLabel": "Email address",
     "fieldHint": "We only use it for order updates."
+  },
+  "Nav": {
+    "menu": "Menu",
+    "closeMenu": "Close menu",
+    "categories": "Product categories",
+    "mobileTitle": "Browse the store",
+    "mobileDescription": "Browse all product categories and manage your preferences.",
+    "shopAll": "Shop all {name}",
+    "deals": "Deals",
+    "searchLabel": "Search the store",
+    "searchPlaceholder": "Search CPUs, GPUs, SSDs…",
+    "searchSubmit": "Search",
+    "account": "Account",
+    "signIn": "Sign in",
+    "wishlist": "Wishlist",
+    "cart": "Cart",
+    "cartCount": "{count, plural, =0 {Cart, empty} one {Cart, # item} other {Cart, # items}}",
+    "support": "Help & support",
+    "codInfo": "Cash on Delivery across Egypt",
+    "deliveryInfo": "Delivery to every governorate",
+    "callUs": "Call us",
+    "utility": "Account and help",
+    "preferences": "Preferences"
+  },
+  "Routes": {
+    "search": "Search",
+    "cart": "Cart",
+    "wishlist": "Wishlist",
+    "account": "My account",
+    "compare": "Compare",
+    "deals": "Deals",
+    "contact": "Contact us",
+    "about": "About us",
+    "faq": "FAQ",
+    "shipping": "Shipping and delivery",
+    "returns": "Returns and refunds",
+    "warranty": "Warranty",
+    "terms": "Terms and conditions",
+    "privacy": "Privacy policy",
+    "cookies": "Cookie policy",
+    "branches": "Branches",
+    "status": "System status"
+  },
+  "ComingSoon": {
+    "body": "This page is coming soon. We’re still getting it ready.",
+    "categoryBody": "We’re stocking this category. Check back soon."
+  },
+  "Breadcrumb": {
+    "label": "Breadcrumb",
+    "home": "Home"
+  },
+  "Footer": {
+    "shop": "Shop",
+    "customerCare": "Customer care",
+    "company": "Company",
+    "contact": "Contact",
+    "followUs": "Follow us",
+    "payments": "Payment methods",
+    "payCod": "Cash on Delivery",
+    "payCard": "Debit and credit cards",
+    "rights": "All rights reserved.",
+    "cookieSettings": "Cookie settings",
+    "email": "Email",
+    "phone": "Phone",
+    "whatsapp": "WhatsApp",
+    "address": "Address",
+    "copyright": "© {year} {brand}."
+  },
+  "Status": {
+    "label": "System status",
+    "checking": "Checking status…",
+    "operational": "All systems operational",
+    "degraded": "Some systems are degraded",
+    "down": "Service disruption",
+    "unavailable": "Status unavailable"
+  },
+  "Cookies": {
+    "title": "Your privacy choices",
+    "body": "We use essential cookies and storage to run the store (language, theme, cart). With your permission we also use analytics to improve it. Read our <link>cookie policy</link>.",
+    "acceptAll": "Accept all",
+    "reject": "Reject non-essential",
+    "customize": "Customize",
+    "save": "Save choices",
+    "essentialTitle": "Essential",
+    "essentialDesc": "Needed for the store to work. Always on.",
+    "analyticsTitle": "Analytics",
+    "analyticsDesc": "Helps us understand how the store is used. Off unless you allow it.",
+    "close": "Close"
   }
 }

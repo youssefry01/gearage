@@ -1,14 +1,19 @@
 import type { Metadata, Viewport } from "next";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { notFound } from "next/navigation";
+import { CookieBanner } from "@/components/layout/cookie-banner";
+import { SiteFooter } from "@/components/layout/site-footer";
+import { SiteHeader } from "@/components/layout/site-header";
 import { SkipLink } from "@/components/layout/skip-link";
 import { ThemeScript } from "@/components/layout/theme-script";
+import { ThemeSync } from "@/components/layout/theme-sync";
 import { localized, storeName, brand } from "@/config/brand";
 import { themeColors } from "@/design/tokens";
 import { directionOf } from "@/i18n/locales";
 import { routing } from "@/i18n/routing";
 import { openGraphFor } from "@/lib/seo";
 import { siteUrl } from "@/lib/site-url";
+import { getContactSettings } from "@/server/services/store-settings.service";
 
 // Self-hosted fonts via @fontsource (no Google request at build or runtime). Arabic glyphs load only when used.
 import "@fontsource/ibm-plex-sans/latin-400.css";
@@ -20,6 +25,12 @@ import "@fontsource/ibm-plex-sans-arabic/arabic-500.css";
 import "@fontsource/ibm-plex-sans-arabic/arabic-600.css";
 import "@fontsource/ibm-plex-sans-arabic/arabic-700.css";
 import "@/styles/globals.css";
+
+/**
+ * Pages under this layout are statically generated and refreshed hourly (ISR), which also refreshes the contact and
+ * social details read below. Admin edits revalidate sooner in M11.
+ */
+export const revalidate = 3600;
 
 type LayoutProps = { children: React.ReactNode; params: Promise<{ locale: string }> };
 
@@ -56,17 +67,22 @@ export async function generateMetadata({ params }: LayoutProps): Promise<Metadat
 export default async function LocaleLayout({ children, params }: LayoutProps) {
   const { locale } = await params;
   if (!hasLocale(routing.locales, locale)) notFound();
+  const contact = await getContactSettings();
 
   return (
-    // data-theme defaults to the brand-native dark theme; ThemeScript applies a saved preference before first paint.
-    <html lang={locale} dir={directionOf(locale)} data-theme="dark" suppressHydrationWarning>
+    // No data-theme prop here on purpose (see lib/theme.ts): ThemeScript sets it before paint; CSS defaults to dark.
+    <html lang={locale} dir={directionOf(locale)} suppressHydrationWarning>
       <head>
         <ThemeScript />
       </head>
       <body className="flex min-h-dvh flex-col antialiased">
         <NextIntlClientProvider>
+          <ThemeSync />
           <SkipLink />
+          <SiteHeader supportPhone={contact.phone} />
           {children}
+          <SiteFooter contact={contact} />
+          <CookieBanner />
         </NextIntlClientProvider>
       </body>
     </html>

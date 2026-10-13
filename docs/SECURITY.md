@@ -13,6 +13,11 @@ Added in M1a:
 - Settings URLs (social links) are validated as `https` only, so `javascript:` and `data:` can never reach an `href`.
 - The theme script is a constant string: a future CSP can allow it by SHA-256 hash (no nonce, pages stay static).
 
+Added in M1b:
+
+- `/api/status` exposes only three coarse states and a fixed component list (no versions, hosts, latencies or errors); one DB probe per 30s per instance, CDN-cacheable, always 200. Per-IP rate limiting joins in M7b.
+- Cookie consent is recorded first-party (version + timestamp); non-essential storage stays off until the visitor opts in. Search input is length-limited and submitted by plain GET.
+
 Planned: security headers + CSP (M13a), Argon2id + HIBP + rate limiting (M5a), webhook HMAC (M7), audit log (M5b).
 
 Report vulnerabilities privately to the repository owner; do not open public issues for security problems.

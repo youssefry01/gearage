@@ -2,8 +2,6 @@ import type { Metadata } from "next";
 import { hasLocale, useTranslations } from "next-intl";
 import { connection } from "next/server";
 import { notFound } from "next/navigation";
-import { LanguageSwitcher } from "@/components/layout/language-switcher";
-import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { Button, buttonStyles } from "@/components/ui/button";
 import { COLOR_TOKEN_NAMES } from "@/design/tokens";
 import { evaluatePairs } from "@/design/evaluate";
@@ -37,10 +35,6 @@ function Styleguide() {
 
   return (
     <>
-      <header className="max-w-page px-gutter mx-auto flex w-full flex-wrap items-center justify-between gap-3 py-4">
-        <LanguageSwitcher />
-        <ThemeToggle />
-      </header>
       <main
         id="main"
         className="max-w-page px-gutter mx-auto flex w-full flex-1 flex-col gap-12 py-8"

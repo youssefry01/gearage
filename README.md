@@ -2,7 +2,7 @@
 
 Production-grade PC hardware e-commerce platform for Egypt: EGP pricing, Cash on Delivery, English and Arabic (RTL), light and dark themes, PC bundles.
 
-> Status: **M1a** (foundations, design system, i18n/RTL). The storefront is not built yet. See [HANDOFF.md](HANDOFF.md) for status and the roadmap.
+> Status: **M1b** (foundations, design system, i18n/RTL, store shell). The catalog and checkout are not built yet. See [HANDOFF.md](HANDOFF.md) for status and the roadmap.
 > "Gearage" is a working name; it lives only in `src/config/brand.ts` ([docs/BRAND.md](docs/BRAND.md)).
 
 <!-- Screenshots / GIFs arrive with the storefront milestones. -->
@@ -52,6 +52,7 @@ Check: `curl localhost:3000/api/health` and `curl localhost:3000/api/health/read
 | `npm run tokens:build` / `tokens:check`                        | Generate / verify `src/styles/tokens.css` from `src/design/tokens.ts`                                                         |
 | `npm run contrast`                                             | WCAG AA gate for every token pair in both themes                                                                              |
 | `npm run brand:check`                                          | Fails if the store name is hardcoded outside config/messages/docs                                                             |
+| `npm run i18n:review`                                          | Lists every machine-written Arabic string for native review                                                                   |
 | `npm run brand:assets`                                         | Re-derive `public/brand/*` and favicons from `design/brand-source/`                                                           |
 | `npm run format` / `format:check`                              | Prettier                                                                                                                      |
 | `npm run db:migrate` / `db:deploy` / `db:validate` / `db:seed` | Prisma                                                                                                                        |

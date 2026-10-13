@@ -9,7 +9,7 @@
 import type { AaKind } from "./contrast";
 
 /** The two brand colors, defined exactly once. */
-export const brandColors = { orange: "#F56514", ink: "#0D1114" } as const;
+export const brandColors = { orange: "#FF5A00", ink: "#0D1114" } as const;
 
 export const THEMES = ["dark", "light"] as const;
 export type ThemeName = (typeof THEMES)[number];

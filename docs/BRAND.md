@@ -9,7 +9,7 @@ run `npm run brand:assets`, run the tests.
 | What                                                 | Where                                                                      |
 | ---------------------------------------------------- | -------------------------------------------------------------------------- |
 | Store name per locale, tagline, SEO text, logo paths | `src/config/brand.ts` (typed)                                              |
-| Colors (brand orange `#F56514`, dark `#0D1114`)      | `src/design/tokens.ts` (generates `src/styles/tokens.css`)                 |
+| Colors (brand orange `#FF5A00`, dark `#0D1114`)      | `src/design/tokens.ts` (generates `src/styles/tokens.css`)                 |
 | Contact and social details (editable)                | `StoreSetting` key `contact` (`domain/store-settings.ts`, admin UI in M11) |
 | Placeholders in UI text                              | `{brand}` and `{tagline}` in `messages/*.json`, resolved at load time      |
 
@@ -39,5 +39,5 @@ Derived from the icon-only artwork on the brand dark surface: `src/app/favicon.i
 
 - No **wordmark-only** file (letters without the gear).
 - **Inline and stacked logos exist only as PNG** (no SVG); only the icon has SVG.
-- The supplied artwork uses orange `#FF5A00`; the design tokens use `#F56514` (see HANDOFF open questions).
+- The logo artwork and the design tokens now share one orange, `#FF5A00` (the owner chose the exact logo value on 2026-10-12).
 - The OG image has no text (icon only, as requested); a text version would need a decision on fonts and Arabic shaping.
