@@ -1,4 +1,5 @@
 import { logger } from "@/lib/logger";
+import { expireReservations } from "@/server/services/inventory.service";
 
 export type JobCadence = "tick" | "daily";
 export type Job = { name: string; cadence: JobCadence; run: () => Promise<void> };
@@ -8,6 +9,14 @@ export type Job = { name: string; cadence: JobCadence; run: () => Promise<void> 
  * Real jobs (outbox sweeper, reservation expiry, low-stock digest...) register here in later milestones.
  */
 const jobs: Job[] = [
+  {
+    // Housekeeping only: availability already ignores expired reservations, so correctness never depends on this job.
+    name: "expire-stock-reservations",
+    cadence: "tick",
+    run: async () => {
+      await expireReservations();
+    },
+  },
   {
     name: "noop-heartbeat",
     cadence: "tick",

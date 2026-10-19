@@ -28,6 +28,7 @@ jobs:
       - run: npm run tokens:check
       - run: npm run contrast
       - run: npm run brand:check
+      - run: npm run i18n:review:check
       - run: npm run format:check
       - run: npm run lint
       - run: npm run typecheck
@@ -63,6 +64,15 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npx prisma migrate deploy
+      # The migration SQL is hand-written; this proves it matches schema.prisma. Exit code: 0 identical, 2 differences, 1 error.
+      - name: Migration drift check
+        run: npx prisma migrate diff --from-config-datasource --to-schema prisma/schema --exit-code
+      # DB-backed tests (stock, concurrency, constraints, views) run ONLY against a separate *_test database. The runner
+      # creates it if missing and refuses anything that is not a local *_test database.
+      - name: DB tests
+        run: npm run test:db
+        env:
+          TEST_DATABASE_URL: postgresql://gearage:gearage@localhost:5432/gearage_test
       - run: npm run build
       - run: npx playwright install --with-deps chromium
       - run: npm run test:e2e

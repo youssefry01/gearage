@@ -10,6 +10,10 @@ const serverSchema = z.object({
   /** Shared secret for /api/cron/*; min 32 chars. */
   CRON_SECRET: z.string().min(32, "CRON_SECRET must be at least 32 characters"),
   LOG_LEVEL: z.enum(["debug", "info", "warn", "error"]).default("info"),
+  /** Where product images live (src/server/storage). Only "local" is implemented; production uses a hosted provider (M10a). */
+  STORAGE_PROVIDER: z.enum(["local", "supabase", "cloudinary"]).default("local"),
+  STORAGE_LOCAL_DIR: z.string().min(1).default("public/uploads"),
+  STORAGE_PUBLIC_BASE_URL: z.string().min(1).default("/uploads"),
   /** "1" exposes /{locale}/styleguide outside `next dev` (e2e on a production build). Keep "0" in production. */
   ENABLE_STYLEGUIDE: z.enum(["0", "1"]).default("0"),
 });

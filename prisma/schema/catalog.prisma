@@ -1,0 +1,286 @@
+// Catalog schema (M2a). Money is Int piastres everywhere (never floats). Soft delete via `deletedAt` on Product.
+// Invariants that Prisma cannot express (CHECK constraints, triggers, partial unique indexes, the
+// `product_availability` view) live in the hand-written migration SQL; see docs/adr/0014-catalog-schema.md.
+
+enum ProductType {
+  PHYSICAL
+  BUNDLE
+  GIFT_CARD
+  DIGITAL
+}
+
+enum ProductStatus {
+  DRAFT
+  ACTIVE
+  ARCHIVED
+}
+
+enum ProductCondition {
+  NEW
+  REFURBISHED
+}
+
+enum TaxClass {
+  STANDARD
+  ZERO
+  EXEMPT
+}
+
+enum BundlePricingMode {
+  FIXED
+  DISCOUNT_PERCENT
+  DISCOUNT_FIXED
+}
+
+enum SpecType {
+  STRING
+  NUMBER
+  BOOLEAN
+  ENUM
+  STRING_LIST
+}
+
+enum SpecFacet {
+  NONE
+  CHECKBOX
+  RANGE
+  TOGGLE
+}
+
+enum ShowcaseBlockType {
+  IMAGE
+  IMAGE_TEXT
+  FEATURE
+  VIDEO
+}
+
+model Category {
+  id               String     @id @default(uuid(7)) @db.Uuid
+  parentId         String?    @db.Uuid
+  parent           Category?  @relation("CategoryTree", fields: [parentId], references: [id], onDelete: Restrict)
+  children         Category[] @relation("CategoryTree")
+  /// This category's own slug. The full URL path (parent slugs joined by "/") is `path`, which is unique.
+  slug             String
+  path             String     @unique
+  /// 1 for top-level categories, up to 3.
+  depth            Int
+  nameEn           String
+  nameAr           String
+  descriptionEn    String?
+  descriptionAr    String?
+  seoTitleEn       String?
+  seoTitleAr       String?
+  seoDescriptionEn String?
+  seoDescriptionAr String?
+  imageKey         String?
+  sortOrder        Int        @default(0)
+  isActive         Boolean    @default(true)
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+
+  products        Product[]
+  specDefinitions SpecDefinition[]
+
+  @@index([parentId, sortOrder])
+  @@map("category")
+}
+
+model Brand {
+  id         String   @id @default(uuid(7)) @db.Uuid
+  slug       String   @unique
+  nameEn     String
+  nameAr     String?
+  websiteUrl String?
+  logoKey    String?
+  sortOrder  Int      @default(0)
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  products Product[]
+
+  @@map("brand")
+}
+
+model Tag {
+  id        String   @id @default(uuid(7)) @db.Uuid
+  slug      String   @unique
+  nameEn    String
+  nameAr    String
+  createdAt DateTime @default(now())
+
+  products ProductTag[]
+
+  @@map("tag")
+}
+
+model ProductTag {
+  productId String  @db.Uuid
+  tagId     String  @db.Uuid
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  tag       Tag     @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([productId, tagId])
+  @@index([tagId])
+  @@map("product_tag")
+}
+
+/// One row per sellable thing: a physical part, a PC bundle (type = BUNDLE, components in BundleItem), or later a
+/// gift card / digital product. Stock is NOT stored here (see Inventory and the product_availability view).
+model Product {
+  id                   String             @id @default(uuid(7)) @db.Uuid
+  type                 ProductType        @default(PHYSICAL)
+  status               ProductStatus      @default(DRAFT)
+  /// Unique among non-deleted products (partial unique index in the migration).
+  slug                 String
+  /// Unique among non-deleted products (partial unique index in the migration). Upper-case.
+  sku                  String
+  /// Manufacturer part number. Not unique: regional variants can share it.
+  mpn                  String?
+  /// Barcode (EAN/UPC/GTIN, 8 to 14 digits). Unique among non-deleted products when present.
+  ean                  String?
+  brandId              String?            @db.Uuid
+  brand                Brand?             @relation(fields: [brandId], references: [id], onDelete: Restrict)
+  modelName            String?
+  categoryId           String             @db.Uuid
+  category             Category           @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  titleEn              String
+  titleAr              String
+  shortDescriptionEn   String?
+  shortDescriptionAr   String?
+  descriptionEn        String?
+  descriptionAr        String?
+  condition            ProductCondition   @default(NEW)
+  /// Piastres. Required except for DISCOUNT_* bundles, whose price is derived from component prices.
+  price                Int?
+  compareAtPrice       Int?
+  /// Unit cost in piastres (physical products). Bundles derive cost from components, so it stays null.
+  cost                 Int?
+  taxClass             TaxClass           @default(STANDARD)
+  lowStockThreshold    Int                @default(3)
+  warrantyMonths       Int                @default(0)
+  weightGrams          Int?
+  lengthMm             Int?
+  widthMm              Int?
+  heightMm             Int?
+  /// Category-specific specs, validated against SpecDefinition rows (ADR 0009).
+  specs                Json               @default("{}")
+  bundlePricingMode    BundlePricingMode?
+  /// DISCOUNT_PERCENT bundles: 0 to 10000 basis points off the component total.
+  bundleDiscountBps    Int?
+  /// DISCOUNT_FIXED bundles: piastres off the component total.
+  bundleDiscountAmount Int?
+  seoTitleEn           String?
+  seoTitleAr           String?
+  seoDescriptionEn     String?
+  seoDescriptionAr     String?
+  viewCount            Int                @default(0)
+  unitsSold            Int                @default(0)
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
+  deletedAt            DateTime?
+
+  images         ProductImage[]
+  showcaseBlocks ShowcaseBlock[]
+  tags           ProductTag[]
+  /// For a BUNDLE: its components.
+  bundleItems    BundleItem[]          @relation("BundleParent")
+  /// For a PHYSICAL product: the bundles it is a component of.
+  usedInBundles  BundleItem[]          @relation("BundleComponent")
+  inventory      Inventory?
+  reservations   StockReservation[]
+  adjustments    InventoryAdjustment[]
+
+  @@index([categoryId, status])
+  @@index([brandId])
+  @@index([status, createdAt])
+  @@index([type])
+  @@index([unitsSold])
+  @@index([viewCount])
+  @@index([specs], type: Gin)
+  @@map("product")
+}
+
+model ProductImage {
+  id         String   @id @default(uuid(7)) @db.Uuid
+  productId  String   @db.Uuid
+  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  /// Provider-agnostic storage key (see server/storage); never a hotlinked URL.
+  storageKey String
+  altEn      String
+  altAr      String
+  width      Int?
+  height     Int?
+  sortOrder  Int      @default(0)
+  createdAt  DateTime @default(now())
+
+  @@index([productId, sortOrder])
+  @@map("product_image")
+}
+
+/// "Manufacturer showcase" content block shown below the description. Images are uploaded to our own storage and
+/// always carry alt text in both languages, a credit and a license note (docs/ASSETS.md arrives in M2b).
+model ShowcaseBlock {
+  id          String            @id @default(uuid(7)) @db.Uuid
+  productId   String            @db.Uuid
+  product     Product           @relation(fields: [productId], references: [id], onDelete: Cascade)
+  type        ShowcaseBlockType
+  sortOrder   Int               @default(0)
+  imageKey    String?
+  imageAltEn  String?
+  imageAltAr  String?
+  titleEn     String?
+  titleAr     String?
+  bodyEn      String?
+  bodyAr      String?
+  captionEn   String?
+  captionAr   String?
+  /// https only (CHECK); the rendering layer additionally allow-lists embed hosts.
+  videoUrl    String?
+  credit      String?
+  licenseNote String?
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  @@index([productId, sortOrder])
+  @@map("showcase_block")
+}
+
+model SpecDefinition {
+  id         String    @id @default(uuid(7)) @db.Uuid
+  categoryId String    @db.Uuid
+  category   Category  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  /// snake_case key used inside Product.specs.
+  key        String
+  type       SpecType
+  unit       String?
+  labelEn    String
+  labelAr    String
+  filterable Boolean   @default(false)
+  facet      SpecFacet @default(NONE)
+  required   Boolean   @default(false)
+  /// ENUM specs: [{ "value": "AM5", "labelEn": "AM5", "labelAr": "AM5" }].
+  options    Json?
+  minValue   Float?
+  maxValue   Float?
+  sortOrder  Int       @default(0)
+
+  @@unique([categoryId, key])
+  @@map("spec_definition")
+}
+
+/// A bundle's component. Components must be PHYSICAL products (no nesting): enforced by a trigger.
+model BundleItem {
+  bundleId    String  @db.Uuid
+  componentId String  @db.Uuid
+  quantity    Int     @default(1)
+  /// Reserved for the later "customize" phase; fixed bundles ignore it.
+  swappable   Boolean @default(false)
+  sortOrder   Int     @default(0)
+  bundle      Product @relation("BundleParent", fields: [bundleId], references: [id], onDelete: Cascade)
+  component   Product @relation("BundleComponent", fields: [componentId], references: [id], onDelete: Restrict)
+
+  @@id([bundleId, componentId])
+  @@index([componentId])
+  @@map("bundle_item")
+}

@@ -13,7 +13,8 @@ import { directionOf } from "@/i18n/locales";
 import { routing } from "@/i18n/routing";
 import { openGraphFor } from "@/lib/seo";
 import { siteUrl } from "@/lib/site-url";
-import { getContactSettings } from "@/server/services/store-settings.service";
+import { resolveTopBarLines } from "@/domain/store-settings";
+import { getContactSettings, getTopBarSettings } from "@/server/services/store-settings.service";
 
 // Self-hosted fonts via @fontsource (no Google request at build or runtime). Arabic glyphs load only when used.
 import "@fontsource/ibm-plex-sans/latin-400.css";
@@ -67,7 +68,7 @@ export async function generateMetadata({ params }: LayoutProps): Promise<Metadat
 export default async function LocaleLayout({ children, params }: LayoutProps) {
   const { locale } = await params;
   if (!hasLocale(routing.locales, locale)) notFound();
-  const contact = await getContactSettings();
+  const [contact, topBar] = await Promise.all([getContactSettings(), getTopBarSettings()]);
 
   return (
     // No data-theme prop here on purpose (see lib/theme.ts): ThemeScript sets it before paint; CSS defaults to dark.
@@ -79,7 +80,10 @@ export default async function LocaleLayout({ children, params }: LayoutProps) {
         <NextIntlClientProvider>
           <ThemeSync />
           <SkipLink />
-          <SiteHeader supportPhone={contact.phone} />
+          <SiteHeader
+            supportPhone={contact.phone}
+            topBarLines={resolveTopBarLines(topBar, locale)}
+          />
           {children}
           <SiteFooter contact={contact} />
           <CookieBanner />

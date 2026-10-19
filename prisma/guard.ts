@@ -79,3 +79,12 @@ export function assertLocalDatabaseForSeed(
     DIRECT_URL: env.DIRECT_URL,
   });
 }
+
+/**
+ * Throws UnsafeDatabaseError unless `url` points at a local host. Used by the DB test runner (npm run test:db) so the
+ * exact same rule that protects `prisma migrate dev` also protects the test database.
+ */
+export function assertLocalDatabaseUrl(command: string, variable: string, url: string): void {
+  const host = hostOf(url);
+  if (host === null || !isLocalHost(host)) throw new UnsafeDatabaseError(command, host, variable);
+}

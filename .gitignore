@@ -14,3 +14,7 @@ next-env.d.ts
 /test-results
 .DS_Store
 desktop.ini
+HANDOFF.md
+# locally uploaded images (development)
+/public/uploads/*
+!/public/uploads/.gitkeep

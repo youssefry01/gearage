@@ -1,32 +1,51 @@
-import { Banknote, LifeBuoy, Phone, Truck } from "lucide-react";
+import { Banknote, Info, LifeBuoy, Phone, ShieldCheck, Truck, type LucideIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { routes } from "@/config/routes";
+import type { TopBarIcon, TopBarLine } from "@/domain/store-settings";
 import { Link } from "@/i18n/navigation";
 import { LanguageSwitcher } from "./language-switcher";
 import { ThemeToggle } from "./theme-toggle";
 
-// NOTE: no display utility here. Items that must hide at small widths set `hidden lg:inline-flex` themselves;
-// a shared `inline-flex` would beat `hidden` in the generated CSS.
-const info = "items-center gap-2";
+const ICONS: Record<TopBarIcon, LucideIcon> = {
+  info: Info,
+  truck: Truck,
+  banknote: Banknote,
+  shield: ShieldCheck,
+};
+
 const topLink =
   "inline-flex items-center gap-2 rounded-control py-1 hover:text-foreground min-h-8 pointer-coarse:min-h-11";
 
-/** Slim utility bar (md and up): delivery and support info on the start side, language and theme on the end side. */
-export function TopBar({ supportPhone }: { supportPhone: string | null }) {
+/**
+ * Slim utility bar (md and up). Start side: information lines from StoreSetting (none by default, so no delivery or
+ * payment claim is ever hardcoded), then the support link and phone. End side: language and theme.
+ */
+export function TopBar({
+  supportPhone,
+  lines,
+}: {
+  supportPhone: string | null;
+  lines: TopBarLine[];
+}) {
   const t = useTranslations("Nav");
   return (
     <div data-topbar className="border-border bg-card hidden border-b md:block">
       <div className="max-w-page px-gutter text-small text-muted-foreground mx-auto flex h-(--topbar-h) items-center justify-between gap-4">
         <ul className="flex min-w-0 items-center gap-5">
-          <li className={`${info} inline-flex`}>
-            <Banknote aria-hidden="true" className="size-4 shrink-0" />
-            <span className="truncate">{t("codInfo")}</span>
-          </li>
-          <li className={`${info} hidden lg:inline-flex`}>
-            <Truck aria-hidden="true" className="size-4 shrink-0" />
-            <span className="truncate">{t("deliveryInfo")}</span>
-          </li>
-          <li className="hidden xl:block">
+          {lines.map((line, i) => {
+            const Icon = ICONS[line.icon];
+            // The first line shows from md; further lines only from lg, so they never crowd the controls.
+            return (
+              <li
+                key={`${i}-${line.text}`}
+                className={`items-center gap-2 ${i === 0 ? "inline-flex" : "hidden lg:inline-flex"}`}
+              >
+                <Icon aria-hidden="true" className="size-4 shrink-0" />
+                <span className="truncate">{line.text}</span>
+              </li>
+            );
+          })}
+          <li>
             <Link href={routes.contact} className={topLink}>
               <LifeBuoy aria-hidden="true" className="size-4 shrink-0" />
               {t("support")}

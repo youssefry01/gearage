@@ -2,7 +2,7 @@
 
 Production-grade PC hardware e-commerce platform for Egypt: EGP pricing, Cash on Delivery, English and Arabic (RTL), light and dark themes, PC bundles.
 
-> Status: **M1b** (foundations, design system, i18n/RTL, store shell). The catalog and checkout are not built yet. See [HANDOFF.md](HANDOFF.md) for status and the roadmap.
+> Status: **M2a** (design system, i18n/RTL, store shell, catalog and inventory foundations). The storefront pages and checkout are not built yet.
 > "Gearage" is a working name; it lives only in `src/config/brand.ts` ([docs/BRAND.md](docs/BRAND.md)).
 
 <!-- Screenshots / GIFs arrive with the storefront milestones. -->
@@ -52,21 +52,56 @@ Check: `curl localhost:3000/api/health` and `curl localhost:3000/api/health/read
 | `npm run tokens:build` / `tokens:check`                        | Generate / verify `src/styles/tokens.css` from `src/design/tokens.ts`                                                         |
 | `npm run contrast`                                             | WCAG AA gate for every token pair in both themes                                                                              |
 | `npm run brand:check`                                          | Fails if the store name is hardcoded outside config/messages/docs                                                             |
-| `npm run i18n:review`                                          | Lists every machine-written Arabic string for native review                                                                   |
+| `npm run i18n:review` / `i18n:review:check`                    | Regenerate / verify docs/I18N_REVIEW.md (machine-written Arabic for native review)                                            |
+| `npm run test:db`                                              | DB-backed tests (stock, concurrency, constraints, views) on the separate `gearage_test` database only                         |
 | `npm run brand:assets`                                         | Re-derive `public/brand/*` and favicons from `design/brand-source/`                                                           |
 | `npm run format` / `format:check`                              | Prettier                                                                                                                      |
 | `npm run db:migrate` / `db:deploy` / `db:validate` / `db:seed` | Prisma                                                                                                                        |
 
+## Database tests (`npm run test:db`)
+
+The stock, concurrency, constraint and view tests need a real PostgreSQL, so they run against a **separate database**, never your development one.
+
+- **Which database**: `TEST_DATABASE_URL` if set; otherwise your `DATABASE_URL` with the database swapped for `gearage_test` (same server, user and password).
+- **Create it** (optional: the runner creates it for you when your user has `CREATEDB`):
+
+  ```bash
+  createdb gearage_test                       # or, in psql / pgAdmin:  CREATE DATABASE gearage_test;
+  # Windows / Git Bash, if createdb is not on PATH:
+  psql -U postgres -c "CREATE DATABASE gearage_test;"
+  ```
+
+- **What it does** each run: connects, **drops and recreates the `public` schema of `gearage_test`**, applies every `prisma/migrations/*/migration.sql` in order, then runs `tests/db/**/*.db.test.ts` one file after another.
+- **Safety, three layers**: (1) the same local-host guard as `prisma migrate dev` (a non-local host is refused); (2) the database name must end in `_test` and must not be your development database (`localhost`, `127.0.0.1` and `::1` count as the same server); (3) every worker re-checks it, and the table reset re-checks `current_database()` before wiping anything.
+- **CI** runs it in the e2e job against the Postgres service (`gearage_test` is created there).
+
+## Verifying a hand-written migration
+
+Some migrations (currently `20261014000000_catalog_inventory`) were written by hand because the Prisma engines could not be downloaded where they were authored. They follow Prisma's naming so the schema should show no drift. Verify locally, in this order:
+
+```bash
+npx prisma migrate dev        # applies it to your local DB; prisma also compares with schema.prisma via a shadow DB
+npx prisma migrate diff --from-config-datasource --to-schema prisma/schema --exit-code
+npm run test:db               # exercises every constraint, trigger and view on gearage_test
+```
+
+`migrate diff --exit-code` returns **0** when the database matches `schema.prisma`, **2** when it differs (it prints the differences; add `--script` to see the SQL), **1** on an error.
+If `migrate dev` offers to create a new migration, the schema and the SQL differ: answer no and send me the output. Objects Prisma does not model on purpose (CHECK constraints, triggers, the two views, and the partial unique indexes `product_*_active_uq`) are not part of the comparison; if `migrate diff` ever lists them, tell me.
+CI runs the same `migrate diff` against a fresh Postgres on every push.
+
 ## Environment variables
 
-| Variable            | Required | Purpose                                                                                                   |
-| ------------------- | -------- | --------------------------------------------------------------------------------------------------------- |
-| `DATABASE_URL`      | yes      | Runtime Postgres URL (pooled in production)                                                               |
-| `DIRECT_URL`        | no       | Direct URL for migrations (falls back to `DATABASE_URL`)                                                  |
-| `CRON_SECRET`       | yes      | Bearer secret for `/api/cron/*`, min 32 chars                                                             |
-| `APP_URL`           | no       | Public base URL for metadata and absolute links (default `http://localhost:3000`)                         |
-| `LOG_LEVEL`         | no       | `debug` / `info` / `warn` / `error`                                                                       |
-| `ENABLE_STYLEGUIDE` | no       | `1` exposes `/{locale}/styleguide` outside `next dev` (e2e on a production build). Keep `0` in production |
+| Variable                                        | Required | Purpose                                                                                                                    |
+| ----------------------------------------------- | -------- | -------------------------------------------------------------------------------------------------------------------------- |
+| `DATABASE_URL`                                  | yes      | Runtime Postgres URL (pooled in production)                                                                                |
+| `DIRECT_URL`                                    | no       | Direct URL for migrations (falls back to `DATABASE_URL`)                                                                   |
+| `CRON_SECRET`                                   | yes      | Bearer secret for `/api/cron/*`, min 32 chars                                                                              |
+| `APP_URL`                                       | no       | Public base URL for metadata and absolute links (default `http://localhost:3000`)                                          |
+| `LOG_LEVEL`                                     | no       | `debug` / `info` / `warn` / `error`                                                                                        |
+| `ENABLE_STYLEGUIDE`                             | no       | `1` exposes `/{locale}/styleguide` outside `next dev` (e2e on a production build). Keep `0` in production                  |
+| `TEST_DATABASE_URL`                             | no       | Database for `npm run test:db`. Must be local and end in `_test`. Default: `DATABASE_URL` with the database `gearage_test` |
+| `STORAGE_PROVIDER`                              | no       | `local` (default). `supabase` and `cloudinary` are planned (M10a)                                                          |
+| `STORAGE_LOCAL_DIR` / `STORAGE_PUBLIC_BASE_URL` | no       | Where the local provider writes (`public/uploads`) and serves (`/uploads`)                                                 |
 
 ## Brand note
 
@@ -74,7 +109,7 @@ Demo/brand artwork is used as supplied by the owner (`design/brand-source/`); pr
 
 ## Docs
 
-[Architecture](docs/ARCHITECTURE.md) · [Brand](docs/BRAND.md) · [Security](docs/SECURITY.md) · [ADRs](docs/adr)
+[Architecture](docs/ARCHITECTURE.md) · [Brand](docs/BRAND.md) · [Security](docs/SECURITY.md) · [Arabic review](docs/I18N_REVIEW.md) · [Milestone history](docs/MILESTONE_HISTORY.md) · [ADRs](docs/adr)
 
 ## License
 

@@ -19,7 +19,11 @@ test.describe("desktop header", () => {
   }) => {
     await page.goto("/en");
     const header = page.locator("header");
-    await expect(header.getByText("Cash on Delivery across Egypt")).toBeVisible();
+    await expect(header.getByRole("link", { name: "Help & support" })).toBeVisible();
+    // No delivery or payment claim is hardcoded: the bar stays neutral until the owner sets StoreSetting "topbar".
+    await expect(page.locator("[data-topbar]")).not.toContainText(
+      /Cash on Delivery|governorate|free delivery/i,
+    );
     await expect(header.getByRole("link", { name: storeName("en") }).first()).toBeVisible();
     await expect(header.getByRole("search")).toBeVisible();
     await expect(header.getByRole("link", { name: /Wishlist/ })).toBeVisible();
@@ -353,4 +357,40 @@ test("no console errors across the shell: menus, drawer, banner, locale switch",
   await openDrawer(page);
   await page.keyboard.press("Escape");
   expect(problems).toEqual([]);
+});
+
+test.describe("sitemap and robots", () => {
+  test("the sitemap lists real pages only, with hreflang alternates, and never a 'coming soon' placeholder", async ({
+    request,
+  }) => {
+    const res = await request.get("/sitemap.xml");
+    expect(res.status()).toBe(200);
+    const xml = await res.text();
+    expect(xml).toContain("/en</loc>");
+    expect(xml).toContain("/ar</loc>");
+    expect(xml).toContain('hreflang="ar"');
+    for (const placeholder of [
+      "/cart",
+      "/wishlist",
+      "/account",
+      "/search",
+      "/c/",
+      "/contact",
+      "/status",
+      "/terms",
+    ]) {
+      expect(xml, placeholder).not.toContain(placeholder);
+    }
+  });
+  test("robots.txt blocks the API and points at the sitemap", async ({ request }) => {
+    const text = await (await request.get("/robots.txt")).text();
+    expect(text).toMatch(/Disallow:\s*\/api\//);
+    expect(text).toMatch(/Sitemap:\s*\S+\/sitemap\.xml/);
+  });
+  test("placeholder pages are noindex", async ({ page }) => {
+    await page.goto("/en/cart");
+    await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", /noindex/);
+    await page.goto("/en/c/components/cpus");
+    await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", /noindex/);
+  });
 });

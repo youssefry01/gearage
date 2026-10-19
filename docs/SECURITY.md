@@ -18,6 +18,12 @@ Added in M1b:
 - `/api/status` exposes only three coarse states and a fixed component list (no versions, hosts, latencies or errors); one DB probe per 30s per instance, CDN-cacheable, always 200. Per-IP rate limiting joins in M7b.
 - Cookie consent is recorded first-party (version + timestamp); non-essential storage stays off until the visitor opts in. Search input is length-limited and submitted by plain GET.
 
+Added in M2a:
+
+- Database-level integrity (CHECK constraints, triggers, append-only stock history) means no code path, including hand-run SQL, can create negative stock, nested bundles or edit stock history.
+- `npm run test:db` can only ever touch a local database whose name ends in `_test` and that is not the development database (three layers of checks).
+- Image uploads are validated by content (magic bytes), never by the client's declared type; SVG uploads are refused; storage keys cannot traverse directories; writes are confined to the storage root.
+
 Planned: security headers + CSP (M13a), Argon2id + HIBP + rate limiting (M5a), webhook HMAC (M7), audit log (M5b).
 
 Report vulnerabilities privately to the repository owner; do not open public issues for security problems.

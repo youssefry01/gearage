@@ -1,5 +1,9 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { runJobs } from "@/server/jobs/registry";
+
+vi.mock("@/server/services/inventory.service", () => ({
+  expireReservations: vi.fn().mockResolvedValue(0),
+}));
 
 describe("runJobs", () => {
   it("runs the jobs of the requested cadence and reports results", async () => {

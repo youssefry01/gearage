@@ -14,6 +14,11 @@ export type LogoAsset = { src: string; width: number; height: number };
 export type LogoVariant = { onDark: LogoAsset; onLight: LogoAsset };
 
 export const brand = {
+  /**
+   * Machine identifier for INFRASTRUCTURE names derived from the brand (the default test database `<slug>_test`, ...).
+   * Lowercase letters and digits only. Changing it after deployment means renaming those resources.
+   */
+  slug: "gearage",
   /** Store name per locale. Locales without an entry fall back to English. */
   name: { en: "Gearage" } as Localized,
   tagline: {

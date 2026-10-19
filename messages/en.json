@@ -51,8 +51,6 @@
     "cart": "Cart",
     "cartCount": "{count, plural, =0 {Cart, empty} one {Cart, # item} other {Cart, # items}}",
     "support": "Help & support",
-    "codInfo": "Cash on Delivery across Egypt",
-    "deliveryInfo": "Delivery to every governorate",
     "callUs": "Call us",
     "utility": "Account and help",
     "preferences": "Preferences"

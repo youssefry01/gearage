@@ -1,0 +1,68 @@
+// Inventory (M2a), ADR 0008. There is NO stored `reserved` counter: availability is
+//   onHand - SUM(quantity of ACTIVE reservations that have not expired)
+// computed in SQL (view product_availability), so nothing can drift and no sweeper is needed for correctness.
+
+enum ReservationStatus {
+  ACTIVE
+  CONVERTED
+  RELEASED
+  EXPIRED
+}
+
+enum AdjustmentReason {
+  RECEIVED
+  SOLD
+  CANCEL_RESTOCK
+  RETURN_RESTOCK
+  DAMAGED
+  CORRECTION
+  COUNT
+  OTHER
+}
+
+/// Stock on hand for a PHYSICAL product (trigger-enforced). onHand can never be negative (CHECK).
+model Inventory {
+  productId String   @id @db.Uuid
+  onHand    Int      @default(0)
+  updatedAt DateTime @updatedAt
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Restrict)
+
+  @@map("inventory")
+}
+
+model StockReservation {
+  id         String            @id @default(uuid(7)) @db.Uuid
+  productId  String            @db.Uuid
+  product    Product           @relation(fields: [productId], references: [id], onDelete: Restrict)
+  quantity   Int
+  status     ReservationStatus @default(ACTIVE)
+  expiresAt  DateTime
+  /// The order this reservation belongs to. The foreign key to Order is added by M6b (orders do not exist yet).
+  orderId    String?           @db.Uuid
+  createdAt  DateTime          @default(now())
+  resolvedAt DateTime?
+
+  @@index([productId, status, expiresAt])
+  @@index([orderId])
+  @@index([status, expiresAt])
+  @@map("stock_reservation")
+}
+
+/// Append-only stock history (a trigger rejects UPDATE and DELETE).
+model InventoryAdjustment {
+  id          String           @id @default(uuid(7)) @db.Uuid
+  productId   String           @db.Uuid
+  product     Product          @relation(fields: [productId], references: [id], onDelete: Restrict)
+  delta       Int
+  onHandAfter Int
+  reason      AdjustmentReason
+  note        String?
+  /// Staff member who made a manual adjustment (users arrive in M5a, so no foreign key yet).
+  actorId     String?          @db.Uuid
+  orderId     String?          @db.Uuid
+  createdAt   DateTime         @default(now())
+
+  @@index([productId, createdAt])
+  @@index([orderId])
+  @@map("inventory_adjustment")
+}

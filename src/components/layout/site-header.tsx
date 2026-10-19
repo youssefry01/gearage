@@ -2,6 +2,7 @@ import { Heart, User } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { Logo } from "@/components/brand/logo";
 import { routes } from "@/config/routes";
+import type { TopBarLine } from "@/domain/store-settings";
 import { navCategories } from "@/features/navigation/categories";
 import type { Locale } from "@/i18n/locales";
 import { Link } from "@/i18n/navigation";
@@ -20,14 +21,20 @@ import { TopBar } from "./top-bar";
  * to its height) while the main row and category row stay. On short landscape phones it is not sticky at all, so it
  * never eats a third of the screen. Below lg the category row becomes the drawer and search drops to its own row.
  */
-export function SiteHeader({ supportPhone }: { supportPhone: string | null }) {
+export function SiteHeader({
+  supportPhone,
+  topBarLines,
+}: {
+  supportPhone: string | null;
+  topBarLines: TopBarLine[];
+}) {
   const t = useTranslations("Nav");
   const locale = useLocale() as Locale;
   const categories = toMenuTree(navCategories, locale);
 
   return (
     <header className="border-border bg-background sticky top-0 z-40 border-b [--topbar-h:2.25rem] md:top-[calc(var(--topbar-h)*-1)] pointer-coarse:[--topbar-h:2.75rem] [@media(max-height:32rem)]:static">
-      <TopBar supportPhone={supportPhone} />
+      <TopBar supportPhone={supportPhone} lines={topBarLines} />
 
       <div className="max-w-page px-gutter mx-auto flex flex-wrap items-center gap-x-2 gap-y-2 py-2 lg:grid lg:grid-cols-[auto_minmax(0,1fr)_auto] lg:gap-x-6 lg:py-3">
         <MobileNav

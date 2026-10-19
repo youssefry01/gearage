@@ -48,3 +48,10 @@ Local: `.env` from `.env.example`. Vercel: Project Settings > Environment Variab
 - **Status**: `domain/status.ts` (coarse states) -> `server/services/status.service.ts` (30s in-memory cache, single-flight, 2.5s timeout) -> `GET /api/status` (always 200, CDN-cacheable) -> footer `StatusDot` (cached poll every 5 min while visible).
 - **Consent**: `lib/consent.ts` + `CookieBanner`; first-party `consent` cookie (version, analytics flag, timestamp).
 - **Server-side structure** decision: [ADR 0013](adr/0013-server-side-structure.md).
+
+## Added in M2a (catalog and inventory foundations)
+
+- **Domain (pure, unit-tested)**: `money` (piastres, allocation by largest remainder, VAT, formatting), `pricing` (bundle quotes, margin, per-component allocation), `stock` (demand expansion and aggregation, shortages, bundle stock twin), `catalog` (slug, SKU, GTIN, status rules), `specs` (Zod from SpecDefinition rows), `compatibility` (PC build rules reused by bundles and the PC Builder).
+- **Data**: `prisma/schema/catalog.prisma` and `inventory.prisma`; migration `20261014000000_catalog_inventory` (hand-written, see [ADR 0014](adr/0014-catalog-schema-and-db-testing.md)); views `product_availability` and `product_pricing`.
+- **Server**: `repositories/inventory.repository.ts` (row locking, UTC-safe raw SQL), `services/inventory.service.ts` (reserve, release, expire, convert, COD decrement, restock, adjust), `repositories/catalog.repository.ts` + `services/catalog.service.ts` (bundle detail, storefront listing in one query), `server/storage/` (image storage abstraction), job `expire-stock-reservations`.
+- **Tests**: unit tests for every domain module; `npm run test:db` (105 tests incl. concurrency and time zones).

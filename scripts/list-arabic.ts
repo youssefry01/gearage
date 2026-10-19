@@ -1,9 +1,10 @@
 /**
- * Prints every Arabic string that needs native review, as Markdown, with its English counterpart for context:
- * UI messages (messages/ar.json), brand copy (src/config/brand.ts) and category names (navigation data).
- * Run `npm run i18n:review` and paste the output into HANDOFF.md ("Needs native review") after adding strings.
+ * Generates docs/I18N_REVIEW.md: every machine-written Arabic string that needs native review, with its English
+ * counterpart for context (UI messages, brand copy, category names).
+ *   npm run i18n:review         rewrites the file
+ *   npm run i18n:review:check   fails if the file is out of date (CI), like tokens:check
  */
-import { readFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { brand } from "../src/config/brand";
 import { navCategories, type NavCategory } from "../src/features/navigation/categories";
@@ -35,17 +36,56 @@ const brandRows = [
 function walk(nodes: NavCategory[], trail: string[] = []): string[] {
   return nodes.flatMap((n) => {
     const path = [...trail, n.slug].join("/");
-    // names that are identical in both languages are brand/model names, not translations
+    // names identical in both languages are brand/model names, not translations
     const own = n.name.en === n.name.ar ? [] : [row(`category: ${path}`, n.name.en, n.name.ar)];
     return [...own, ...walk(n.children ?? [], [...trail, n.slug])];
   });
 }
+const categories = walk(navCategories);
+const count = messages.length + brandRows.length + categories.length;
 
-const count = messages.length + brandRows.length + walk(navCategories).length;
-console.log(`${count} Arabic strings need native review.\n`);
-console.log("### UI messages\n", [...header, ...messages].join("\n"), "\n");
-console.log("### Brand copy\n", [...header, ...brandRows].join("\n"), "\n");
-console.log(
-  "### Category names (temporary static tree; moves to the database in M3a)\n",
-  [...header, ...walk(navCategories)].join("\n"),
-);
+const doc = `# Arabic copy that needs native review
+
+${count} Arabic strings were written by the assistant, not a native copywriter. Review tone, terminology (Egyptian retail wording, for
+example the category names) and plural forms. Brand and model names left in Latin (AMD Ryzen, DDR5, ...) are not listed.
+The owner plans one native-review pass once more copy exists.
+
+This file is GENERATED from \`messages/ar.json\`, \`src/config/brand.ts\` and the category tree. Do not edit it by hand:
+run \`npm run i18n:review\` after adding strings (CI runs \`npm run i18n:review:check\`).
+
+<!-- prettier-ignore-start -->
+
+## UI messages
+
+${[...header, ...messages].join("\n")}
+
+## Brand copy
+
+${[...header, ...brandRows].join("\n")}
+
+## Category names (temporary static tree; moves to the database in M3a)
+
+${[...header, ...categories].join("\n")}
+
+<!-- prettier-ignore-end -->
+`;
+
+const target = resolve(process.cwd(), "docs/I18N_REVIEW.md");
+if (process.argv.includes("--check")) {
+  let current = "";
+  try {
+    current = readFileSync(target, "utf8");
+  } catch {
+    // a missing file counts as drift
+  }
+  if (current !== doc) {
+    console.error(
+      "docs/I18N_REVIEW.md is out of date. Run `npm run i18n:review` and commit the result.",
+    );
+    process.exit(1);
+  }
+  console.log(`docs/I18N_REVIEW.md is up to date (${count} strings)`);
+} else {
+  writeFileSync(target, doc);
+  console.log(`wrote docs/I18N_REVIEW.md (${count} strings)`);
+}

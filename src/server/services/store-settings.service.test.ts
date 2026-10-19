@@ -1,8 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { defaultContactSettings } from "@/domain/store-settings";
+import { defaultContactSettings, defaultTopBarSettings } from "@/domain/store-settings";
 import { readSetting } from "@/server/repositories/store-settings.repository";
 import { logger } from "@/lib/logger";
-import { getContactSettings, resetStoreSettingsWarningsForTests } from "./store-settings.service";
+import {
+  getContactSettings,
+  getTopBarSettings,
+  resetStoreSettingsWarningsForTests,
+} from "./store-settings.service";
 
 vi.mock("@/server/repositories/store-settings.repository", () => ({ readSetting: vi.fn() }));
 const read = vi.mocked(readSetting);
@@ -45,5 +49,22 @@ describe("getContactSettings", () => {
     for (let i = 0; i < 50; i++) await getContactSettings();
     expect(warn).toHaveBeenCalledTimes(1);
     expect(JSON.stringify(warn.mock.calls[0])).not.toContain("stack");
+  });
+
+  it("getTopBarSettings: neutral (no lines) when nothing is saved, saved lines when valid, neutral when invalid", async () => {
+    read.mockResolvedValue(null);
+    expect(await getTopBarSettings()).toEqual(defaultTopBarSettings);
+    read.mockResolvedValue({ lines: [{ icon: "truck", text: { en: "Hi" } }] });
+    expect((await getTopBarSettings()).lines).toHaveLength(1);
+    read.mockResolvedValue({ lines: [{ text: {} }] });
+    expect(await getTopBarSettings()).toEqual(defaultTopBarSettings);
+  });
+  it("warns once a minute PER setting, so one broken setting cannot hide another", async () => {
+    const warn = vi.spyOn(logger, "warn").mockImplementation(() => undefined);
+    read.mockRejectedValue(new Error("connection refused"));
+    await getContactSettings();
+    await getTopBarSettings();
+    await getContactSettings();
+    expect(warn).toHaveBeenCalledTimes(2);
   });
 });

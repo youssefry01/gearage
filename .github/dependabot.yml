@@ -7,6 +7,28 @@ updates:
     groups:
       minor-and-patch:
         update-types: [minor, patch]
+    # Dependency bumps happen INSIDE milestones, not by merging PRs between deliveries. Major versions of the
+    # packages below are pinned on purpose (see docs/adr/0011-dependency-pins-and-overrides.md) and only move when
+    # the owner asks.
+    ignore:
+      - dependency-name: typescript # until typescript-eslint supports TypeScript 7
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@types/node" # keep matching the Node 22 runtime
+        update-types: ["version-update:semver-major"]
+      - dependency-name: next
+        update-types: ["version-update:semver-major"]
+      - dependency-name: react
+        update-types: ["version-update:semver-major"]
+      - dependency-name: react-dom
+        update-types: ["version-update:semver-major"]
+      - dependency-name: prisma
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@prisma/client"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@prisma/adapter-pg" # must move together with prisma and @prisma/client
+        update-types: ["version-update:semver-major"]
+      - dependency-name: eslint
+        update-types: ["version-update:semver-major"]
   - package-ecosystem: github-actions
     directory: /
     schedule: { interval: weekly }
