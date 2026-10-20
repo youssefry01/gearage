@@ -85,3 +85,24 @@ export function parseSpecs(defs: readonly SpecDef[], raw: unknown): SpecParseRes
 /** Definitions that become filters on the listing page, in display order. */
 export const filterableSpecs = (defs: readonly SpecDef[]): SpecDef[] =>
   defs.filter((d) => d.filterable && d.facet !== "NONE");
+
+/**
+ * Definitions are attached to the category that owns a product family (for example `components/cpus`); products live in
+ * its sub-categories (`components/cpus/amd-ryzen`) and use the NEAREST ancestor that has definitions. A sub-category
+ * with its own definitions (case fans under cooling) overrides the family's. Returns [] when no ancestor has any.
+ */
+export function resolveSpecDefinitions<T>(
+  categoryPath: string,
+  definitionsByPath: ReadonlyMap<string, readonly T[]> | Readonly<Record<string, readonly T[]>>,
+): readonly T[] {
+  const get = (p: string): readonly T[] | undefined =>
+    definitionsByPath instanceof Map
+      ? definitionsByPath.get(p)
+      : (definitionsByPath as Record<string, readonly T[]>)[p];
+  const parts = categoryPath.split("/");
+  for (let n = parts.length; n >= 1; n--) {
+    const defs = get(parts.slice(0, n).join("/"));
+    if (defs && defs.length > 0) return defs;
+  }
+  return [];
+}

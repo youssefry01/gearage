@@ -43,20 +43,30 @@ Check: `curl localhost:3000/api/health` and `curl localhost:3000/api/health/read
 
 ## Scripts
 
-| Script                                                         | Purpose                                                                                                                       |
-| -------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| `npm run dev` / `build` / `start`                              | Next.js                                                                                                                       |
-| `npm run lint` / `typecheck`                                   | ESLint (incl. layering rules) / `next typegen` + `tsc`                                                                        |
-| `npm test`                                                     | Vitest unit and component tests                                                                                               |
-| `npm run test:e2e`                                             | Playwright: viewport matrix (LTR+RTL), axe, i18n, theme, SEO. Needs `npx playwright install chromium` once and a valid `.env` |
-| `npm run tokens:build` / `tokens:check`                        | Generate / verify `src/styles/tokens.css` from `src/design/tokens.ts`                                                         |
-| `npm run contrast`                                             | WCAG AA gate for every token pair in both themes                                                                              |
-| `npm run brand:check`                                          | Fails if the store name is hardcoded outside config/messages/docs                                                             |
-| `npm run i18n:review` / `i18n:review:check`                    | Regenerate / verify docs/I18N_REVIEW.md (machine-written Arabic for native review)                                            |
-| `npm run test:db`                                              | DB-backed tests (stock, concurrency, constraints, views) on the separate `gearage_test` database only                         |
-| `npm run brand:assets`                                         | Re-derive `public/brand/*` and favicons from `design/brand-source/`                                                           |
-| `npm run format` / `format:check`                              | Prettier                                                                                                                      |
-| `npm run db:migrate` / `db:deploy` / `db:validate` / `db:seed` | Prisma                                                                                                                        |
+| Script                                             | Purpose                                                                                                                       |
+| -------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| `npm run dev` / `build` / `start`                  | Next.js                                                                                                                       |
+| `npm run lint` / `typecheck`                       | ESLint (incl. layering rules) / `next typegen` + `tsc`                                                                        |
+| `npm test`                                         | Vitest unit and component tests                                                                                               |
+| `npm run test:e2e`                                 | Playwright: viewport matrix (LTR+RTL), axe, i18n, theme, SEO. Needs `npx playwright install chromium` once and a valid `.env` |
+| `npm run tokens:build` / `tokens:check`            | Generate / verify `src/styles/tokens.css` from `src/design/tokens.ts`                                                         |
+| `npm run contrast`                                 | WCAG AA gate for every token pair in both themes                                                                              |
+| `npm run brand:check`                              | Fails if the store name is hardcoded outside config/messages/docs                                                             |
+| `npm run i18n:review` / `i18n:review:check`        | Regenerate / verify docs/I18N_REVIEW.md (machine-written Arabic for native review)                                            |
+| `npm run test:db`                                  | DB-backed tests (stock, concurrency, constraints, views) on the separate `gearage_test` database only                         |
+| `npm run brand:assets`                             | Re-derive `public/brand/*` and favicons from `design/brand-source/`                                                           |
+| `npm run format` / `format:check`                  | Prettier                                                                                                                      |
+| `npm run db:migrate` / `db:deploy` / `db:validate` | Prisma                                                                                                                        |
+| `npm run db:seed`                                  | Idempotent catalog seed (local database only; see [docs/SEEDING.md](docs/SEEDING.md))                                         |
+| `npm run seed:docs` / `seed:docs:check`            | Regenerate / verify the generated block of docs/SEEDING.md (specs to verify)                                                  |
+
+## Demo data (`npm run db:seed`)
+
+An idempotent seed fills your **local** database with realistic catalog data: 9 top-level categories (53 in the tree) with
+spec definitions, 21 brands, 79 products with stock (including low and out-of-stock items), 6 PC bundles, showcase blocks and
+generated placeholder images. It creates no users, orders or reviews and is safe to run repeatedly (a second run changes nothing).
+Prices are **illustrative**, specs are flagged where unverified, and **demo images are generated placeholders**; the system is
+built to use official brand assets supplied with permission. See [docs/SEEDING.md](docs/SEEDING.md) and [docs/ASSETS.md](docs/ASSETS.md).
 
 ## Database tests (`npm run test:db`)
 
@@ -105,7 +115,7 @@ CI runs the same `migrate diff` against a fresh Postgres on every push.
 
 ## Brand note
 
-Demo/brand artwork is used as supplied by the owner (`design/brand-source/`); product images will be generated placeholders, and the system supports official brand assets (see `docs/ASSETS.md` when it lands in M2b).
+Demo/brand artwork is used as supplied by the owner (`design/brand-source/`); product images will be generated placeholders, and the system supports official brand assets (see `docs/ASSETS.md`).
 
 ## Docs
 

@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { buildSpecSchema, filterableSpecs, parseSpecs, type SpecDef } from "./specs";
+import {
+  buildSpecSchema,
+  filterableSpecs,
+  parseSpecs,
+  resolveSpecDefinitions,
+  type SpecDef,
+} from "./specs";
 
 const def = (over: Partial<SpecDef> & Pick<SpecDef, "key" | "type">): SpecDef => ({
   labelEn: over.key,
@@ -89,5 +95,28 @@ describe("buildSpecSchema", () => {
 describe("filterableSpecs", () => {
   it("returns only specs that are filters", () => {
     expect(filterableSpecs(cpuDefs).map((d) => d.key)).toEqual(["socket", "cores", "unlocked"]);
+  });
+});
+
+describe("resolveSpecDefinitions", () => {
+  const cooling = [def({ key: "cooler_type", type: "STRING" })];
+  const fans = [def({ key: "size_mm", type: "NUMBER" })];
+  const byPath = new Map([
+    ["components/cooling", cooling],
+    ["components/cooling/case-fans", fans],
+  ]);
+  it("uses the nearest ancestor with definitions", () => {
+    expect(resolveSpecDefinitions("components/cooling/air-coolers", byPath)).toBe(cooling);
+    expect(resolveSpecDefinitions("components/cooling", byPath)).toBe(cooling);
+  });
+  it("lets a sub-category override its family", () => {
+    expect(resolveSpecDefinitions("components/cooling/case-fans", byPath)).toBe(fans);
+  });
+  it("returns [] when nothing above has definitions, and does not match by loose prefix", () => {
+    expect(resolveSpecDefinitions("monitors/gaming-monitors", byPath)).toEqual([]);
+    expect(resolveSpecDefinitions("components/cooling-extra", byPath)).toEqual([]);
+  });
+  it("also accepts a plain record", () => {
+    expect(resolveSpecDefinitions("a/b", { a: cooling })).toBe(cooling);
   });
 });

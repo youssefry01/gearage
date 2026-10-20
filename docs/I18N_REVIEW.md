@@ -1,10 +1,10 @@
 # Arabic copy that needs native review
 
-140 Arabic strings were written by the assistant, not a native copywriter. Review tone, terminology (Egyptian retail wording, for
+491 Arabic strings were written by the assistant, not a native copywriter. Review tone, terminology (Egyptian retail wording, for
 example the category names) and plural forms. Brand and model names left in Latin (AMD Ryzen, DDR5, ...) are not listed.
 The owner plans one native-review pass once more copy exists.
 
-This file is GENERATED from `messages/ar.json`, `src/config/brand.ts` and the category tree. Do not edit it by hand:
+This file is GENERATED from `messages/ar.json`, `src/config/brand.ts`, the category tree and the seed data files (`prisma/seed/data`). Do not edit it by hand:
 run `npm run i18n:review` after adding strings (CI runs `npm run i18n:review:check`).
 
 <!-- prettier-ignore-start -->
@@ -163,5 +163,381 @@ run `npm run i18n:review` after adding strings (CI runs `npm run i18n:review:che
 | category: networking/routers | Routers | الراوترات |
 | category: networking/wifi-adapters | Wi-Fi Adapters | كروت الواي فاي |
 | category: networking/network-switches | Network Switches | سويتشات الشبكة |
+
+## Seed catalog: category names not in the tree above, descriptions and tags
+
+| Where | English | Arabic (machine-written) |
+| --- | --- | --- |
+| seed category: audio-streaming | Audio & Streaming | الصوتيات والبث |
+| seed category: audio-streaming/microphones | Microphones | الميكروفونات |
+| seed category: accessories | Accessories | الإكسسوارات |
+| seed category: accessories/thermal-paste | Thermal Paste | معجون حراري |
+| seed category: accessories/mouse-pads | Mouse Pads | ماوس باد |
+| seed category: gift-cards | Gift Cards | بطاقات الهدايا |
+| seed category description: components | Everything inside the PC: processors, graphics cards, motherboards, memory, storage, power, cases and cooling. | كل ما بداخل الكمبيوتر: المعالجات وكروت الشاشة واللوحات الأم والذاكرة والتخزين والطاقة والصناديق والتبريد. |
+| seed category description: pc-bundles | Curated sets of compatible parts sold together at one price. | مجموعات مختارة من القطع المتوافقة تُباع معاً بسعر واحد. |
+| tag: featured | Featured | مميز |
+| tag: gaming | Gaming | ألعاب |
+| tag: budget | Budget | اقتصادي |
+| tag: high-end | High-end | فئة عليا |
+| tag: workstation | Workstation | محطات عمل |
+| tag: creator | Content creation | صناعة المحتوى |
+| tag: office | Office | مكتبي |
+| tag: streaming | Streaming | بث |
+| tag: rgb | RGB | إضاءة RGB |
+| tag: wireless | Wireless | لاسلكي |
+| tag: quiet | Quiet | هادئ |
+| tag: compact | Compact | صغير الحجم |
+| tag: wifi | Wi-Fi | واي فاي |
+| tag: previous-gen | Previous generation | الجيل السابق |
+
+## Seed catalog: spec labels and options
+
+| Where | English | Arabic (machine-written) |
+| --- | --- | --- |
+| spec label | Socket | المقبس |
+| spec label | Cores | عدد الأنوية |
+| spec label | Threads | عدد الخيوط |
+| spec label | Base clock (P-core) | السرعة الأساسية |
+| spec label | Max boost clock | أقصى سرعة |
+| spec label | TDP | الطاقة الحرارية TDP |
+| spec label | Cache (L3 / Smart Cache) | الذاكرة المخبأة |
+| spec label | Integrated graphics | رسوميات مدمجة |
+| spec label | Cooler included in the box | المبرد مرفق بالعلبة |
+| spec label | Architecture | المعمارية |
+| spec label | Supported memory | الذاكرة المدعومة |
+| spec label | GPU maker | مصنّع المعالج الرسومي |
+| spec label | GPU | المعالج الرسومي |
+| spec label | Video memory | ذاكرة الفيديو |
+| spec label | Memory type | نوع الذاكرة |
+| spec label | Memory bus | عرض ناقل الذاكرة |
+| spec label | Board power | استهلاك الطاقة |
+| spec label | Recommended PSU | مصدر الطاقة الموصى به |
+| spec label | Card length | طول الكارت |
+| spec label | Slot width | عدد الفتحات |
+| spec label | Power connector | وصلة الطاقة |
+| spec label | Interface | الواجهة |
+| spec label | Chipset | الشيبسيت |
+| spec label | Form factor | الحجم |
+| spec label | Memory slots | عدد فتحات الذاكرة |
+| spec label | Max memory | أقصى ذاكرة |
+| spec label | M.2 slots | فتحات M.2 |
+| spec label | SATA ports | منافذ SATA |
+| spec label | Built-in Wi-Fi | واي فاي مدمج |
+| spec label | Kit capacity | سعة الطقم |
+| spec label | Modules in the kit | عدد الشرائح في الطقم |
+| spec label | Speed | السرعة |
+| spec label | CAS latency | زمن الاستجابة CL |
+| spec label | Voltage | الجهد |
+| spec label | Memory profiles | ملفات الذاكرة |
+| spec label | RGB lighting | إضاءة RGB |
+| spec label | Drive type | نوع القرص |
+| spec label | Form factor | الشكل |
+| spec label | Capacity | السعة |
+| spec label | Sequential read | سرعة القراءة |
+| spec label | Sequential write | سرعة الكتابة |
+| spec label | PCIe generation | جيل PCIe |
+| spec label | Endurance | العمر الافتراضي |
+| spec label | Spindle speed | سرعة الدوران |
+| spec label | Cache | الكاش |
+| spec label | Wattage | القدرة |
+| spec label | Efficiency | الكفاءة |
+| spec label | Cabling | الكابلات |
+| spec option | Non-modular | غير قابلة للفك |
+| spec option | Semi-modular | نصف قابلة للفك |
+| spec option | Fully modular | قابلة للفك بالكامل |
+| spec label | Native 12V-2x6 (PCIe 5) cable | كابل 12V-2x6 أصلي |
+| spec label | Type | النوع |
+| spec option | Mid Tower | ميد تاور |
+| spec option | Mini Tower | ميني تاور |
+| spec option | Small form factor | حجم صغير |
+| spec label | Motherboard support | اللوحات المدعومة |
+| spec label | Max GPU length | أقصى طول للكارت |
+| spec label | Max CPU cooler height | أقصى ارتفاع للمبرد |
+| spec label | Power supply support | مصادر الطاقة المدعومة |
+| spec label | Radiator sizes (mm) | مقاسات الراديتر (مم) |
+| spec label | Cooler type | نوع المبرد |
+| spec option | Air | هوائي |
+| spec option | Liquid | مائي |
+| spec label | Supported sockets | المقابس المدعومة |
+| spec label | Height (air coolers) | الارتفاع (للهوائي) |
+| spec label | Radiator size (liquid coolers) | مقاس الراديتر (للمائي) |
+| spec label | Fans included | عدد المراوح |
+| spec label | Manufacturer cooling rating | قدرة التبريد المعلنة |
+| spec label | Fan size | مقاس المروحة |
+| spec label | Max speed | أقصى سرعة |
+| spec label | Connector | الوصلة |
+| spec label | Fans in the pack | عدد المراوح بالعبوة |
+| spec label | Processor | المعالج |
+| spec label | Graphics | كارت الشاشة |
+| spec label | Memory | الذاكرة |
+| spec label | Storage | التخزين |
+| spec label | Screen size | حجم الشاشة |
+| spec label | Resolution | الدقة |
+| spec label | Refresh rate | معدل التحديث |
+| spec label | Panel | نوع الشاشة |
+| spec label | Battery | البطارية |
+| spec label | Panel | نوع اللوحة |
+| spec label | Response time | زمن الاستجابة |
+| spec label | Curved | منحنية |
+| spec label | Adaptive sync | المزامنة التكيفية |
+| spec label | USB-C input | مدخل USB-C |
+| spec label | Layout | التخطيط |
+| spec label | Switch type | نوع المفاتيح |
+| spec label | Connectivity | الاتصال |
+| spec label | Backlight | الإضاءة الخلفية |
+| spec label | Max DPI | أقصى DPI |
+| spec label | Buttons | عدد الأزرار |
+| spec label | Sensor | الحساس |
+| spec label | Driver size | حجم السماعة |
+| spec label | Microphone | الميكروفون |
+| spec label | Frame rate | معدل الإطارات |
+| spec label | Autofocus | تركيز تلقائي |
+| spec label | Built-in microphone | ميكروفون مدمج |
+| spec label | Wi-Fi standard | معيار الواي فاي |
+| spec label | Combined wireless speed | السرعة اللاسلكية المجمعة |
+| spec label | Bands | النطاقات |
+| spec label | LAN ports | منافذ LAN |
+| spec label | Bluetooth | بلوتوث |
+| spec label | Ports | عدد المنافذ |
+| spec label | Port speed | سرعة المنفذ |
+| spec label | Managed | قابل للإدارة |
+| spec label | Connection | الاتصال |
+| spec label | Pickup patterns | أنماط الالتقاط |
+| spec label | Amount | الكمية |
+| spec label | Electrically conductive | موصل للكهرباء |
+| spec label | Surface | السطح |
+| spec label | Best for | مناسب لـ |
+| spec option | Gaming | الألعاب |
+| spec option | Workstation | محطة عمل |
+| spec option | Office and home | المكتب والمنزل |
+| spec label | Target resolution | الدقة المستهدفة |
+
+## Seed data: governorates and shipping zones (inserted from M6a)
+
+| Where | English | Arabic (machine-written) |
+| --- | --- | --- |
+| governorate: cairo | Cairo | القاهرة |
+| governorate: giza | Giza | الجيزة |
+| governorate: alexandria | Alexandria | الإسكندرية |
+| governorate: qalyubia | Qalyubia | القليوبية |
+| governorate: port-said | Port Said | بورسعيد |
+| governorate: suez | Suez | السويس |
+| governorate: dakahlia | Dakahlia | الدقهلية |
+| governorate: sharqia | Sharqia | الشرقية |
+| governorate: gharbia | Gharbia | الغربية |
+| governorate: monufia | Monufia | المنوفية |
+| governorate: kafr-el-sheikh | Kafr El Sheikh | كفر الشيخ |
+| governorate: beheira | Beheira | البحيرة |
+| governorate: ismailia | Ismailia | الإسماعيلية |
+| governorate: damietta | Damietta | دمياط |
+| governorate: faiyum | Faiyum | الفيوم |
+| governorate: beni-suef | Beni Suef | بني سويف |
+| governorate: minya | Minya | المنيا |
+| governorate: asyut | Asyut | أسيوط |
+| governorate: sohag | Sohag | سوهاج |
+| governorate: qena | Qena | قنا |
+| governorate: luxor | Luxor | الأقصر |
+| governorate: aswan | Aswan | أسوان |
+| governorate: red-sea | Red Sea | البحر الأحمر |
+| governorate: new-valley | New Valley | الوادي الجديد |
+| governorate: matrouh | Matrouh | مطروح |
+| governorate: north-sinai | North Sinai | شمال سيناء |
+| governorate: south-sinai | South Sinai | جنوب سيناء |
+| shipping zone: greater-cairo | Greater Cairo | القاهرة الكبرى |
+| shipping zone: alexandria | Alexandria | الإسكندرية |
+| shipping zone: delta | Nile Delta | الدلتا |
+| shipping zone: canal | Suez Canal | القناة |
+| shipping zone: upper-egypt | Upper Egypt | الصعيد |
+| shipping zone: red-sea-sinai-frontier | Red Sea, Sinai and Frontier | البحر الأحمر وسيناء والمحافظات الحدودية |
+
+## Seed catalog: bundles
+
+| Where | English | Arabic (machine-written) |
+| --- | --- | --- |
+| bundle BND-BUDGET-1080P: title | Budget Gaming PC: Ryzen 5 5600 + RTX 4060 | تجميعة ألعاب اقتصادية: Ryzen 5 5600 مع RTX 4060 |
+| bundle BND-BUDGET-1080P: short | Everything for a 1080p gaming PC on a sensible budget. | كل ما تحتاجه لجهاز ألعاب بدقة 1080p بميزانية معقولة. |
+| bundle BND-BUDGET-1080P: description | A balanced AM4 build: a Ryzen 5 5600 (boxed cooler included), a B550 board, 16 GB of DDR4, an RTX 4060, a 1 TB NVMe drive and a 650 W power supply in a compact Micro-ATX case. Parts-in-box: components ship separately packed (no assembly). Each part keeps its own warranty. | تجميعة AM4 متوازنة: معالج Ryzen 5 5600 (المبرد داخل العلبة) ولوحة B550 وذاكرة DDR4 بسعة 16 جيجا وكارت RTX 4060 وقرص NVMe بسعة 1 تيرا ومصدر طاقة 650 واط في صندوق Micro-ATX صغير. القطع تُشحن منفصلة بدون تركيب، ولكل قطعة ضمانها الخاص. |
+| bundle BND-MIDRANGE-1440P: title | Mid-Range Gaming PC: Ryzen 5 7600 + RTX 5060 Ti 16GB | تجميعة ألعاب متوسطة: Ryzen 5 7600 مع RTX 5060 Ti سعة 16 جيجا |
+| bundle BND-MIDRANGE-1440P: short | A modern AM5 and DDR5 platform with 16 GB of video memory for 1440p. | منصة AM5 وDDR5 حديثة مع 16 جيجا ذاكرة فيديو للعب بدقة 1440p. |
+| bundle BND-MIDRANGE-1440P: description | A current-generation build centred on a Ryzen 5 7600 and a 16 GB RTX 5060 Ti, with 32 GB of DDR5-6000, a fast 1 TB NVMe drive, an air cooler and a 750 W Gold power supply in an airflow case. Parts-in-box: components ship separately packed (no assembly). Each part keeps its own warranty. | تجميعة من الجيل الحالي تدور حول معالج Ryzen 5 7600 وكارت RTX 5060 Ti بسعة 16 جيجا مع ذاكرة DDR5-6000 بسعة 32 جيجا وقرص NVMe سريع بسعة 1 تيرا ومبرد هوائي ومصدر طاقة 750 واط Gold في صندوق جيد التهوية. القطع تُشحن منفصلة بدون تركيب، ولكل قطعة ضمانها الخاص. |
+| bundle BND-PERFORMANCE-INTEL-1440P: title | Performance Gaming PC: Core i5-14400F + RX 9070 XT | تجميعة ألعاب عالية الأداء: Core i5-14400F مع RX 9070 XT |
+| bundle BND-PERFORMANCE-INTEL-1440P: short | Intel and Radeon for high-refresh 1440p, on a DDR4 platform that keeps the price down. | إنتل مع رايدن للعب بمعدل تحديث عالٍ بدقة 1440p على منصة DDR4 تحافظ على السعر. |
+| bundle BND-PERFORMANCE-INTEL-1440P: description | A Core i5-14400F (boxed cooler included) on a Micro-ATX B760 board with 32 GB of DDR4, paired with a 16 GB RX 9070 XT, a 1 TB NVMe drive and an 850 W Gold power supply in a roomy case. Parts-in-box: components ship separately packed (no assembly). Each part keeps its own warranty. | معالج Core i5-14400F (المبرد داخل العلبة) على لوحة B760 بحجم Micro-ATX مع ذاكرة DDR4 بسعة 32 جيجا، مع كارت RX 9070 XT بسعة 16 جيجا وقرص NVMe بسعة 1 تيرا ومصدر طاقة 850 واط Gold في صندوق واسع. القطع تُشحن منفصلة بدون تركيب، ولكل قطعة ضمانها الخاص. |
+| bundle BND-HIGHEND-4K: title | High-End Gaming PC: Ryzen 7 7800X3D + RTX 5080 | تجميعة ألعاب فاخرة: Ryzen 7 7800X3D مع RTX 5080 |
+| bundle BND-HIGHEND-4K: short | Top gaming CPU, a 16 GB RTX 5080 and a 360 mm liquid cooler for 4K. | أفضل معالج للألعاب مع كارت RTX 5080 بسعة 16 جيجا ومبرد مائي 360 مم للعب بدقة 4K. |
+| bundle BND-HIGHEND-4K: description | A no-compromise gaming build: the Ryzen 7 7800X3D, an RTX 5080 Founders Edition, 32 GB of low-latency DDR5-6000, a 2 TB PCIe 4.0 drive, a 360 mm liquid cooler and a 1000 W Gold power supply. Parts-in-box: components ship separately packed (no assembly). Each part keeps its own warranty. | تجميعة ألعاب بلا تنازلات: معالج Ryzen 7 7800X3D وكارت RTX 5080 Founders Edition وذاكرة DDR5-6000 منخفضة زمن الاستجابة بسعة 32 جيجا وقرص PCIe 4.0 بسعة 2 تيرا ومبرد مائي 360 مم ومصدر طاقة 1000 واط Gold. القطع تُشحن منفصلة بدون تركيب، ولكل قطعة ضمانها الخاص. |
+| bundle BND-WORKSTATION-CREATOR: title | Creator Workstation: Ryzen 9 9950X + 64GB + RTX 5070 | محطة عمل للمبدعين: Ryzen 9 9950X مع 64 جيجا وRTX 5070 |
+| bundle BND-WORKSTATION-CREATOR: short | 16 cores, 64 GB of memory and two fast NVMe drives for rendering and editing. | 16 نواة وذاكرة 64 جيجا وقرصا NVMe سريعان للريندر والمونتاج. |
+| bundle BND-WORKSTATION-CREATOR: description | Built for rendering, compiling and editing: a Ryzen 9 9950X with a dual-tower air cooler, 64 GB of DDR5, an RTX 5070, a 2 TB system drive plus a 1 TB scratch drive and an 850 W Gold power supply. Parts-in-box: components ship separately packed (no assembly). Each part keeps its own warranty. | مبنية للريندر والبرمجة والمونتاج: معالج Ryzen 9 9950X مع مبرد هوائي ببرجين وذاكرة DDR5 بسعة 64 جيجا وكارت RTX 5070 وقرص نظام بسعة 2 تيرا مع قرص عمل بسعة 1 تيرا ومصدر طاقة 850 واط Gold. القطع تُشحن منفصلة بدون تركيب، ولكل قطعة ضمانها الخاص. |
+| bundle BND-OFFICE-HOME: title | Office & Home PC: Ryzen 5 7600 with Integrated Graphics | تجميعة مكتب ومنزل: Ryzen 5 7600 برسوميات مدمجة |
+| bundle BND-OFFICE-HOME: short | A quiet, efficient PC for work, study and everyday use. No graphics card needed. | جهاز هادئ وموفر للطاقة للعمل والدراسة والاستخدام اليومي. لا يحتاج كارت شاشة. |
+| bundle BND-OFFICE-HOME: description | A Ryzen 5 7600 with built-in graphics and its boxed cooler, 16 GB of DDR5, a 1 TB NVMe drive and a 550 W power supply in a compact Micro-ATX case. Parts-in-box: components ship separately packed (no assembly). Each part keeps its own warranty. | معالج Ryzen 5 7600 برسوميات مدمجة ومبرده داخل العلبة، مع ذاكرة DDR5 بسعة 16 جيجا وقرص NVMe بسعة 1 تيرا ومصدر طاقة 550 واط في صندوق Micro-ATX صغير. القطع تُشحن منفصلة بدون تركيب، ولكل قطعة ضمانها الخاص. |
+
+## Seed catalog: products (titles and descriptions)
+
+| Where | English | Arabic (machine-written) |
+| --- | --- | --- |
+| CPU-AMD-R5-5600: title | AMD Ryzen 5 5600 Processor | معالج AMD Ryzen 5 5600 |
+| CPU-AMD-R5-5600: short | 6 cores and 12 threads on the AM4 socket: the value pick for a first gaming PC. | 6 أنوية و12 خيطاً بمقبس AM4: الاختيار الاقتصادي لأول جهاز ألعاب. |
+| CPU-AMD-R5-7600: title | AMD Ryzen 5 7600 Processor | معالج AMD Ryzen 5 7600 |
+| CPU-AMD-R5-7600: short | 6-core Zen 4 on AM5 with DDR5 support and basic integrated graphics. | معالج Zen 4 بـ 6 أنوية على AM5 مع دعم DDR5 ورسوميات مدمجة أساسية. |
+| CPU-AMD-R7-7800X3D: title | AMD Ryzen 7 7800X3D Processor | معالج AMD Ryzen 7 7800X3D |
+| CPU-AMD-R7-7800X3D: short | 8 cores with 96 MB of 3D V-Cache, a top choice for gaming. Cooler not included. | 8 أنوية مع ذاكرة 3D V-Cache بسعة 96 ميجابايت، من أفضل الخيارات للألعاب. بدون مبرد. |
+| CPU-AMD-R7-7800X3D: description | The Ryzen 7 7800X3D stacks extra L3 cache on the die, which helps most in cache-hungry games. It runs on AM5 with DDR5 memory and ships without a cooler, so pair it with an air or liquid cooler. | يضيف معالج Ryzen 7 7800X3D ذاكرة مخبأة إضافية فوق الشريحة، وهو ما يفيد أكثر في الألعاب التي تعتمد على الكاش. يعمل على AM5 مع ذاكرة DDR5 ويأتي بدون مبرد، لذا يلزم مبرد هوائي أو مائي. |
+| CPU-AMD-R7-9700X: title | AMD Ryzen 7 9700X Processor | معالج AMD Ryzen 7 9700X |
+| CPU-AMD-R7-9700X: short | 8-core Zen 5 on AM5 with a 65 W TDP. Cooler not included. | معالج Zen 5 بـ 8 أنوية على AM5 بطاقة حرارية 65 واط. بدون مبرد. |
+| CPU-AMD-R9-9950X: title | AMD Ryzen 9 9950X Processor | معالج AMD Ryzen 9 9950X |
+| CPU-AMD-R9-9950X: short | 16 cores and 32 threads for rendering, compiling and heavy multitasking. Cooler not included. | 16 نواة و32 خيطاً للريندر والبرمجة والمهام الثقيلة. بدون مبرد. |
+| CPU-INT-I5-12400F: title | Intel Core i5-12400F Processor | معالج Intel Core i5-12400F |
+| CPU-INT-I5-12400F: short | 6 performance cores on LGA1700 with a boxed cooler. No integrated graphics. | 6 أنوية أداء على LGA1700 مع مبرد داخل العلبة. بدون رسوميات مدمجة. |
+| CPU-INT-I5-14400F: title | Intel Core i5-14400F Processor | معالج Intel Core i5-14400F |
+| CPU-INT-I5-14400F: short | 10 cores (6 performance + 4 efficiency) on LGA1700 with a boxed cooler. | 10 أنوية (6 أداء + 4 كفاءة) على LGA1700 مع مبرد داخل العلبة. |
+| CPU-INT-I7-14700K: title | Intel Core i7-14700K Processor | معالج Intel Core i7-14700K |
+| CPU-INT-I7-14700K: short | 20 cores (8 performance + 12 efficiency), unlocked for overclocking. Cooler not included. | 20 نواة (8 أداء + 12 كفاءة) مفتوح للأوفركلوك. بدون مبرد. |
+| CPU-INT-I9-14900K: title | Intel Core i9-14900K Processor | معالج Intel Core i9-14900K |
+| CPU-INT-I9-14900K: short | 24 cores (8 performance + 16 efficiency) with up to 6.0 GHz boost. Cooler not included. | 24 نواة (8 أداء + 16 كفاءة) بسرعة تصل إلى 6.0 جيجاهرتز. بدون مبرد. |
+| GPU-ASUS-DUAL-RTX4060-O8G: title | ASUS Dual GeForce RTX 4060 OC Edition 8GB | كارت شاشة ASUS Dual GeForce RTX 4060 OC بسعة 8 جيجا |
+| GPU-ASUS-DUAL-RTX4060-O8G: short | Efficient 1080p graphics card with DLSS 3 and an 8 GB buffer. | كارت شاشة اقتصادي في الطاقة للعب بدقة 1080p مع DLSS 3 وذاكرة 8 جيجا. |
+| GPU-MSI-RTX5060-VENTUS2X-8G: title | MSI GeForce RTX 5060 Ventus 2X OC 8GB | كارت شاشة MSI GeForce RTX 5060 Ventus 2X OC بسعة 8 جيجا |
+| GPU-MSI-RTX5060-VENTUS2X-8G: short | Current-generation 1080p card with GDDR7 memory and DLSS 4. | كارت من الجيل الحالي للعب بدقة 1080p بذاكرة GDDR7 ودعم DLSS 4. |
+| GPU-GIGABYTE-RTX5060TI-WF-16G: title | Gigabyte GeForce RTX 5060 Ti WINDFORCE OC 16GB | كارت شاشة Gigabyte GeForce RTX 5060 Ti WINDFORCE OC بسعة 16 جيجا |
+| GPU-GIGABYTE-RTX5060TI-WF-16G: short | 16 GB of GDDR7 for 1440p gaming and newer texture-heavy games. | ذاكرة GDDR7 بسعة 16 جيجا للعب بدقة 1440p والألعاب الحديثة كثيفة الخامات. |
+| GPU-GIGABYTE-RTX5060TI-WF-16G: description | A 16 GB RTX 5060 Ti gives 1440p players headroom that 8 GB cards lack in modern titles. Power draw is moderate, so a quality 650 W unit is plenty. | يمنح كارت RTX 5060 Ti بسعة 16 جيجا مساحة إضافية للاعبي 1440p لا تتوفر في الكروت ذات 8 جيجا في الألعاب الحديثة. استهلاكه للطاقة متوسط، ويكفيه مصدر طاقة جيد بقدرة 650 واط. |
+| GPU-ASUS-PRIME-RTX5070-O12G: title | ASUS Prime GeForce RTX 5070 OC Edition 12GB | كارت شاشة ASUS Prime GeForce RTX 5070 OC بسعة 12 جيجا |
+| GPU-ASUS-PRIME-RTX5070-O12G: short | 12 GB GDDR7 card aimed at smooth 1440p gaming and light creator work. | كارت بذاكرة GDDR7 بسعة 12 جيجا للعب سلس بدقة 1440p وأعمال الإبداع الخفيفة. |
+| GPU-MSI-RTX5070TI-GAMINGTRIO-16G: title | MSI GeForce RTX 5070 Ti 16G Gaming Trio OC | كارت شاشة MSI GeForce RTX 5070 Ti 16G Gaming Trio OC |
+| GPU-MSI-RTX5070TI-GAMINGTRIO-16G: short | High-refresh 1440p and entry 4K with 16 GB of GDDR7 and a triple-fan cooler. | أداء عالٍ بدقة 1440p ودقة 4K للمبتدئين مع 16 جيجا GDDR7 ومبرد بثلاث مراوح. |
+| GPU-NVIDIA-RTX5080-FE: title | NVIDIA GeForce RTX 5080 Founders Edition 16GB | كارت شاشة NVIDIA GeForce RTX 5080 Founders Edition بسعة 16 جيجا |
+| GPU-NVIDIA-RTX5080-FE: short | NVIDIA's own dual-slot RTX 5080 with 16 GB of GDDR7 for 4K gaming. | كارت RTX 5080 من إنتاج NVIDIA بفتحتين وذاكرة GDDR7 بسعة 16 جيجا للعب بدقة 4K. |
+| GPU-NVIDIA-RTX5080-FE: description | The Founders Edition keeps the RTX 5080 to two slots and about 30 cm of length, which fits cases that struggle with large partner cards. It needs a 12V-2x6 power cable and a quality 850 W (or larger) power supply. | تحافظ نسخة Founders Edition على كارت RTX 5080 بفتحتين وطول نحو 30 سم، فيناسب الصناديق التي يصعب عليها استيعاب كروت الشركاء الكبيرة. يحتاج كابل طاقة 12V-2x6 ومصدر طاقة جيداً بقدرة 850 واط أو أكثر. |
+| GPU-GIGABYTE-RX7600-GAMING-OC-8G: title | Gigabyte Radeon RX 7600 Gaming OC 8GB | كارت شاشة Gigabyte Radeon RX 7600 Gaming OC بسعة 8 جيجا |
+| GPU-GIGABYTE-RX7600-GAMING-OC-8G: short | Entry 1080p card from AMD with FreeSync support and an 8 GB buffer. | كارت اقتصادي من AMD للعب بدقة 1080p مع دعم FreeSync وذاكرة 8 جيجا. |
+| GPU-GIGABYTE-RX9070XT-GAMING-OC-16G: title | Gigabyte Radeon RX 9070 XT Gaming OC 16GB | كارت شاشة Gigabyte Radeon RX 9070 XT Gaming OC بسعة 16 جيجا |
+| GPU-GIGABYTE-RX9070XT-GAMING-OC-16G: short | 16 GB RDNA 4 card built for high-refresh 1440p and capable 4K gaming. | كارت RDNA 4 بسعة 16 جيجا للعب بمعدل تحديث عالٍ بدقة 1440p ودقة 4K. |
+| GPU-INTEL-ARC-B580-LE-12G: title | Intel Arc B580 Limited Edition 12GB | كارت شاشة Intel Arc B580 Limited Edition بسعة 12 جيجا |
+| GPU-INTEL-ARC-B580-LE-12G: short | 12 GB of memory at an entry price, a strong option for 1080p and light 1440p. | ذاكرة 12 جيجا بسعر اقتصادي، خيار قوي للعب بدقة 1080p و1440p الخفيف. |
+| MB-GIGABYTE-B550M-DS3H: title | Gigabyte B550M DS3H Motherboard (AM4) | لوحة أم Gigabyte B550M DS3H (AM4) |
+| MB-GIGABYTE-B550M-DS3H: short | Compact AM4 board with DDR4 and PCIe 4.0: the budget base for Ryzen 5000. | لوحة صغيرة بمقبس AM4 وذاكرة DDR4 وPCIe 4.0: أساس اقتصادي لمعالجات Ryzen 5000. |
+| MB-MSI-PRO-B650M-A-WIFI: title | MSI PRO B650M-A WIFI Motherboard (AM5) | لوحة أم MSI PRO B650M-A WIFI (AM5) |
+| MB-MSI-PRO-B650M-A-WIFI: short | Micro-ATX AM5 board with DDR5 and built-in Wi-Fi for compact builds. | لوحة Micro-ATX بمقبس AM5 وذاكرة DDR5 وواي فاي مدمج للتجميعات الصغيرة. |
+| MB-MSI-MAG-B650-TOMAHAWK-WIFI: title | MSI MAG B650 TOMAHAWK WIFI Motherboard (AM5) | لوحة أم MSI MAG B650 TOMAHAWK WIFI (AM5) |
+| MB-MSI-MAG-B650-TOMAHAWK-WIFI: short | Full-size AM5 board with strong power delivery, Wi-Fi 6E and DDR5. | لوحة كاملة الحجم بمقبس AM5 وتغذية طاقة قوية وواي فاي 6E وذاكرة DDR5. |
+| MB-ASUS-TUF-B650-PLUS-WIFI: title | ASUS TUF Gaming B650-PLUS WiFi Motherboard (AM5) | لوحة أم ASUS TUF Gaming B650-PLUS WiFi (AM5) |
+| MB-ASUS-TUF-B650-PLUS-WIFI: short | Durable ATX AM5 board with DDR5, PCIe 5.0 and Wi-Fi 6. | لوحة ATX متينة بمقبس AM5 وذاكرة DDR5 وPCIe 5.0 وواي فاي 6. |
+| MB-MSI-PRO-B760M-A-WIFI-DDR4: title | MSI PRO B760M-A WIFI DDR4 Motherboard (LGA1700) | لوحة أم MSI PRO B760M-A WIFI DDR4 (LGA1700) |
+| MB-MSI-PRO-B760M-A-WIFI-DDR4: short | Micro-ATX LGA1700 board using DDR4, a cost-saving base for 12th to 14th gen Intel. | لوحة Micro-ATX بمقبس LGA1700 وذاكرة DDR4، أساس موفّر لمعالجات إنتل من الجيل 12 إلى 14. |
+| MB-ASUS-TUF-B760-PLUS-WIFI-D4: title | ASUS TUF Gaming B760-PLUS WiFi D4 Motherboard (LGA1700) | لوحة أم ASUS TUF Gaming B760-PLUS WiFi D4 (LGA1700) |
+| MB-ASUS-TUF-B760-PLUS-WIFI-D4: short | ATX LGA1700 board with DDR4, Wi-Fi 6 and a sturdy power design. | لوحة ATX بمقبس LGA1700 وذاكرة DDR4 وواي فاي 6 وتصميم طاقة متين. |
+| MB-GIGABYTE-Z790-AORUS-ELITE-AX: title | Gigabyte Z790 AORUS ELITE AX Motherboard (LGA1700) | لوحة أم Gigabyte Z790 AORUS ELITE AX (LGA1700) |
+| MB-GIGABYTE-Z790-AORUS-ELITE-AX: short | Overclocking-ready Z790 board with DDR5, three M.2 slots and Wi-Fi 6E. | لوحة Z790 جاهزة للأوفركلوك مع DDR5 وثلاث فتحات M.2 وواي فاي 6E. |
+| RAM-KINGSTON-FURY-D5-32G-6000: title | Kingston FURY Beast DDR5 32GB (2x16GB) 6000MT/s CL40 | ذاكرة Kingston FURY Beast DDR5 سعة 32 جيجا (2x16) بسرعة 6000 |
+| RAM-KINGSTON-FURY-D5-32G-6000: short | A 32 GB DDR5-6000 kit, the sweet spot for current AM5 and Intel platforms. | طقم DDR5-6000 بسعة 32 جيجا، الخيار المتوازن للمنصات الحديثة من AMD وإنتل. |
+| RAM-KINGSTON-FURY-D5-16G-5600: title | Kingston FURY Beast DDR5 16GB (2x8GB) 5600MT/s CL40 | ذاكرة Kingston FURY Beast DDR5 سعة 16 جيجا (2x8) بسرعة 5600 |
+| RAM-KINGSTON-FURY-D5-16G-5600: short | A 16 GB DDR5-5600 kit for everyday and office PCs on a DDR5 platform. | طقم DDR5-5600 بسعة 16 جيجا لأجهزة الاستخدام اليومي والمكتب على منصة DDR5. |
+| RAM-KINGSTON-RENEGADE-D5-32G-6400: title | Kingston FURY Renegade DDR5 32GB (2x16GB) 6400MT/s CL32 | ذاكرة Kingston FURY Renegade DDR5 سعة 32 جيجا (2x16) بسرعة 6400 |
+| RAM-KINGSTON-RENEGADE-D5-32G-6400: short | Fast, low-latency DDR5 for enthusiasts who tune their memory. | ذاكرة DDR5 سريعة منخفضة زمن الاستجابة لمحبي ضبط الذاكرة. |
+| RAM-CORSAIR-VENGEANCE-D5-32G-6000: title | Corsair VENGEANCE DDR5 32GB (2x16GB) 6000MT/s CL30 | ذاكرة Corsair VENGEANCE DDR5 سعة 32 جيجا (2x16) بسرعة 6000 |
+| RAM-CORSAIR-VENGEANCE-D5-32G-6000: short | Low-latency DDR5-6000 that suits gaming PCs on AM5 and Intel boards. | ذاكرة DDR5-6000 بزمن استجابة منخفض تناسب أجهزة الألعاب على لوحات AM5 وإنتل. |
+| RAM-CORSAIR-VENGEANCE-D5-64G-5600: title | Corsair VENGEANCE DDR5 64GB (2x32GB) 5600MT/s CL40 | ذاكرة Corsair VENGEANCE DDR5 سعة 64 جيجا (2x32) بسرعة 5600 |
+| RAM-CORSAIR-VENGEANCE-D5-64G-5600: short | 64 GB in two modules for video editing, virtual machines and large projects. | 64 جيجا في شريحتين لمونتاج الفيديو والأجهزة الافتراضية والمشاريع الكبيرة. |
+| RAM-KINGSTON-FURY-D4-16G-3200: title | Kingston FURY Beast DDR4 16GB (2x8GB) 3200MT/s CL16 | ذاكرة Kingston FURY Beast DDR4 سعة 16 جيجا (2x8) بسرعة 3200 |
+| RAM-KINGSTON-FURY-D4-16G-3200: short | A dependable 16 GB DDR4-3200 kit for AM4 and DDR4 Intel builds. | طقم DDR4-3200 بسعة 16 جيجا موثوق لتجميعات AM4 وإنتل بذاكرة DDR4. |
+| RAM-CORSAIR-LPX-D4-32G-3200: title | Corsair VENGEANCE LPX DDR4 32GB (2x16GB) 3200MT/s CL16 | ذاكرة Corsair VENGEANCE LPX DDR4 سعة 32 جيجا (2x16) بسرعة 3200 |
+| RAM-CORSAIR-LPX-D4-32G-3200: short | Low-profile 32 GB DDR4 that fits under large air coolers. | ذاكرة DDR4 بسعة 32 جيجا منخفضة الارتفاع تناسب تحت المبردات الهوائية الكبيرة. |
+| SSD-SAMSUNG-990EVO-1TB: title | Samsung 990 EVO 1TB NVMe M.2 SSD | هارد SSD سامسونج 990 EVO سعة 1 تيرا NVMe M.2 |
+| SSD-SAMSUNG-990EVO-1TB: short | Fast and efficient 1 TB NVMe drive for gaming PCs and laptops. | قرص NVMe سريع وموفر للطاقة بسعة 1 تيرا لأجهزة الألعاب واللابتوب. |
+| SSD-SAMSUNG-990PRO-2TB: title | Samsung 990 PRO 2TB NVMe M.2 SSD | هارد SSD سامسونج 990 PRO سعة 2 تيرا NVMe M.2 |
+| SSD-SAMSUNG-990PRO-2TB: short | PCIe 4.0 flagship with 2 TB of capacity for editing and large game libraries. | قرص PCIe 4.0 رائد بسعة 2 تيرا للمونتاج ومكتبات الألعاب الكبيرة. |
+| SSD-WD-BLUE-SN580-1TB: title | WD Blue SN580 1TB NVMe M.2 SSD | هارد SSD WD Blue SN580 سعة 1 تيرا NVMe M.2 |
+| SSD-WD-BLUE-SN580-1TB: short | Everyday PCIe 4.0 SSD with solid speed at a friendly price. | قرص PCIe 4.0 للاستخدام اليومي بسرعة جيدة وسعر مناسب. |
+| SSD-WD-BLACK-SN850X-1TB: title | WD_BLACK SN850X 1TB NVMe M.2 SSD | هارد SSD WD_BLACK SN850X سعة 1 تيرا NVMe M.2 |
+| SSD-WD-BLACK-SN850X-1TB: short | High-speed PCIe 4.0 drive built for gaming load times. | قرص PCIe 4.0 عالي السرعة مصمم لتقليل أوقات تحميل الألعاب. |
+| SSD-KINGSTON-NV3-1TB: title | Kingston NV3 1TB NVMe M.2 SSD | هارد SSD كينجستون NV3 سعة 1 تيرا NVMe M.2 |
+| SSD-KINGSTON-NV3-1TB: short | Budget PCIe 4.0 NVMe drive for upgrading from SATA or a hard drive. | قرص PCIe 4.0 NVMe اقتصادي للترقية من SATA أو القرص الصلب. |
+| SSD-SAMSUNG-870EVO-1TB: title | Samsung 870 EVO 1TB 2.5-inch SATA SSD | هارد SSD سامسونج 870 EVO سعة 1 تيرا SATA مقاس 2.5 |
+| SSD-SAMSUNG-870EVO-1TB: short | The classic reliable SATA SSD for upgrading older PCs and laptops. | قرص SATA موثوق لترقية الأجهزة واللابتوبات القديمة. |
+| HDD-WD-BLUE-2TB-7200: title | WD Blue 2TB 3.5-inch Hard Drive (7200 RPM) | هارد WD Blue سعة 2 تيرا مقاس 3.5 (7200 لفة) |
+| HDD-WD-BLUE-2TB-7200: short | Spacious desktop hard drive for backups and media libraries. | قرص صلب واسع للكمبيوتر المكتبي للنسخ الاحتياطي ومكتبات الوسائط. |
+| PSU-CM-MWE-BRONZE-550-V2: title | Cooler Master MWE Bronze 550 V2 Power Supply | مصدر طاقة Cooler Master MWE Bronze 550 V2 |
+| PSU-CM-MWE-BRONZE-550-V2: short | 550 W 80+ Bronze unit for office and entry-level builds. | مصدر طاقة 550 واط بشهادة 80+ Bronze لأجهزة المكتب والتجميعات الاقتصادية. |
+| PSU-CORSAIR-CX650: title | Corsair CX650 650W 80+ Bronze Power Supply | مصدر طاقة Corsair CX650 بقدرة 650 واط 80+ Bronze |
+| PSU-CORSAIR-CX650: short | Dependable 650 W supply for mainstream gaming PCs. | مصدر طاقة موثوق بقدرة 650 واط لأجهزة الألعاب المتوسطة. |
+| PSU-CM-MWE-GOLD-750-V2: title | Cooler Master MWE Gold 750 V2 Fully Modular Power Supply | مصدر طاقة Cooler Master MWE Gold 750 V2 قابل للفك بالكامل |
+| PSU-CM-MWE-GOLD-750-V2: short | 750 W 80+ Gold with fully modular cables for tidy builds. | مصدر طاقة 750 واط بشهادة 80+ Gold وكابلات قابلة للفك لتجميع منظم. |
+| PSU-CORSAIR-RM750E: title | Corsair RM750e 750W 80+ Gold Fully Modular Power Supply | مصدر طاقة Corsair RM750e بقدرة 750 واط 80+ Gold |
+| PSU-CORSAIR-RM750E: short | Quiet fully modular 750 W Gold supply with a 12V-2x6 cable for modern graphics cards. | مصدر طاقة هادئ 750 واط Gold قابل للفك بالكامل مع كابل 12V-2x6 لكروت الشاشة الحديثة. |
+| PSU-MSI-MAG-A850GL-PCIE5: title | MSI MAG A850GL PCIE5 850W 80+ Gold Power Supply | مصدر طاقة MSI MAG A850GL PCIE5 بقدرة 850 واط 80+ Gold |
+| PSU-MSI-MAG-A850GL-PCIE5: short | 850 W Gold with a native PCIe 5 cable for power-hungry graphics cards. | مصدر طاقة 850 واط Gold مع كابل PCIe 5 أصلي لكروت الشاشة عالية الاستهلاك. |
+| PSU-MSI-MPG-A1000G-PCIE5: title | MSI MPG A1000G PCIE5 1000W 80+ Gold Power Supply | مصدر طاقة MSI MPG A1000G PCIE5 بقدرة 1000 واط 80+ Gold |
+| PSU-MSI-MPG-A1000G-PCIE5: short | 1000 W of headroom for flagship graphics cards and overclocked CPUs. | قدرة 1000 واط مريحة لكروت الشاشة الرائدة والمعالجات المرفوعة السرعة. |
+| CASE-NZXT-H5-FLOW: title | NZXT H5 Flow ATX Mid-Tower Case | صندوق كمبيوتر NZXT H5 Flow ATX ميد تاور |
+| CASE-NZXT-H5-FLOW: short | Airflow-focused mid tower with a perforated front panel and simple cable management. | صندوق ميد تاور يركز على تدفق الهواء بواجهة مثقبة وتنظيم كابلات سهل. |
+| CASE-CORSAIR-4000D-AIRFLOW: title | Corsair 4000D Airflow Mid-Tower Case | صندوق كمبيوتر Corsair 4000D Airflow ميد تاور |
+| CASE-CORSAIR-4000D-AIRFLOW: short | A proven mid tower with room for a 360 mm radiator and long graphics cards. | ميد تاور مجرّب بمساحة لراديتر 360 مم وكروت شاشة طويلة. |
+| CASE-LIANLI-LANCOOL-216: title | Lian Li LANCOOL 216 Mid-Tower Case | صندوق كمبيوتر Lian Li LANCOOL 216 ميد تاور |
+| CASE-LIANLI-LANCOOL-216: short | Spacious high-airflow case that fits very long graphics cards and tall coolers. | صندوق واسع بتدفق هواء عالٍ يتسع لأطول كروت الشاشة والمبردات المرتفعة. |
+| CASE-CM-MASTERBOX-Q300L: title | Cooler Master MasterBox Q300L Micro-ATX Case | صندوق كمبيوتر Cooler Master MasterBox Q300L Micro-ATX |
+| CASE-CM-MASTERBOX-Q300L: short | Small, affordable Micro-ATX tower for budget and office builds. | صندوق Micro-ATX صغير واقتصادي لتجميعات الميزانية والمكتب. |
+| CASE-CM-NR200P: title | Cooler Master NR200P Mini-ITX Case | صندوق كمبيوتر Cooler Master NR200P Mini-ITX |
+| CASE-CM-NR200P: short | Compact Mini-ITX case that takes SFX power supplies and a full-size graphics card. | صندوق Mini-ITX صغير يستوعب مصادر طاقة SFX وكارت شاشة كامل الحجم. |
+| COOL-DEEPCOOL-AK400: title | DeepCool AK400 CPU Air Cooler | مبرد معالج هوائي DeepCool AK400 |
+| COOL-DEEPCOOL-AK400: short | Single-tower air cooler that handles mainstream CPUs quietly at a low price. | مبرد هوائي ببرج واحد يبرد المعالجات المتوسطة بهدوء وبسعر منخفض. |
+| COOL-CM-HYPER-212-BLACK: title | Cooler Master Hyper 212 Black Edition Air Cooler | مبرد معالج هوائي Cooler Master Hyper 212 Black Edition |
+| COOL-CM-HYPER-212-BLACK: short | The long-running budget favourite with a direct-contact heat pipe design. | المبرد الاقتصادي المفضل منذ سنوات بتصميم أنابيب حرارية بتلامس مباشر. |
+| COOL-NOCTUA-NH-D15: title | Noctua NH-D15 Dual-Tower CPU Cooler | مبرد معالج Noctua NH-D15 ببرجين |
+| COOL-NOCTUA-NH-D15: short | Dual-tower air cooler with two fans, known for near-liquid performance and low noise. | مبرد هوائي ببرجين ومروحتين، معروف بأداء قريب من المائي وضوضاء منخفضة. |
+| COOL-CM-MASTERLIQUID-ML240L-V2: title | Cooler Master MasterLiquid ML240L V2 RGB 240mm AIO | مبرد مائي Cooler Master MasterLiquid ML240L V2 RGB مقاس 240 مم |
+| COOL-CM-MASTERLIQUID-ML240L-V2: short | 240 mm all-in-one liquid cooler with RGB lighting. | مبرد مائي متكامل بمقاس 240 مم مع إضاءة RGB. |
+| COOL-CM-MASTERLIQUID-ML360L-V2: title | Cooler Master MasterLiquid ML360L ARGB V2 360mm AIO | مبرد مائي Cooler Master MasterLiquid ML360L ARGB V2 مقاس 360 مم |
+| COOL-CM-MASTERLIQUID-ML360L-V2: short | 360 mm all-in-one liquid cooler for high-power CPUs, with addressable RGB fans. | مبرد مائي متكامل بمقاس 360 مم للمعالجات عالية الاستهلاك مع مراوح RGB قابلة للتحكم. |
+| FAN-NOCTUA-NF-A12X25-PWM: title | Noctua NF-A12x25 PWM 120mm Fan | مروحة Noctua NF-A12x25 PWM مقاس 120 مم |
+| FAN-NOCTUA-NF-A12X25-PWM: short | Premium quiet 120 mm fan with strong airflow and static pressure. | مروحة 120 مم هادئة ممتازة بتدفق هواء وضغط ساكن قويين. |
+| FAN-NOCTUA-NF-P12-REDUX-1700: title | Noctua NF-P12 redux-1700 PWM 120mm Fan | مروحة Noctua NF-P12 redux-1700 PWM مقاس 120 مم |
+| FAN-NOCTUA-NF-P12-REDUX-1700: short | Affordable, quiet 120 mm PWM fan for cases and radiators. | مروحة 120 مم PWM هادئة واقتصادية للصناديق والراديتر. |
+| LAP-LENOVO-LOQ-15IRX9: title | Lenovo LOQ 15IRX9 Gaming Laptop (Core i5, RTX 4050) | لابتوب ألعاب Lenovo LOQ 15IRX9 (Core i5 وRTX 4050) |
+| LAP-LENOVO-LOQ-15IRX9: short | Entry gaming laptop with a 144 Hz screen and an RTX 4050 for 1080p play. | لابتوب ألعاب اقتصادي بشاشة 144 هرتز وكارت RTX 4050 للعب بدقة 1080p. |
+| LAP-ASUS-TUF-A15-FA507NV: title | ASUS TUF Gaming A15 FA507NV (Ryzen 7, RTX 4060) | لابتوب ASUS TUF Gaming A15 FA507NV (Ryzen 7 وRTX 4060) |
+| LAP-ASUS-TUF-A15-FA507NV: short | Durable 15.6-inch gaming laptop with a Ryzen 7 and an RTX 4060. | لابتوب ألعاب متين بشاشة 15.6 بوصة ومعالج Ryzen 7 وكارت RTX 4060. |
+| LAP-ASUS-ZENBOOK-14-OLED-UX3405MA: title | ASUS Zenbook 14 OLED UX3405MA (Core Ultra 7) | لابتوب ASUS Zenbook 14 OLED UX3405MA (Core Ultra 7) |
+| LAP-ASUS-ZENBOOK-14-OLED-UX3405MA: short | Light 14-inch ultrabook with a sharp 120 Hz OLED screen. | ألترابوك خفيف بشاشة 14 بوصة OLED حادة بمعدل 120 هرتز. |
+| LAP-LENOVO-THINKPAD-E14-G5: title | Lenovo ThinkPad E14 Gen 5 (Core i5, 16GB) | لابتوب Lenovo ThinkPad E14 Gen 5 (Core i5 وذاكرة 16 جيجا) |
+| LAP-LENOVO-THINKPAD-E14-G5: short | Business laptop with a 14-inch Full HD display and a reliable keyboard. | لابتوب أعمال بشاشة 14 بوصة Full HD ولوحة مفاتيح مريحة وموثوقة. |
+| MON-LG-27GP850-B: title | LG UltraGear 27GP850-B 27" QHD 165Hz Nano IPS Gaming Monitor | شاشة ألعاب LG UltraGear 27GP850-B مقاس 27 بوصة QHD بتردد 165 هرتز |
+| MON-LG-27GP850-B: short | 27-inch QHD Nano IPS with a fast 165 Hz refresh for competitive gaming. | شاشة Nano IPS مقاس 27 بوصة بدقة QHD وتردد سريع 165 هرتز للألعاب التنافسية. |
+| MON-GIGABYTE-M27Q: title | Gigabyte M27Q 27" QHD 170Hz IPS Gaming Monitor | شاشة ألعاب Gigabyte M27Q مقاس 27 بوصة QHD بتردد 170 هرتز |
+| MON-GIGABYTE-M27Q: short | 27-inch QHD IPS with a built-in KVM switch and a high refresh rate. | شاشة IPS مقاس 27 بوصة QHD مع مفتاح KVM مدمج وتردد تحديث عالٍ. |
+| MON-SAMSUNG-ODYSSEY-G5-34: title | Samsung Odyssey G5 34" Ultrawide 165Hz Curved Gaming Monitor | شاشة سامسونج Odyssey G5 مقاس 34 بوصة عريضة منحنية بتردد 165 هرتز |
+| MON-SAMSUNG-ODYSSEY-G5-34: short | 34-inch 1000R curved ultrawide for immersive gaming and multitasking. | شاشة عريضة منحنية 1000R مقاس 34 بوصة للألعاب الغامرة وتعدد المهام. |
+| MON-LG-24MR400-B: title | LG 24MR400-B 24" Full HD 100Hz IPS Monitor | شاشة LG 24MR400-B مقاس 24 بوصة Full HD بتردد 100 هرتز |
+| MON-LG-24MR400-B: short | Affordable 24-inch IPS monitor for home and office, with a smooth 100 Hz refresh. | شاشة IPS اقتصادية مقاس 24 بوصة للمنزل والمكتب بتردد سلس 100 هرتز. |
+| MON-LG-27UP850N-W: title | LG 27UP850N-W 27" 4K UHD IPS Monitor with USB-C | شاشة LG 27UP850N-W مقاس 27 بوصة 4K UHD IPS مع USB-C |
+| MON-LG-27UP850N-W: short | Sharp 4K IPS display with USB-C charging, a good fit for creators and laptop users. | شاشة 4K IPS حادة مع شحن USB-C، مناسبة للمبدعين ومستخدمي اللابتوب. |
+| KB-REDRAGON-K552-KUMARA: title | Redragon K552 Kumara Mechanical Gaming Keyboard (TKL) | كيبورد ميكانيكال Redragon K552 Kumara للألعاب (TKL) |
+| KB-REDRAGON-K552-KUMARA: short | Compact tenkeyless mechanical keyboard that has become a budget classic. | كيبورد ميكانيكال مدمج بدون لوحة أرقام، أصبح اختياراً اقتصادياً كلاسيكياً. |
+| KB-LOGITECH-MX-KEYS-S: title | Logitech MX Keys S Wireless Keyboard | كيبورد لاسلكي Logitech MX Keys S |
+| KB-LOGITECH-MX-KEYS-S: short | Low-profile wireless keyboard for productivity, with smart backlighting. | كيبورد لاسلكي منخفض الارتفاع للإنتاجية مع إضاءة خلفية ذكية. |
+| MOUSE-LOGITECH-G502-HERO: title | Logitech G502 HERO Gaming Mouse | ماوس ألعاب Logitech G502 HERO |
+| MOUSE-LOGITECH-G502-HERO: short | Popular wired gaming mouse with a 25,600 DPI sensor and tunable weights. | ماوس ألعاب سلكي شهير بحساس 25600 DPI وأوزان قابلة للتعديل. |
+| MOUSE-LOGITECH-G305-LIGHTSPEED: title | Logitech G305 LIGHTSPEED Wireless Gaming Mouse | ماوس ألعاب لاسلكي Logitech G305 LIGHTSPEED |
+| MOUSE-LOGITECH-G305-LIGHTSPEED: short | Light wireless gaming mouse with a fast 2.4 GHz connection and long battery life. | ماوس ألعاب لاسلكي خفيف باتصال 2.4 جيجاهرتز سريع وعمر بطارية طويل. |
+| HS-HYPERX-CLOUD-II: title | HyperX Cloud II Gaming Headset | سماعة ألعاب HyperX Cloud II |
+| HS-HYPERX-CLOUD-II: short | Comfortable wired gaming headset with 53 mm drivers and a detachable microphone. | سماعة ألعاب سلكية مريحة بسماعات 53 مم وميكروفون قابل للفصل. |
+| CAM-LOGITECH-C920-HD-PRO: title | Logitech C920 HD Pro Webcam | كاميرا ويب Logitech C920 HD Pro |
+| CAM-LOGITECH-C920-HD-PRO: short | Full HD 1080p webcam with autofocus and stereo microphones for calls and streaming. | كاميرا ويب Full HD بدقة 1080p مع تركيز تلقائي وميكروفونات ستيريو للمكالمات والبث. |
+| NET-TPLINK-ARCHER-AX55: title | TP-Link Archer AX55 AX3000 Wi-Fi 6 Router | راوتر TP-Link Archer AX55 AX3000 واي فاي 6 |
+| NET-TPLINK-ARCHER-AX55: short | Dual-band Wi-Fi 6 router with Gigabit ports for fast home networks. | راوتر واي فاي 6 ثنائي النطاق بمنافذ جيجابت لشبكات منزلية سريعة. |
+| NET-TPLINK-ARCHER-TX20E: title | TP-Link Archer TX20E AX1800 Wi-Fi 6 PCIe Adapter | كارت واي فاي TP-Link Archer TX20E AX1800 واي فاي 6 PCIe |
+| NET-TPLINK-ARCHER-TX20E: short | PCIe Wi-Fi 6 card with Bluetooth to add wireless to a desktop PC. | كارت واي فاي 6 بواجهة PCIe مع بلوتوث لإضافة الاتصال اللاسلكي لجهاز مكتبي. |
+| NET-TPLINK-TL-SG108: title | TP-Link TL-SG108 8-Port Gigabit Desktop Switch | سويتش TP-Link TL-SG108 بـ 8 منافذ جيجابت |
+| NET-TPLINK-TL-SG108: short | Plug-and-play 8-port Gigabit switch for home offices and small setups. | سويتش جيجابت بـ 8 منافذ جاهز للاستخدام فوراً للمكاتب المنزلية والتجهيزات الصغيرة. |
+| MIC-HYPERX-QUADCAST-S: title | HyperX QuadCast S USB Condenser Microphone | ميكروفون HyperX QuadCast S USB كوندنسر |
+| MIC-HYPERX-QUADCAST-S: short | USB condenser microphone with four pickup patterns and RGB lighting for streaming. | ميكروفون كوندنسر USB بأربعة أنماط التقاط وإضاءة RGB للبث. |
+| MIC-LOGITECH-BLUE-YETI: title | Logitech Blue Yeti USB Microphone | ميكروفون Logitech Blue Yeti USB |
+| MIC-LOGITECH-BLUE-YETI: short | Well-known USB microphone with multiple pickup patterns for podcasts and calls. | ميكروفون USB معروف بأنماط التقاط متعددة للبودكاست والمكالمات. |
+| ACC-NOCTUA-NT-H1-3G5: title | Noctua NT-H1 Thermal Compound (3.5g) | معجون حراري Noctua NT-H1 (3.5 جم) |
+| ACC-NOCTUA-NT-H1-3G5: short | High-quality, non-conductive thermal paste enough for several CPU installs. | معجون حراري عالي الجودة غير موصل للكهرباء يكفي لعدة تركيبات للمعالج. |
+| ACC-LOGITECH-G640: title | Logitech G640 Large Cloth Gaming Mouse Pad | ماوس باد Logitech G640 كبير قماشي للألعاب |
+| ACC-LOGITECH-G640: short | Large cloth mouse pad with a consistent surface for precise tracking. | ماوس باد قماشي كبير بسطح ثابت لتتبع دقيق. |
 
 <!-- prettier-ignore-end -->

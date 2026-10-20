@@ -109,6 +109,15 @@ describe("liquid coolers", () => {
     expect(failing(aio(240))).toEqual([]);
     expect(failing(aio(360))).toEqual(["cooler_fit"]);
   });
+  it("accepts supported sizes stored as numeric strings (spec lists are STRING_LIST)", () => {
+    const asStrings = patch("case", { radiator_support_mm: ["240", "360"] });
+    const parts = asStrings.map((p) =>
+      p.role === "cooler"
+        ? { ...p, specs: { ...p.specs, cooler_type: "liquid", radiator_mm: 360 } }
+        : p,
+    );
+    expect(failing(parts)).toEqual([]);
+  });
 });
 
 describe("PSU wattage thresholds", () => {
@@ -191,6 +200,9 @@ describe("roleOfCategoryPath", () => {
     expect(roleOfCategoryPath("components/graphics-cards/nvidia-geforce")).toBe("gpu");
     expect(roleOfCategoryPath("components/cooling/air-coolers")).toBe("cooler");
     expect(roleOfCategoryPath("components/power-supplies")).toBe("psu");
+  });
+  it("does not treat case fans as coolers", () => {
+    expect(roleOfCategoryPath("components/cooling/case-fans")).toBeNull();
   });
   it("is null for everything else, and does not match by loose prefix", () => {
     expect(roleOfCategoryPath("monitors/gaming-monitors")).toBeNull();

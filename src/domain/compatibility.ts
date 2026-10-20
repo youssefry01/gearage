@@ -81,10 +81,18 @@ const strList = (v: unknown): string[] | null =>
   Array.isArray(v) && v.length > 0 && v.every((x) => typeof x === "string")
     ? (v as string[]).map((s) => s.trim())
     : null;
-const numList = (v: unknown): number[] | null =>
-  Array.isArray(v) && v.length > 0 && v.every((x) => typeof x === "number" && Number.isFinite(x))
-    ? (v as number[])
-    : null;
+/** Numeric list. Spec values can only be STRING_LIST (ADR 0009), so integers stored as strings ("360") are accepted too. */
+const numList = (v: unknown): number[] | null => {
+  if (!Array.isArray(v) || v.length === 0) return null;
+  const out = v.map((x) =>
+    typeof x === "number"
+      ? x
+      : typeof x === "string" && /^\d+(\.\d+)?$/.test(x.trim())
+        ? Number(x)
+        : NaN,
+  );
+  return out.every((n) => Number.isFinite(n)) ? out : null;
+};
 /** "LGA 1700", "lga1700" and "LGA1700" are the same socket. */
 const key = (s: string) => s.toLowerCase().replace(/[\s_-]+/g, "");
 
@@ -345,8 +353,12 @@ const ROLE_PREFIXES: readonly (readonly [string, PartRole])[] = [
   ["components/cooling", "cooler"],
 ];
 
+/** Parts under a build-role prefix that are NOT build parts (case fans carry no cooler specs). Checked first. */
+const NON_BUILD_PREFIXES: readonly string[] = ["components/cooling/case-fans"];
+
 /** Which build role a category path ("components/cpus/amd-ryzen") plays, or null for non-build categories. */
 export function roleOfCategoryPath(path: string): PartRole | null {
+  if (NON_BUILD_PREFIXES.some((p) => path === p || path.startsWith(`${p}/`))) return null;
   const hit = ROLE_PREFIXES.find(([prefix]) => path === prefix || path.startsWith(`${prefix}/`));
   return hit ? hit[1] : null;
 }

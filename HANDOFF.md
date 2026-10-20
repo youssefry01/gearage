@@ -2,11 +2,12 @@
 
 > Resume rule: a new chat must be able to continue from this file alone. Update it every milestone.
 
-## 1. Status (2026-10-15)
+## 1. Status (2026-10-20)
 
-- Proposal **approved**. **M0** (foundations), **M1a** (design system, i18n/RTL, brand), **M1b** (store shell) and **M2a** (catalog and inventory foundations) are **delivered**.
-  Next: **M2b** (idempotent seed, placeholder SVGs, SEEDING.md, ASSETS.md, seeded-bundle compatibility test). Ask the owner before starting it.
+- Proposal **approved**. **M0** (foundations), **M1a** (design system, i18n/RTL, brand), **M1b** (store shell), **M2a** (catalog and inventory foundations) and **M2b** (idempotent catalog seed, placeholder SVGs, SEEDING.md, ASSETS.md) are **delivered**.
+  Next: **M3a** (home, listings, filters; the menu and categories move to the database). Ask the owner before starting it.
 - Owner verified M1b locally and pushed: tokens, contrast, brand, lint, typecheck and 158 unit tests pass; e2e 147/151 on the first run (12 workers, dev server; the 4 failures were cold-start flakes and passed on rerun); CI on main green including e2e on the production build.
+- M2b scope: `prisma/seed/` (per-family data files, validator, idempotent runner, SVG placeholder generator), `docs/SEEDING.md` (with a generated, CI-checked "specs to verify" list), `docs/ASSETS.md`, ADR 0015. Conventions: see ADR 0015 and docs/SEEDING.md.
 - M2a scope: money, pricing, stock/reservations, bundles, compatibility and the storage interface. **Promo codes are NOT in M2a** (M6a). Catalog pages, search and listings UI are M3a/M3b/M4.
 - Pinned versions (ADR 0011): Next 16.4.0, React 19.3.0, TypeScript 6.0.3 (typescript-eslint caps below 6.1), Prisma 7.10.0
   (CLI `latest` tag is an 8.0 RC), Zod 4.6.5, ESLint 10.12.0, Vitest 5.0.3, Tailwind 4.3.3, next-intl 4.14.9, @fontsource/ibm-plex-sans(-arabic) 5.3.0,
@@ -14,7 +15,7 @@
   **Dependabot ignores major bumps** of typescript, @types/node, next, react, react-dom, prisma, @prisma/client, @prisma/adapter-pg (added: it must move with Prisma) and eslint unless the owner asks; bumps happen inside milestones, never by merging PRs between zips.
 - Node: `engines.node` = `>=22.22.2 <23`; the owner's `.nvmrc` is `22` and CI uses `node-version-file: .nvmrc`; `.npmrc` has `engine-strict=true`.
 - Owner environment: Windows (Git Bash), Node 22.23.3, **local Postgres (no Docker)**, `.env` (local) and `.env.production` (future prod, local-only), both gitignored. Owner repo files to keep: `.gitattributes` (`* text=auto eol=lf`) and `desktop.ini` in `.gitignore`.
-- **Hand-written migration**: `20261014000000_catalog_inventory` was written by hand (Prisma engines are blocked in the authoring sandbox). Drift against schema.prisma is verified by the owner locally and by CI on every push; see README "Verifying a hand-written migration" and known issue 21.
+- **Hand-written migration**: `20261014000000_catalog_inventory` was written by hand (Prisma engines are blocked in the authoring sandbox). Drift against schema.prisma is verified by the owner locally and by CI on every push; see README "Verifying a hand-written migration" and known issue 21. **Verified by the owner on 2026-10-19: `migrate dev` applied it and `migrate diff` reported no difference.**
 
 ## 2. Product and brand
 
@@ -86,8 +87,8 @@ Rule: every milestone is runnable, tested, ends with the web-design-guidelines a
 | M1a     | Design tokens, themes, i18n/RTL, fonts        | **DELIVERED.** Contrast verified by script; brand config; logos; real-browser e2e matrix                                                                                                |
 | M1b     | Shell                                         | **DELIVERED.** Header (top bar, search, account/wishlist/cart badge, mega-menu, sticky), mobile drawer, footer + status dot, cookie banner, cached `/api/status`                        |
 | M2a     | Catalog schema, domain logic, services, tests | **DELIVERED.** Money, pricing, stock/reservations (locking, concurrency-tested), bundles (derived price and stock views), compatibility, specs validation, storage interface, `test:db` |
-| **M2b** | Seed, placeholders, docs                      | **NEXT.** Idempotent seed (per-category data files), SVG placeholders, SEEDING.md, ASSETS.md, seeded-bundle compatibility test. Prices illustrative. Leave EAN null unless known        |
-| M3a     | Home, listings, filters                       | URL-synced filters, sorting, pagination                                                                                                                                                 |
+| M2b     | Seed, placeholders, docs                      | **DELIVERED.** Idempotent seed (per-category data files), SVG placeholders, SEEDING.md, ASSETS.md, seeded-bundle compatibility test. Prices illustrative. Leave EAN null unless known        |
+| **M3a** | Home, listings, filters                       | **NEXT.** Serve the category tree from the DB (delete `features/navigation/categories.ts`).  URL-synced filters, sorting, pagination                                                                                                                                                 |
 | M3b     | Product + bundle pages                        | Gallery, showcase rendering, JSON-LD, sitemap (add real paths to `lib/sitemap.ts#INDEXABLE_PATHS`)                                                                                      |
 | M4      | Search and discovery                          | FTS + trigram, suggestions, compare, recently viewed, view tracking                                                                                                                     |
 | M5a     | Auth core                                     | Register, login, verify, OTP, reset, Argon2id, HIBP, rate limit, lockout, Brevo outbox                                                                                                  |
@@ -107,7 +108,7 @@ Rule: every milestone is runnable, tested, ends with the web-design-guidelines a
 | M13b    | Release docs                                  | README, ERD, deploy guide                                                                                                                                                               |
 | M14+    | Optional                                      | PC Builder UI, bundle customize, installments, abandoned cart                                                                                                                           |
 
-Seed ships in **M2b**. Status: dot in M1b (website/API/DB via cached `/api/status`), full page M7b, because it needs the rate-limit layer (M5a), the email outbox (M5a) and a payments probe (M7).
+Seed shipped in **M2b**. Status: dot in M1b (website/API/DB via cached `/api/status`), full page M7b, because it needs the rate-limit layer (M5a), the email outbox (M5a) and a payments probe (M7).
 M1b note: the shadcn CLI fetches from ui.shadcn.com, which may be blocked in the sandbox; if so, Radix-based components are written by hand in shadcn style (tokens already use shadcn names). Showcase: schema M2a, seed blocks M2b, rendering M3b, admin editing M10b.
 
 ## 7. Extras (approved)
@@ -177,33 +178,40 @@ component-level returns refund allocated price; seed bundles use fixed price.
 18. The cookie banner's "Analytics" category has no consumer yet (Vercel Analytics or similar later). Consent is recorded in the first-party `consent` cookie (version, analytics flag, timestamp; about 6 months).
 19. shadcn/ui is not installed through its CLI (its registry is blocked in the sandbox). Components are hand-written with Radix primitives in shadcn's style; token names already match shadcn's, so real shadcn components can be dropped in later.
 20. (Resolved in M2a) Top-bar claims are no longer hardcoded: they are StoreSetting key `topbar` (empty by default, so the bar is neutral until the owner sets real values). Set them with SQL until the admin UI (M11): `INSERT INTO store_setting (key, value, "updatedAt") VALUES ('topbar', '{"lines":[{"icon":"truck","text":{"en":"...","ar":"..."}}]}', now()) ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, "updatedAt" = now();` (icons: info, truck, banknote, shield; up to 3 lines; the page refreshes within an hour).
-21. **Migration drift is unverified until the owner runs it.** The catalog migration was executed on PostgreSQL 18.4 and passes 105 DB tests, but `prisma migrate diff` needs the engine. The partial unique indexes (`product_*_active_uq`), CHECKs, triggers and views are not modelled by Prisma; whether Prisma ignores them in the comparison is the one thing not confirmed. CI runs the diff on every push (exit 0 identical, 2 differences, 1 error). If it reports only those objects, tell the assistant; the fix is small.
+21. (Resolved 2026-10-19) The owner ran `migrate dev` and `migrate diff`: "No difference detected", exit 0; CI repeats the diff on every push. Keep running it after any hand-written migration.
 22. The DB tests ran on PostgreSQL 18.4 (an npm-packaged binary) in the authoring sandbox. CI uses `postgres:17-alpine`; the owner's local version may differ. The SQL avoids features newer than PostgreSQL 15.
 23. Discount-priced bundles must NOT store a `price` (a CHECK enforces it): their price comes from the `product_pricing` view. Listings and sorting by price must read that view, never `product.price`, for bundles.
 24. The job `expire-stock-reservations` runs on the `tick` cadence (GitHub Actions workflow, inactive until deployment). Correctness never depends on it (availability ignores expired reservations); it only tidies status.
 25. Promo codes and the order state machine are not in M2a (M6a/M6b). `StockReservation.orderId` has no foreign key yet; M6b adds it.
 26. Barcodes (EAN/GTIN): the domain validates the GS1 check digit; the seed must not invent barcodes (leave null unless known).
+27. **Seed specs are unverified** (the biggest risk of M2b). They are from the author's knowledge, not datasheets; 56 of 79 products carry flagged doubts (generated list in docs/SEEDING.md, CI-checked). Board slot counts, case/cooler clearances, GPU lengths and laptop configurations are the weakest. Before launch the owner (or a later milestone) must check them against manufacturer pages; the compatibility badge is only as good as these numbers.
+28. Prices, costs (88% of price), warranty months, shipping fees and delivery estimates are illustrative. Weights/dimensions are mostly empty; EAN is never seeded; MPN only where confident.
+29. The seed adds 9 top-level categories (the static nav has 6: it lacks Audio & Streaming, Accessories and the inactive Gift Cards). M3a replaces the static tree with the DB, so the menu will gain those. Empty or inactive categories must not appear in the menu.
+30. Shipping zones, promo codes and branches are **data only** (validated, not inserted) until M6a / M12 add their tables; those milestones add their seed step from `prisma/seed/data/{shipping-zones,promo-codes,branches}.ts`.
+31. Seeded images are SVG placeholders under `public/uploads/seed/` (git-ignored) served from `/uploads`; SVG bypasses `next/image` optimization, so M3b should render seed SVGs with `unoptimized` (or via a plain `<img>`) and real raster photos through `next/image`. The `StorageProvider.urlFor` base is `STORAGE_PUBLIC_BASE_URL`.
+32. Stock and counters are seeded once. To get a fresh demo state: `npx prisma migrate reset` (local only), then `npm run db:seed`.
+33. Intel `tdp_w` is the 125 W base power, not the 253 W turbo power, so the PSU rule under-estimates K-series CPUs; seeded Intel bundles leave headroom. Revisit the rule (use max turbo power) when the PC Builder ships.
+34. The seeded video block uses a YouTube embed id (Big Buck Bunny) written from memory; the M3b renderer must allow-list embed hosts (`www.youtube-nocookie.com`) and the id should be checked.
+35. `NUMBER_LIST` is not a spec type: numeric lists (case radiator sizes) are `STRING_LIST` of integer strings (ADR 0015).
 
-## 11. Verification record: M2a (2026-10-15)
+## 11. Verification record: M2b (2026-10-20)
 
-Earlier milestones' records and the M0 scope: [docs/MILESTONE_HISTORY.md](docs/MILESTONE_HISTORY.md). Sections 8, 12 and 13 moved there.
+Earlier milestones' records (M0 to M2a) and the M0 scope: [docs/MILESTONE_HISTORY.md](docs/MILESTONE_HISTORY.md). Sections 8, 12 and 13 moved there.
 
-**Verified in the sandbox (real execution, not just written):**
+**Owner verified M2a locally (2026-10-19, Node 22.23.3):** `migrate dev` applied `20261014000000_catalog_inventory`; `migrate diff` printed "No difference detected" (exit 0); `test:db` 105 passed; tokens, contrast, brand, lint, typecheck and unit tests pass; CI on main (drift check + `test:db`) green. Known issue 21 is resolved.
 
-- All CI gates: `format:check`, `tokens:check`, `contrast` (60/60 AA), `brand:check` (152 files; a planted violation fails), `i18n:review:check` (140 strings), `lint`, `typecheck`, prod `npm audit` = 0, `prisma validate` and `generate`, `next build` (139 static pages). `prisma migrate diff --help` confirmed the exact flags used in the docs and CI.
-- **302 unit tests** (30 files): every domain module (money incl. a 2,000-trial allocation property test, pricing, stock, catalog, specs, compatibility incl. each rule failing alone and PSU boundaries), the test-database resolver, storage (traversal, content sniffing, SVG, size, atomic writes), sitemap rules, settings (top bar), status, consent, i18n parity.
-- **105 DB tests** (`npm run test:db`) on a REAL PostgreSQL 18.4 (an npm-packaged binary): the whole hand-written migration executed; every CHECK, trigger, partial unique index and FK rule attacked (50); `product_availability` and `product_pricing` against their TypeScript twins on randomized data, plus the availability view under five session time zones (16); the stock service and **real concurrency** (50 COD buyers for 20 units, 40 reservations for 10, mixed races, opposite-order checkouts with no deadlock, bundles racing parts, 10 simultaneous payment confirmations decrementing once, conversion racing buyers) repeated three times with no flake (27); bundle detail, storefront listing in ONE statement (12). A Prisma Client round trip of all 13 models validates `schema.prisma` against the SQL.
-- The DB suite also passes with BOTH Node and the database session set to UTC, Africa/Cairo, America/Los_Angeles and Pacific/Kiritimati (+14).
-- **`test:db` never touches a development database**: run with only `DATABASE_URL` pointing at a dev database that held rows in a table named `product`, it derived the test database, passed, and the dev rows were intact. A remote host, a database not ending in `_test`, the dev database itself, and a host alias of it (`localhost` vs `127.0.0.1`) were all refused.
-- **154 Playwright tests pass** in real Chromium on a production build (run as four groups because the authoring sandbox restarted during long runs): 80 viewport tests (10 viewports x en/ar x home/styleguide/cart/category, phones as touch contexts), 26 axe WCAG 2.2 AA runs, the shell spec (now including sitemap, robots and noindex), locale/theme/SEO/fonts, console cleanliness.
+**Verified in the sandbox (real execution):**
 
-**Not verified (the owner must run):**
+- Gates: `format:check`, `tokens:check`, `contrast` (60/60 AA), `brand:check` (181 files), `i18n:review:check` (491 strings), `seed:docs:check` (56 flagged products), `lint`, `typecheck`, `next build`.
+- **336 unit tests** (31 files), including 28 new seed tests: data validity and volumes, every top-level and leaf category populated, unique SKUs/slugs/keys, planted mistakes caught by the validator (duplicate SKU, unknown brand/category/tag, bad spec, bundle dearer than its parts, missing Arabic), the 27 governorates covered once, promo cases, deterministic well-formed SVG (no scripts, escaped text, labelled), and the guard refusing a Supabase URL before any file is written. Domain: `resolveSpecDefinitions`, numeric-string radiator lists, case fans excluded from build roles.
+- **126 DB tests** (`npm run test:db`, real PostgreSQL 18.4, 21 new in `tests/db/seed.db.test.ts`): the seed run THREE times with a full-table snapshot (every row, id and timestamp) identical; a drifted price is repaired while stock, counters and the adjustment log are untouched; a deleted bundle composition is restored; only catalog tables are written (no users, orders, reviews, settings); every seeded bundle is compatible with **zero warnings and zero unknowns**, saves money (under 15%), is sellable, has a known margin, and the high-end bundle's availability equals its scarcest part; all components are active physical products; out-of-stock and low-stock states exist; the top 10 by views and by units sold have no ties.
+- The seed ran end to end against a scratch database (79 products, 6 bundles, 53 categories, 123 spec definitions, 251 placeholder images, 1.1 MB), and I looked at rendered samples of the placeholders.
+- No schema or migration change in M2b, so no drift check is needed this time.
 
-1. `npx prisma migrate dev` and `npx prisma migrate diff --from-config-datasource --to-schema prisma/schema --exit-code` (the Prisma engine is blocked in the sandbox). CI runs the same diff on every push. See known issue 21.
-2. `npm run test:db` on the owner's own PostgreSQL version and Windows (the sandbox used 18.4 on Linux; CI uses 17).
-3. GitHub CI for this delivery, real devices, Firefox/Safari.
+**Not verified (the owner must run):** `npm run db:seed` against his own Postgres on Windows (twice, to see "already up to date"), `npm run test:db` locally, GitHub CI for this delivery, and above all **the specs themselves**: they come from my knowledge, 56 of 79 products carry doubts listed in docs/SEEDING.md, and no spec was checked against a manufacturer page (no internet access to those sites here). Prices are illustrative.
 
-**Found and fixed by this milestone's checks:** the availability view compared a UTC `timestamp` with `now()`, which breaks in a Cairo-time database session (live reservations would count as expired: overselling); a `localhost` vs `127.0.0.1` gap in the "never the dev database" rule; a CHECK that depended on `DEFAULT CURRENT_TIMESTAMP` (removed); the brand check caught the project name inside the test database name (now `brand.slug`).
+**Found and fixed by seeding:** case fans sat under the `cooler` build role (would have been read as coolers by the PC Builder); case radiator sizes needed a numeric list but spec lists are strings only (accepted as numeric strings, ADR 0015).
+
 
 ## 14. Environment strategy
 
@@ -231,9 +239,10 @@ Decided 2026-10-14: top bar targets 32px with a mouse and 44px on touch; wishlis
 Open for the owner:
 
 1. **Dependabot**: I also ignore major bumps of `@prisma/adapter-pg` (not on your list) because it must move with `prisma` and `@prisma/client`. Remove it from `.github/dependabot.yml` if you disagree.
-2. **Neutral top bar**: until you set the `topbar` StoreSetting (known issue 20) the desktop bar shows only "Help & support", the optional phone and the language/theme controls. OK?
-3. **M2b scope**: seed per the brief (about 10 top-level categories with spec definitions, 15 to 20 brands, 60 to 80 products with accurate specs, 5 to 8 bundles, shipping zones, promo codes and branches as data only, placeholders), no users/orders/reviews. Anything to add or cut?
-4. **Drift check**: please run the three commands in README "Verifying a hand-written migration" and report the outcome (CI reports the same on push).
+2. (Answered 2026-10-19) Neutral top bar is fine until shipping zones are confirmed in M6a.
+3. **Seed specs**: please spot-check a handful of the flagged products in docs/SEEDING.md (motherboards, cases, GPU lengths) against manufacturer pages, or tell me which categories to correct. Not blocking M3a.
+4. **M3a scope** (home, listings, filters, DB-served category tree). Anything to add or cut? I will flag if it should split, as with M2.
+5. **Bundle defaults** (section 10) are what the seed implements: parts-in-box, one promo per order, fixed prices, bundles carry only editorial specs. Say if you want any changed before M3b/M6.
 
 ## 17. Needs native review: machine-written Arabic
 

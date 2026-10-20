@@ -3,6 +3,25 @@
 Records moved out of HANDOFF.md to keep it short for resuming. Newest first is NOT guaranteed; each section names its milestone.
 The current status, conventions, known issues and decisions are in [HANDOFF.md](../HANDOFF.md).
 
+## M2a verification record (2026-10-15)
+
+**Verified in the sandbox (real execution, not just written):**
+
+- All CI gates: `format:check`, `tokens:check`, `contrast` (60/60 AA), `brand:check` (152 files; a planted violation fails), `i18n:review:check` (140 strings), `lint`, `typecheck`, prod `npm audit` = 0, `prisma validate` and `generate`, `next build` (139 static pages). `prisma migrate diff --help` confirmed the exact flags used in the docs and CI.
+- **302 unit tests** (30 files): every domain module (money incl. a 2,000-trial allocation property test, pricing, stock, catalog, specs, compatibility incl. each rule failing alone and PSU boundaries), the test-database resolver, storage (traversal, content sniffing, SVG, size, atomic writes), sitemap rules, settings (top bar), status, consent, i18n parity.
+- **105 DB tests** (`npm run test:db`) on a REAL PostgreSQL 18.4 (an npm-packaged binary): the whole hand-written migration executed; every CHECK, trigger, partial unique index and FK rule attacked (50); `product_availability` and `product_pricing` against their TypeScript twins on randomized data, plus the availability view under five session time zones (16); the stock service and **real concurrency** (50 COD buyers for 20 units, 40 reservations for 10, mixed races, opposite-order checkouts with no deadlock, bundles racing parts, 10 simultaneous payment confirmations decrementing once, conversion racing buyers) repeated three times with no flake (27); bundle detail, storefront listing in ONE statement (12). A Prisma Client round trip of all 13 models validates `schema.prisma` against the SQL.
+- The DB suite also passes with BOTH Node and the database session set to UTC, Africa/Cairo, America/Los_Angeles and Pacific/Kiritimati (+14).
+- **`test:db` never touches a development database**: run with only `DATABASE_URL` pointing at a dev database that held rows in a table named `product`, it derived the test database, passed, and the dev rows were intact. A remote host, a database not ending in `_test`, the dev database itself, and a host alias of it (`localhost` vs `127.0.0.1`) were all refused.
+- **154 Playwright tests pass** in real Chromium on a production build (run as four groups because the authoring sandbox restarted during long runs): 80 viewport tests (10 viewports x en/ar x home/styleguide/cart/category, phones as touch contexts), 26 axe WCAG 2.2 AA runs, the shell spec (now including sitemap, robots and noindex), locale/theme/SEO/fonts, console cleanliness.
+
+**Not verified (the owner must run):**
+
+1. `npx prisma migrate dev` and `npx prisma migrate diff --from-config-datasource --to-schema prisma/schema --exit-code` (the Prisma engine is blocked in the sandbox). CI runs the same diff on every push. See known issue 21.
+2. `npm run test:db` on the owner's own PostgreSQL version and Windows (the sandbox used 18.4 on Linux; CI uses 17).
+3. GitHub CI for this delivery, real devices, Firefox/Safari.
+
+**Found and fixed by this milestone's checks:** the availability view compared a UTC `timestamp` with `now()`, which breaks in a Cairo-time database session (live reservations would count as expired: overselling); a `localhost` vs `127.0.0.1` gap in the "never the dev database" rule; a CHECK that depended on `DEFAULT CURRENT_TIMESTAMP` (removed); the brand check caught the project name inside the test database name (now `brand.slug`).
+
 ## M1b verification record (2026-10-12)
 
 Verified in the sandbox: `format:check`, `tokens:check`, `contrast` (60/60 AA with `#FF5A00`), `brand:check`, `lint`, `typecheck`, `vitest` (158 tests: status domain and service incl. TTL/single-flight/timeout, consent,

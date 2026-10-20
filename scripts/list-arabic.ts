@@ -8,6 +8,8 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { brand } from "../src/config/brand";
 import { navCategories, type NavCategory } from "../src/features/navigation/categories";
+import { loadSeedData } from "../prisma/seed/data";
+import { governorates, shippingZones } from "../prisma/seed/data/shipping-zones";
 
 type Tree = { [k: string]: string | Tree };
 const load = (l: string): Tree =>
@@ -42,7 +44,63 @@ function walk(nodes: NavCategory[], trail: string[] = []): string[] {
   });
 }
 const categories = walk(navCategories);
-const count = messages.length + brandRows.length + categories.length;
+
+// Seed catalog copy (prisma/seed): everything a shopper reads that the seed writes in Arabic.
+const seed = loadSeedData();
+const navPaths = new Set<string>();
+(function collect(nodes: NavCategory[], trail: string[] = []) {
+  for (const n of nodes) {
+    navPaths.add([...trail, n.slug].join("/"));
+    collect(n.children ?? [], [...trail, n.slug]);
+  }
+})(navCategories);
+const same = (a: string, b: string) => a === b;
+const seedCategories = seed.categories
+  .filter((c) => !navPaths.has(c.path) && !same(c.name.en, c.name.ar))
+  .map((c) => row(`seed category: ${c.path}`, c.name.en, c.name.ar));
+const seedCategoryDescriptions = seed.categories.flatMap((c) =>
+  c.description
+    ? [row(`seed category description: ${c.path}`, c.description.en, c.description.ar)]
+    : [],
+);
+const seedTags = seed.tags
+  .filter((tg) => !same(tg.name.en, tg.name.ar))
+  .map((tg) => row(`tag: ${tg.slug}`, tg.name.en, tg.name.ar));
+const specLabels = new Map<string, string>();
+for (const defs of Object.values(seed.specDefinitions))
+  for (const d of defs) {
+    specLabels.set(`${d.labelEn}\u0000${d.labelAr}`, `spec label`);
+    for (const o of d.options ?? [])
+      if (!same(o.labelEn, o.labelAr))
+        specLabels.set(`${o.labelEn}\u0000${o.labelAr}`, `spec option`);
+  }
+const seedSpecs = [...specLabels].map(([k, kind]) => {
+  const [en, ar] = k.split("\u0000") as [string, string];
+  return row(kind, en, ar);
+});
+const seedShipping = [
+  ...governorates.map((g) => row(`governorate: ${g.code}`, g.name.en, g.name.ar)),
+  ...shippingZones.map((z) => row(`shipping zone: ${z.code}`, z.name.en, z.name.ar)),
+];
+const seedBundles = seed.bundles.flatMap((b) => [
+  row(`bundle ${b.sku}: title`, b.title.en, b.title.ar),
+  row(`bundle ${b.sku}: short`, b.short.en, b.short.ar),
+  row(`bundle ${b.sku}: description`, b.description.en, b.description.ar),
+]);
+const seedProducts = seed.products.flatMap((p) => [
+  row(`${p.sku}: title`, p.title.en, p.title.ar),
+  row(`${p.sku}: short`, p.short.en, p.short.ar),
+  ...(p.description ? [row(`${p.sku}: description`, p.description.en, p.description.ar)] : []),
+]);
+const seedCount =
+  seedCategories.length +
+  seedCategoryDescriptions.length +
+  seedTags.length +
+  seedSpecs.length +
+  seedShipping.length +
+  seedBundles.length +
+  seedProducts.length;
+const count = messages.length + brandRows.length + categories.length + seedCount;
 
 const doc = `# Arabic copy that needs native review
 
@@ -50,7 +108,7 @@ ${count} Arabic strings were written by the assistant, not a native copywriter. 
 example the category names) and plural forms. Brand and model names left in Latin (AMD Ryzen, DDR5, ...) are not listed.
 The owner plans one native-review pass once more copy exists.
 
-This file is GENERATED from \`messages/ar.json\`, \`src/config/brand.ts\` and the category tree. Do not edit it by hand:
+This file is GENERATED from \`messages/ar.json\`, \`src/config/brand.ts\`, the category tree and the seed data files (\`prisma/seed/data\`). Do not edit it by hand:
 run \`npm run i18n:review\` after adding strings (CI runs \`npm run i18n:review:check\`).
 
 <!-- prettier-ignore-start -->
@@ -66,6 +124,26 @@ ${[...header, ...brandRows].join("\n")}
 ## Category names (temporary static tree; moves to the database in M3a)
 
 ${[...header, ...categories].join("\n")}
+
+## Seed catalog: category names not in the tree above, descriptions and tags
+
+${[...header, ...seedCategories, ...seedCategoryDescriptions, ...seedTags].join("\n")}
+
+## Seed catalog: spec labels and options
+
+${[...header, ...seedSpecs].join("\n")}
+
+## Seed data: governorates and shipping zones (inserted from M6a)
+
+${[...header, ...seedShipping].join("\n")}
+
+## Seed catalog: bundles
+
+${[...header, ...seedBundles].join("\n")}
+
+## Seed catalog: products (titles and descriptions)
+
+${[...header, ...seedProducts].join("\n")}
 
 <!-- prettier-ignore-end -->
 `;

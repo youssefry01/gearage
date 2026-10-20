@@ -32,7 +32,9 @@
     "brand:assets": "tsx scripts/brand-assets.ts",
     "i18n:review": "tsx scripts/list-arabic.ts",
     "i18n:review:check": "tsx scripts/list-arabic.ts --check",
-    "test:db": "vitest run --config vitest.db.config.mts"
+    "test:db": "vitest run --config vitest.db.config.mts",
+    "seed:docs": "tsx scripts/seed-docs.ts",
+    "seed:docs:check": "tsx scripts/seed-docs.ts --check"
   },
   "dependencies": {
     "@fontsource/ibm-plex-sans": "5.3.0",
