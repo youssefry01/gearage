@@ -44,7 +44,9 @@ test.describe("desktop header", () => {
     await openMegaMenu(page, "Components");
     const gpu = page.getByRole("link", { name: "Graphics Cards", exact: true });
     await expect(gpu).toBeVisible();
-    await expect(page.getByRole("link", { name: "NVIDIA GeForce" })).toBeVisible();
+    // Scoped to the menu: after navigating, "NVIDIA GeForce" is also a subcategory chip on the listing page.
+    const menu = page.getByRole("navigation", { name: "Product categories" });
+    await expect(menu.getByRole("link", { name: "NVIDIA GeForce" })).toBeVisible();
     await gpu.click();
     await expect(page).toHaveURL(/\/en\/c\/components\/graphics-cards$/);
     await expect(page.getByRole("heading", { level: 1, name: "Graphics Cards" })).toBeVisible();
@@ -52,7 +54,7 @@ test.describe("desktop header", () => {
     await expect(crumbs.getByRole("link", { name: "Components" })).toBeVisible();
     await expect(crumbs.getByText("Graphics Cards")).toHaveAttribute("aria-current", "page");
     // the panel closed after navigating
-    await expect(page.getByRole("link", { name: "NVIDIA GeForce" })).toBeHidden();
+    await expect(menu.getByRole("link", { name: "NVIDIA GeForce" })).toBeHidden();
   });
 
   test("keyboard: Enter opens the panel, Escape closes it and returns focus to the trigger", async ({
@@ -374,13 +376,23 @@ test.describe("sitemap and robots", () => {
       "/wishlist",
       "/account",
       "/search",
-      "/c/",
       "/contact",
       "/status",
       "/terms",
     ]) {
       expect(xml, placeholder).not.toContain(placeholder);
     }
+    // ADR 0016: clean category paths only, in every locale; never a filtered/sorted URL or a product placeholder.
+    expect(xml).toContain("/en/c/components/cpus</loc>");
+    expect(xml).toContain("/ar/c/components/cpus</loc>");
+    const locs = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1] ?? "");
+    expect(locs.length).toBeGreaterThan(2);
+    for (const loc of locs) {
+      expect(loc, "no query string in the sitemap").not.toContain("?");
+      expect(loc, "no product placeholder in the sitemap").not.toMatch(/\/p\//);
+    }
+    // Gift Cards is inactive, so it never appears.
+    expect(xml).not.toContain("/c/gift-cards");
   });
   test("robots.txt blocks the API and points at the sitemap", async ({ request }) => {
     const text = await (await request.get("/robots.txt")).text();
@@ -388,9 +400,18 @@ test.describe("sitemap and robots", () => {
     expect(text).toMatch(/Sitemap:\s*\S+\/sitemap\.xml/);
   });
   test("placeholder pages are noindex", async ({ page }) => {
-    await page.goto("/en/cart");
-    await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", /noindex/);
+    for (const placeholder of ["/en/cart", "/en/p/anything"]) {
+      await page.goto(placeholder);
+      await expect(page.locator('meta[name="robots"]'), placeholder).toHaveAttribute(
+        "content",
+        /noindex/,
+      );
+    }
+  });
+  test("a clean category page is indexable (ADR 0016), a filtered one is not", async ({ page }) => {
     await page.goto("/en/c/components/cpus");
+    await expect(page.locator('meta[name="robots"]')).toHaveCount(0);
+    await page.goto("/en/c/components/cpus?in_stock=1");
     await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", /noindex/);
   });
 });

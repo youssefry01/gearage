@@ -1,6 +1,8 @@
 "use client";
 
 import { useLocale, useTranslations } from "next-intl";
+import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 import { Link, usePathname } from "@/i18n/navigation";
 import type { Locale } from "@/i18n/locales";
 
@@ -13,12 +15,14 @@ const SIZE = {
 } as const;
 
 /** Real links (not buttons): crawlable, middle-clickable, and they carry hreflang. Switching also updates the locale cookie. */
-export function LanguageLinks({
+function LanguageLinksInner({
   options,
-  compact = false,
+  compact,
+  query,
 }: {
   options: LanguageOption[];
-  compact?: boolean;
+  compact: boolean;
+  query: string;
 }) {
   const t = useTranslations("Common");
   const current = useLocale();
@@ -30,7 +34,7 @@ export function LanguageLinks({
         {options.map(({ locale, name }) => (
           <li key={locale}>
             <Link
-              href={pathname}
+              href={`${pathname}${query}`}
               locale={locale}
               lang={locale}
               hrefLang={locale}
@@ -43,5 +47,25 @@ export function LanguageLinks({
         ))}
       </ul>
     </nav>
+  );
+}
+
+/** Reads the query string (a filtered listing keeps its filters when the language changes). Needs a Suspense boundary. */
+function WithQuery(props: { options: LanguageOption[]; compact: boolean }) {
+  const search = useSearchParams().toString();
+  return <LanguageLinksInner {...props} query={search ? `?${search}` : ""} />;
+}
+
+export function LanguageLinks({
+  options,
+  compact = false,
+}: {
+  options: LanguageOption[];
+  compact?: boolean;
+}) {
+  return (
+    <Suspense fallback={<LanguageLinksInner options={options} compact={compact} query="" />}>
+      <WithQuery options={options} compact={compact} />
+    </Suspense>
   );
 }

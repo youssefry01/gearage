@@ -7,7 +7,6 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { brand } from "../src/config/brand";
-import { navCategories, type NavCategory } from "../src/features/navigation/categories";
 import { loadSeedData } from "../prisma/seed/data";
 import { governorates, shippingZones } from "../prisma/seed/data/shipping-zones";
 
@@ -35,28 +34,14 @@ const brandRows = [
   row("brand: seo.description", brand.seo.description.en, brand.seo.description.ar ?? ""),
 ];
 
-function walk(nodes: NavCategory[], trail: string[] = []): string[] {
-  return nodes.flatMap((n) => {
-    const path = [...trail, n.slug].join("/");
-    // names identical in both languages are brand/model names, not translations
-    const own = n.name.en === n.name.ar ? [] : [row(`category: ${path}`, n.name.en, n.name.ar)];
-    return [...own, ...walk(n.children ?? [], [...trail, n.slug])];
-  });
-}
-const categories = walk(navCategories);
+// Category names come from the seed (the storefront menu is served from those database rows since M3a).
+const categories: string[] = [];
 
 // Seed catalog copy (prisma/seed): everything a shopper reads that the seed writes in Arabic.
 const seed = loadSeedData();
-const navPaths = new Set<string>();
-(function collect(nodes: NavCategory[], trail: string[] = []) {
-  for (const n of nodes) {
-    navPaths.add([...trail, n.slug].join("/"));
-    collect(n.children ?? [], [...trail, n.slug]);
-  }
-})(navCategories);
 const same = (a: string, b: string) => a === b;
 const seedCategories = seed.categories
-  .filter((c) => !navPaths.has(c.path) && !same(c.name.en, c.name.ar))
+  .filter((c) => !same(c.name.en, c.name.ar))
   .map((c) => row(`seed category: ${c.path}`, c.name.en, c.name.ar));
 const seedCategoryDescriptions = seed.categories.flatMap((c) =>
   c.description
@@ -125,7 +110,7 @@ ${[...header, ...brandRows].join("\n")}
 
 ${[...header, ...categories].join("\n")}
 
-## Seed catalog: category names not in the tree above, descriptions and tags
+## Seed catalog: category names, descriptions and tags
 
 ${[...header, ...seedCategories, ...seedCategoryDescriptions, ...seedTags].join("\n")}
 

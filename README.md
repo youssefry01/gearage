@@ -101,17 +101,18 @@ CI runs the same `migrate diff` against a fresh Postgres on every push.
 
 ## Environment variables
 
-| Variable                                        | Required | Purpose                                                                                                                    |
-| ----------------------------------------------- | -------- | -------------------------------------------------------------------------------------------------------------------------- |
-| `DATABASE_URL`                                  | yes      | Runtime Postgres URL (pooled in production)                                                                                |
-| `DIRECT_URL`                                    | no       | Direct URL for migrations (falls back to `DATABASE_URL`)                                                                   |
-| `CRON_SECRET`                                   | yes      | Bearer secret for `/api/cron/*`, min 32 chars                                                                              |
-| `APP_URL`                                       | no       | Public base URL for metadata and absolute links (default `http://localhost:3000`)                                          |
-| `LOG_LEVEL`                                     | no       | `debug` / `info` / `warn` / `error`                                                                                        |
-| `ENABLE_STYLEGUIDE`                             | no       | `1` exposes `/{locale}/styleguide` outside `next dev` (e2e on a production build). Keep `0` in production                  |
-| `TEST_DATABASE_URL`                             | no       | Database for `npm run test:db`. Must be local and end in `_test`. Default: `DATABASE_URL` with the database `gearage_test` |
-| `STORAGE_PROVIDER`                              | no       | `local` (default). `supabase` and `cloudinary` are planned (M10a)                                                          |
-| `STORAGE_LOCAL_DIR` / `STORAGE_PUBLIC_BASE_URL` | no       | Where the local provider writes (`public/uploads`) and serves (`/uploads`)                                                 |
+| Variable                                        | Required | Purpose                                                                                                                                                                         |
+| ----------------------------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `DATABASE_URL`                                  | yes      | Runtime Postgres URL (pooled in production)                                                                                                                                     |
+| `DIRECT_URL`                                    | no       | Direct URL for migrations (falls back to `DATABASE_URL`)                                                                                                                        |
+| `CRON_SECRET`                                   | yes      | Bearer secret for `/api/cron/*`, min 32 chars                                                                                                                                   |
+| `APP_URL`                                       | no       | Public base URL for metadata and absolute links (default `http://localhost:3000`)                                                                                               |
+| `LOG_LEVEL`                                     | no       | `debug` / `info` / `warn` / `error`                                                                                                                                             |
+| `ENABLE_STYLEGUIDE`                             | no       | `1` exposes `/{locale}/styleguide` outside `next dev` (e2e on a production build). Keep `0` in production                                                                       |
+| `TEST_DATABASE_URL`                             | no       | Database for `npm run test:db`. Must be local and end in `_test`. Default: `DATABASE_URL` with the database `gearage_test`                                                      |
+| `STORAGE_PROVIDER`                              | no       | `local` (default). `supabase` and `cloudinary` are planned (M10a)                                                                                                               |
+| `STORAGE_LOCAL_DIR` / `STORAGE_PUBLIC_BASE_URL` | no       | Where the local provider writes (`public/uploads`) and serves (`/uploads`)                                                                                                      |
+| `CATALOG_DEMO_NOTICE`                           | no       | `true` (default) shows a "demo catalog" notice because the seed is illustrative. Set `false` only at launch, after real prices and verified specs (see HANDOFF launch blockers) |
 
 ## Brand note
 

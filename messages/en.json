@@ -119,5 +119,75 @@
     "analyticsTitle": "Analytics",
     "analyticsDesc": "Helps us understand how the store is used. Off unless you allow it.",
     "close": "Close"
+  },
+  "Listing": {
+    "resultCount": "{count, plural, one {# product} other {# products}}",
+    "sortLabel": "Sort by",
+    "sort": {
+      "popular": "Most popular",
+      "best-selling": "Best selling",
+      "newest": "Newest",
+      "price-asc": "Price: low to high",
+      "price-desc": "Price: high to low",
+      "discount": "Biggest discount"
+    },
+    "filters": "Filters",
+    "filtersWithCount": "Filters ({count})",
+    "filtersTitle": "Filter products",
+    "filtersDescription": "Narrow the products in this category.",
+    "clearAll": "Clear all filters",
+    "showResults": "Show results",
+    "close": "Close filters",
+    "activeFilters": "Active filters",
+    "removeFilter": "Remove filter: {label}",
+    "priceChip": "{min} – {max}",
+    "priceFrom": "From {min}",
+    "priceUpTo": "Up to {max}",
+    "noResultsTitle": "No products match your filters",
+    "noResultsBody": "Try removing a filter or two, or clear them all to see everything in this category.",
+    "clearFilters": "Clear filters",
+    "pageSuffix": "Page {page}",
+    "metaDescription": "Browse {category} at {store}.",
+    "demoNotice": "Demo catalog: prices, discounts, stock levels and specifications are illustrative samples, not live offers.",
+    "productsHeading": "Products",
+    "subcategories": "Browse subcategories"
+  },
+  "Filters": {
+    "brand": "Brand",
+    "tags": "Tags",
+    "price": "Price (EGP)",
+    "priceMin": "Min",
+    "priceMax": "Max",
+    "availability": "Availability",
+    "inStock": "In stock only",
+    "onSale": "On sale",
+    "rangeFrom": "From",
+    "rangeTo": "To",
+    "rangeBetween": "Available range: {min} to {max}"
+  },
+  "ProductCard": {
+    "bundle": "PC bundle",
+    "parts": "{count, plural, one {# part} other {# parts}}",
+    "youSave": "You save {amount}",
+    "vsParts": "vs. buying the parts separately",
+    "wasPrice": "Was {price}",
+    "currentPrice": "Price",
+    "percentOff": "{percent}% off",
+    "inStock": "In stock",
+    "lowStock": "Only {count} left",
+    "outOfStock": "Out of stock",
+    "noImage": "No image available"
+  },
+  "Pagination": {
+    "label": "Pagination",
+    "previous": "Previous",
+    "next": "Next",
+    "goToPage": "Go to page {page}",
+    "currentPage": "Page {page}, current page",
+    "status": "Page {page} of {pages}"
+  },
+  "ProductSoon": {
+    "title": "Product page coming soon",
+    "body": "Product details arrive in the next milestone. For now you can keep browsing the catalog."
   }
 }

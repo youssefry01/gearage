@@ -119,5 +119,75 @@
     "analyticsTitle": "التحليلات",
     "analyticsDesc": "تساعدنا على فهم كيفية استخدام المتجر. متوقفة ما لم توافق.",
     "close": "إغلاق"
+  },
+  "Listing": {
+    "resultCount": "{count, plural, zero {لا توجد منتجات} one {منتج واحد} two {منتجان} few {# منتجات} many {# منتجًا} other {# منتج}}",
+    "sortLabel": "ترتيب حسب",
+    "sort": {
+      "popular": "الأكثر رواجًا",
+      "best-selling": "الأكثر مبيعًا",
+      "newest": "الأحدث",
+      "price-asc": "السعر: من الأقل إلى الأعلى",
+      "price-desc": "السعر: من الأعلى إلى الأقل",
+      "discount": "أكبر خصم"
+    },
+    "filters": "تصفية",
+    "filtersWithCount": "تصفية ({count})",
+    "filtersTitle": "تصفية المنتجات",
+    "filtersDescription": "قلّل المنتجات المعروضة في هذا القسم.",
+    "clearAll": "مسح كل المرشحات",
+    "showResults": "عرض النتائج",
+    "close": "إغلاق التصفية",
+    "activeFilters": "المرشحات المفعّلة",
+    "removeFilter": "إزالة المرشح: {label}",
+    "priceChip": "{min} – {max}",
+    "priceFrom": "من {min}",
+    "priceUpTo": "حتى {max}",
+    "noResultsTitle": "لا توجد منتجات تطابق المرشحات",
+    "noResultsBody": "جرّب إزالة مرشح أو اثنين، أو امسحها جميعًا لعرض كل منتجات هذا القسم.",
+    "clearFilters": "مسح المرشحات",
+    "pageSuffix": "صفحة {page}",
+    "metaDescription": "تصفح {category} في {store}.",
+    "demoNotice": "كتالوج تجريبي: الأسعار والخصومات ومستويات المخزون والمواصفات المعروضة أمثلة توضيحية وليست عروضًا فعلية.",
+    "productsHeading": "المنتجات",
+    "subcategories": "تصفح الأقسام الفرعية"
+  },
+  "Filters": {
+    "brand": "العلامة التجارية",
+    "tags": "الوسوم",
+    "price": "السعر (جنيه)",
+    "priceMin": "الأدنى",
+    "priceMax": "الأعلى",
+    "availability": "التوفر",
+    "inStock": "المتوفر فقط",
+    "onSale": "عليه خصم",
+    "rangeFrom": "من",
+    "rangeTo": "إلى",
+    "rangeBetween": "النطاق المتاح: من {min} إلى {max}"
+  },
+  "ProductCard": {
+    "bundle": "تجميعة كمبيوتر",
+    "parts": "{count, plural, zero {بدون قطع} one {قطعة واحدة} two {قطعتان} few {# قطع} many {# قطعة} other {# قطعة}}",
+    "youSave": "توفّر {amount}",
+    "vsParts": "مقارنةً بشراء القطع منفصلة",
+    "wasPrice": "كان {price}",
+    "currentPrice": "السعر",
+    "percentOff": "خصم {percent}٪",
+    "inStock": "متوفر",
+    "lowStock": "متبقي {count} فقط",
+    "outOfStock": "غير متوفر",
+    "noImage": "لا توجد صورة"
+  },
+  "Pagination": {
+    "label": "ترقيم الصفحات",
+    "previous": "السابق",
+    "next": "التالي",
+    "goToPage": "انتقل إلى الصفحة {page}",
+    "currentPage": "الصفحة {page}، الصفحة الحالية",
+    "status": "الصفحة {page} من {pages}"
+  },
+  "ProductSoon": {
+    "title": "صفحة المنتج قريبًا",
+    "body": "تفاصيل المنتج ستتوفر في المرحلة القادمة. يمكنك الآن متابعة تصفح الكتالوج."
   }
 }

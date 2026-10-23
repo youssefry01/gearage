@@ -2,8 +2,8 @@ import { Heart, User } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { Logo } from "@/components/brand/logo";
 import { routes } from "@/config/routes";
+import type { CategoryNode } from "@/domain/category-tree";
 import type { TopBarLine } from "@/domain/store-settings";
-import { navCategories } from "@/features/navigation/categories";
 import type { Locale } from "@/i18n/locales";
 import { Link } from "@/i18n/navigation";
 import { CartLink } from "./cart-link";
@@ -24,13 +24,15 @@ import { TopBar } from "./top-bar";
 export function SiteHeader({
   supportPhone,
   topBarLines,
+  categoryTree,
 }: {
   supportPhone: string | null;
   topBarLines: TopBarLine[];
+  categoryTree: readonly CategoryNode[];
 }) {
   const t = useTranslations("Nav");
   const locale = useLocale() as Locale;
-  const categories = toMenuTree(navCategories, locale);
+  const categories = toMenuTree(categoryTree, locale);
 
   return (
     <header className="border-border bg-background sticky top-0 z-40 border-b [--topbar-h:2.25rem] md:top-[calc(var(--topbar-h)*-1)] pointer-coarse:[--topbar-h:2.75rem] [@media(max-height:32rem)]:static">

@@ -27,4 +27,12 @@ export const VIEWPORTS = [
 export const LOCALES = ["en", "ar"] as const;
 export const THEMES = ["dark", "light"] as const;
 /** Pages covered by the responsive/a11y specs ("" = home). The style guide is enabled by ENABLE_STYLEGUIDE=1. */
-export const PAGES = ["", "/styleguide", "/cart", "/c/components/graphics-cards"] as const;
+export const PAGES = [
+  "",
+  "/styleguide",
+  "/cart",
+  "/c/components/graphics-cards",
+  "/c/components/graphics-cards?in_stock=1&sort=price-asc",
+  "/c/pc-bundles",
+  "/c/components/cpus?brand=nvidia",
+] as const;

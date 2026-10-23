@@ -95,3 +95,19 @@ cron endpoints 401 without/with wrong secret and 200 with it, boot fails with a 
 9. Verify in sandbox: install, lint (incl. a deliberate layering violation fails), typecheck, tests, build, `prisma validate` + `generate`,
    `prisma migrate diff --script` for baseline SQL, start server and curl `/api/health`.
    User must test locally: `docker compose up -d`, `npx prisma migrate dev`, `/api/health/ready`, husky hooks, Playwright smoke.
+
+## M2b verification record (moved from HANDOFF on 2026-10-21)
+
+**Owner verified M2a locally (2026-10-19, Node 22.23.3):** `migrate dev` applied `20261014000000_catalog_inventory`; `migrate diff` printed "No difference detected" (exit 0); `test:db` 105 passed; tokens, contrast, brand, lint, typecheck and unit tests pass; CI on main (drift check + `test:db`) green. Known issue 21 is resolved.
+
+**Verified in the sandbox (real execution):**
+
+- Gates: `format:check`, `tokens:check`, `contrast` (60/60 AA), `brand:check` (181 files), `i18n:review:check` (491 strings), `seed:docs:check` (56 flagged products), `lint`, `typecheck`, `next build`.
+- **336 unit tests** (31 files), including 28 new seed tests: data validity and volumes, every top-level and leaf category populated, unique SKUs/slugs/keys, planted mistakes caught by the validator (duplicate SKU, unknown brand/category/tag, bad spec, bundle dearer than its parts, missing Arabic), the 27 governorates covered once, promo cases, deterministic well-formed SVG (no scripts, escaped text, labelled), and the guard refusing a Supabase URL before any file is written. Domain: `resolveSpecDefinitions`, numeric-string radiator lists, case fans excluded from build roles.
+- **126 DB tests** (`npm run test:db`, real PostgreSQL 18.4, 21 new in `tests/db/seed.db.test.ts`): the seed run THREE times with a full-table snapshot (every row, id and timestamp) identical; a drifted price is repaired while stock, counters and the adjustment log are untouched; a deleted bundle composition is restored; only catalog tables are written (no users, orders, reviews, settings); every seeded bundle is compatible with **zero warnings and zero unknowns**, saves money (under 15%), is sellable, has a known margin, and the high-end bundle's availability equals its scarcest part; all components are active physical products; out-of-stock and low-stock states exist; the top 10 by views and by units sold have no ties.
+- The seed ran end to end against a scratch database (79 products, 6 bundles, 53 categories, 123 spec definitions, 251 placeholder images, 1.1 MB), and I looked at rendered samples of the placeholders.
+- No schema or migration change in M2b, so no drift check is needed this time.
+
+**Not verified (the owner must run):** `npm run db:seed` against his own Postgres on Windows (twice, to see "already up to date"), `npm run test:db` locally, GitHub CI for this delivery, and above all **the specs themselves**: they come from my knowledge, 56 of 79 products carry doubts listed in docs/SEEDING.md, and no spec was checked against a manufacturer page (no internet access to those sites here). Prices are illustrative.
+
+**Found and fixed by seeding:** case fans sat under the `cooler` build role (would have been read as coolers by the PC Builder); case radiator sizes needed a numeric list but spec lists are strings only (accepted as numeric strings, ADR 0015).

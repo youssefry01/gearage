@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { CookieBanner } from "@/components/layout/cookie-banner";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
+import { getCategoryTree } from "@/server/services/category.service";
 import { SkipLink } from "@/components/layout/skip-link";
 import { ThemeScript } from "@/components/layout/theme-script";
 import { ThemeSync } from "@/components/layout/theme-sync";
@@ -68,7 +69,11 @@ export async function generateMetadata({ params }: LayoutProps): Promise<Metadat
 export default async function LocaleLayout({ children, params }: LayoutProps) {
   const { locale } = await params;
   if (!hasLocale(routing.locales, locale)) notFound();
-  const [contact, topBar] = await Promise.all([getContactSettings(), getTopBarSettings()]);
+  const [contact, topBar, categoryTree] = await Promise.all([
+    getContactSettings(),
+    getTopBarSettings(),
+    getCategoryTree(),
+  ]);
 
   return (
     // No data-theme prop here on purpose (see lib/theme.ts): ThemeScript sets it before paint; CSS defaults to dark.
@@ -83,9 +88,10 @@ export default async function LocaleLayout({ children, params }: LayoutProps) {
           <SiteHeader
             supportPhone={contact.phone}
             topBarLines={resolveTopBarLines(topBar, locale)}
+            categoryTree={categoryTree}
           />
           {children}
-          <SiteFooter contact={contact} />
+          <SiteFooter contact={contact} categoryTree={categoryTree} />
           <CookieBanner />
         </NextIntlClientProvider>
       </body>

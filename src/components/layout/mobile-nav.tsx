@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import { Accordion, Dialog } from "radix-ui";
 import { useState, type ReactNode } from "react";
 import { routes } from "@/config/routes";
-import { categoryPath } from "@/features/navigation/categories";
+import { categoryPath } from "@/features/navigation/href";
 import { Link, usePathname } from "@/i18n/navigation";
 import type { MenuNode } from "./menu-tree";
 

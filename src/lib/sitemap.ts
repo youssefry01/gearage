@@ -1,11 +1,16 @@
+import { type CategoryNode, allCategoryPaths, categoryHref } from "@/domain/category-tree";
 import { locales } from "@/i18n/locales";
 
 /**
  * Locale-less paths of pages that REALLY exist and are indexable. "Coming soon" placeholders (config/routes.ts,
  * placeholder categories) are noindex and must never be listed here. When a milestone ships a real page, add its path
- * (or its generator) in the same change: M3a categories and M3b products come from the database.
+ * (or its generator) in the same change: categories (M3a) come from the database via categorySitemapPaths; M3b adds products.
  */
 export const INDEXABLE_PATHS: readonly string[] = [""];
+
+/** Locale-less URL paths of the category listing pages (clean URLs only: filtered and sorted URLs are noindex, ADR 0016). */
+export const categorySitemapPaths = (tree: readonly CategoryNode[]): string[] =>
+  allCategoryPaths(tree).map(categoryHref);
 
 export type SitemapEntry = { url: string; alternates: { languages: Record<string, string> } };
 

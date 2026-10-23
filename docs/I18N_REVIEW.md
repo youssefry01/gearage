@@ -1,6 +1,6 @@
 # Arabic copy that needs native review
 
-491 Arabic strings were written by the assistant, not a native copywriter. Review tone, terminology (Egyptian retail wording, for
+549 Arabic strings were written by the assistant, not a native copywriter. Review tone, terminology (Egyptian retail wording, for
 example the category names) and plural forms. Brand and model names left in Latin (AMD Ryzen, DDR5, ...) are not listed.
 The owner plans one native-review pass once more copy exists.
 
@@ -110,6 +110,64 @@ run `npm run i18n:review` after adding strings (CI runs `npm run i18n:review:che
 | messages: Cookies.analyticsTitle | Analytics | التحليلات |
 | messages: Cookies.analyticsDesc | Helps us understand how the store is used. Off unless you allow it. | تساعدنا على فهم كيفية استخدام المتجر. متوقفة ما لم توافق. |
 | messages: Cookies.close | Close | إغلاق |
+| messages: Listing.resultCount | {count, plural, one {# product} other {# products}} | {count, plural, zero {لا توجد منتجات} one {منتج واحد} two {منتجان} few {# منتجات} many {# منتجًا} other {# منتج}} |
+| messages: Listing.sortLabel | Sort by | ترتيب حسب |
+| messages: Listing.sort.popular | Most popular | الأكثر رواجًا |
+| messages: Listing.sort.best-selling | Best selling | الأكثر مبيعًا |
+| messages: Listing.sort.newest | Newest | الأحدث |
+| messages: Listing.sort.price-asc | Price: low to high | السعر: من الأقل إلى الأعلى |
+| messages: Listing.sort.price-desc | Price: high to low | السعر: من الأعلى إلى الأقل |
+| messages: Listing.sort.discount | Biggest discount | أكبر خصم |
+| messages: Listing.filters | Filters | تصفية |
+| messages: Listing.filtersWithCount | Filters ({count}) | تصفية ({count}) |
+| messages: Listing.filtersTitle | Filter products | تصفية المنتجات |
+| messages: Listing.filtersDescription | Narrow the products in this category. | قلّل المنتجات المعروضة في هذا القسم. |
+| messages: Listing.clearAll | Clear all filters | مسح كل المرشحات |
+| messages: Listing.showResults | Show results | عرض النتائج |
+| messages: Listing.close | Close filters | إغلاق التصفية |
+| messages: Listing.activeFilters | Active filters | المرشحات المفعّلة |
+| messages: Listing.removeFilter | Remove filter: {label} | إزالة المرشح: {label} |
+| messages: Listing.priceChip | {min} – {max} | {min} – {max} |
+| messages: Listing.priceFrom | From {min} | من {min} |
+| messages: Listing.priceUpTo | Up to {max} | حتى {max} |
+| messages: Listing.noResultsTitle | No products match your filters | لا توجد منتجات تطابق المرشحات |
+| messages: Listing.noResultsBody | Try removing a filter or two, or clear them all to see everything in this category. | جرّب إزالة مرشح أو اثنين، أو امسحها جميعًا لعرض كل منتجات هذا القسم. |
+| messages: Listing.clearFilters | Clear filters | مسح المرشحات |
+| messages: Listing.pageSuffix | Page {page} | صفحة {page} |
+| messages: Listing.metaDescription | Browse {category} at {store}. | تصفح {category} في {store}. |
+| messages: Listing.demoNotice | Demo catalog: prices, discounts, stock levels and specifications are illustrative samples, not live offers. | كتالوج تجريبي: الأسعار والخصومات ومستويات المخزون والمواصفات المعروضة أمثلة توضيحية وليست عروضًا فعلية. |
+| messages: Listing.productsHeading | Products | المنتجات |
+| messages: Listing.subcategories | Browse subcategories | تصفح الأقسام الفرعية |
+| messages: Filters.brand | Brand | العلامة التجارية |
+| messages: Filters.tags | Tags | الوسوم |
+| messages: Filters.price | Price (EGP) | السعر (جنيه) |
+| messages: Filters.priceMin | Min | الأدنى |
+| messages: Filters.priceMax | Max | الأعلى |
+| messages: Filters.availability | Availability | التوفر |
+| messages: Filters.inStock | In stock only | المتوفر فقط |
+| messages: Filters.onSale | On sale | عليه خصم |
+| messages: Filters.rangeFrom | From | من |
+| messages: Filters.rangeTo | To | إلى |
+| messages: Filters.rangeBetween | Available range: {min} to {max} | النطاق المتاح: من {min} إلى {max} |
+| messages: ProductCard.bundle | PC bundle | تجميعة كمبيوتر |
+| messages: ProductCard.parts | {count, plural, one {# part} other {# parts}} | {count, plural, zero {بدون قطع} one {قطعة واحدة} two {قطعتان} few {# قطع} many {# قطعة} other {# قطعة}} |
+| messages: ProductCard.youSave | You save {amount} | توفّر {amount} |
+| messages: ProductCard.vsParts | vs. buying the parts separately | مقارنةً بشراء القطع منفصلة |
+| messages: ProductCard.wasPrice | Was {price} | كان {price} |
+| messages: ProductCard.currentPrice | Price | السعر |
+| messages: ProductCard.percentOff | {percent}% off | خصم {percent}٪ |
+| messages: ProductCard.inStock | In stock | متوفر |
+| messages: ProductCard.lowStock | Only {count} left | متبقي {count} فقط |
+| messages: ProductCard.outOfStock | Out of stock | غير متوفر |
+| messages: ProductCard.noImage | No image available | لا توجد صورة |
+| messages: Pagination.label | Pagination | ترقيم الصفحات |
+| messages: Pagination.previous | Previous | السابق |
+| messages: Pagination.next | Next | التالي |
+| messages: Pagination.goToPage | Go to page {page} | انتقل إلى الصفحة {page} |
+| messages: Pagination.currentPage | Page {page}, current page | الصفحة {page}، الصفحة الحالية |
+| messages: Pagination.status | Page {page} of {pages} | الصفحة {page} من {pages} |
+| messages: ProductSoon.title | Product page coming soon | صفحة المنتج قريبًا |
+| messages: ProductSoon.body | Product details arrive in the next milestone. For now you can keep browsing the catalog. | تفاصيل المنتج ستتوفر في المرحلة القادمة. يمكنك الآن متابعة تصفح الكتالوج. |
 
 ## Brand copy
 
@@ -123,51 +181,51 @@ run `npm run i18n:review` after adding strings (CI runs `npm run i18n:review:che
 
 | Where | English | Arabic (machine-written) |
 | --- | --- | --- |
-| category: components | Components | المكونات |
-| category: components/cpus | CPUs | المعالجات |
-| category: components/graphics-cards | Graphics Cards | كروت الشاشة |
-| category: components/motherboards | Motherboards | اللوحات الأم |
-| category: components/motherboards/amd-motherboards | AMD Motherboards | لوحات AMD الأم |
-| category: components/motherboards/intel-motherboards | Intel Motherboards | لوحات Intel الأم |
-| category: components/memory | Memory (RAM) | الذاكرة العشوائية |
-| category: components/storage | Storage | وحدات التخزين |
-| category: components/storage/nvme-ssds | NVMe SSDs | أقراص NVMe |
-| category: components/storage/sata-ssds | SATA SSDs | أقراص SATA |
-| category: components/storage/hard-drives | Hard Drives | الأقراص الصلبة |
-| category: components/power-supplies | Power Supplies | مصادر الطاقة |
-| category: components/cases | Cases | صناديق الكمبيوتر |
-| category: components/cooling | Cooling | التبريد |
-| category: components/cooling/air-coolers | Air Coolers | مبردات هوائية |
-| category: components/cooling/liquid-coolers | Liquid Coolers | مبردات مائية |
-| category: components/cooling/case-fans | Case Fans | مراوح الصندوق |
-| category: pc-bundles | PC Bundles | تجميعات الكمبيوتر |
-| category: pc-bundles/gaming-pcs | Gaming PCs | أجهزة الألعاب |
-| category: pc-bundles/workstations | Workstations | محطات العمل |
-| category: pc-bundles/office-pcs | Office PCs | أجهزة المكتب |
-| category: pc-bundles/budget-builds | Budget Builds | تجميعات اقتصادية |
-| category: laptops | Laptops | اللابتوب |
-| category: laptops/gaming-laptops | Gaming Laptops | لابتوب الألعاب |
-| category: laptops/ultrabooks | Ultrabooks | ألترابوك |
-| category: laptops/business-laptops | Business Laptops | لابتوب الأعمال |
-| category: monitors | Monitors | الشاشات |
-| category: monitors/gaming-monitors | Gaming Monitors | شاشات الألعاب |
-| category: monitors/ultrawide-monitors | Ultrawide Monitors | شاشات عريضة |
-| category: monitors/office-monitors | Office Monitors | شاشات المكتب |
-| category: monitors/4k-monitors | 4K Monitors | شاشات 4K |
-| category: peripherals | Peripherals | الملحقات الطرفية |
-| category: peripherals/keyboards | Keyboards | لوحات المفاتيح |
-| category: peripherals/mice | Mice | الفأرات |
-| category: peripherals/headsets | Headsets | سماعات الرأس |
-| category: peripherals/webcams | Webcams | كاميرات الويب |
-| category: networking | Networking | الشبكات |
-| category: networking/routers | Routers | الراوترات |
-| category: networking/wifi-adapters | Wi-Fi Adapters | كروت الواي فاي |
-| category: networking/network-switches | Network Switches | سويتشات الشبكة |
 
-## Seed catalog: category names not in the tree above, descriptions and tags
+## Seed catalog: category names, descriptions and tags
 
 | Where | English | Arabic (machine-written) |
 | --- | --- | --- |
+| seed category: components | Components | المكونات |
+| seed category: components/cpus | CPUs | المعالجات |
+| seed category: components/graphics-cards | Graphics Cards | كروت الشاشة |
+| seed category: components/motherboards | Motherboards | اللوحات الأم |
+| seed category: components/motherboards/amd-motherboards | AMD Motherboards | لوحات AMD الأم |
+| seed category: components/motherboards/intel-motherboards | Intel Motherboards | لوحات Intel الأم |
+| seed category: components/memory | Memory (RAM) | الذاكرة العشوائية |
+| seed category: components/storage | Storage | وحدات التخزين |
+| seed category: components/storage/nvme-ssds | NVMe SSDs | أقراص NVMe |
+| seed category: components/storage/sata-ssds | SATA SSDs | أقراص SATA |
+| seed category: components/storage/hard-drives | Hard Drives | الأقراص الصلبة |
+| seed category: components/power-supplies | Power Supplies | مصادر الطاقة |
+| seed category: components/cases | Cases | صناديق الكمبيوتر |
+| seed category: components/cooling | Cooling | التبريد |
+| seed category: components/cooling/air-coolers | Air Coolers | مبردات هوائية |
+| seed category: components/cooling/liquid-coolers | Liquid Coolers | مبردات مائية |
+| seed category: components/cooling/case-fans | Case Fans | مراوح الصندوق |
+| seed category: pc-bundles | PC Bundles | تجميعات الكمبيوتر |
+| seed category: pc-bundles/gaming-pcs | Gaming PCs | أجهزة الألعاب |
+| seed category: pc-bundles/workstations | Workstations | محطات العمل |
+| seed category: pc-bundles/office-pcs | Office PCs | أجهزة المكتب |
+| seed category: pc-bundles/budget-builds | Budget Builds | تجميعات اقتصادية |
+| seed category: laptops | Laptops | اللابتوب |
+| seed category: laptops/gaming-laptops | Gaming Laptops | لابتوب الألعاب |
+| seed category: laptops/ultrabooks | Ultrabooks | ألترابوك |
+| seed category: laptops/business-laptops | Business Laptops | لابتوب الأعمال |
+| seed category: monitors | Monitors | الشاشات |
+| seed category: monitors/gaming-monitors | Gaming Monitors | شاشات الألعاب |
+| seed category: monitors/ultrawide-monitors | Ultrawide Monitors | شاشات عريضة |
+| seed category: monitors/office-monitors | Office Monitors | شاشات المكتب |
+| seed category: monitors/4k-monitors | 4K Monitors | شاشات 4K |
+| seed category: peripherals | Peripherals | الملحقات الطرفية |
+| seed category: peripherals/keyboards | Keyboards | لوحات المفاتيح |
+| seed category: peripherals/mice | Mice | الفأرات |
+| seed category: peripherals/headsets | Headsets | سماعات الرأس |
+| seed category: peripherals/webcams | Webcams | كاميرات الويب |
+| seed category: networking | Networking | الشبكات |
+| seed category: networking/routers | Routers | الراوترات |
+| seed category: networking/wifi-adapters | Wi-Fi Adapters | كروت الواي فاي |
+| seed category: networking/network-switches | Network Switches | سويتشات الشبكة |
 | seed category: audio-streaming | Audio & Streaming | الصوتيات والبث |
 | seed category: audio-streaming/microphones | Microphones | الميكروفونات |
 | seed category: accessories | Accessories | الإكسسوارات |

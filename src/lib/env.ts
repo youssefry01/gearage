@@ -14,6 +14,8 @@ const serverSchema = z.object({
   STORAGE_PROVIDER: z.enum(["local", "supabase", "cloudinary"]).default("local"),
   STORAGE_LOCAL_DIR: z.string().min(1).default("public/uploads"),
   STORAGE_PUBLIC_BASE_URL: z.string().min(1).default("/uploads"),
+  /** "false" hides the illustrative-catalog banner. Launch only, after prices and specs are verified (HANDOFF). */
+  CATALOG_DEMO_NOTICE: z.string().optional(),
   /** "1" exposes /{locale}/styleguide outside `next dev` (e2e on a production build). Keep "0" in production. */
   ENABLE_STYLEGUIDE: z.enum(["0", "1"]).default("0"),
 });

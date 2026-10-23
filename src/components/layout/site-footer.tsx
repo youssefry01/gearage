@@ -3,7 +3,8 @@ import { Logo } from "@/components/brand/logo";
 import { brand, localized, storeName } from "@/config/brand";
 import { routes, type PlaceholderRouteKey } from "@/config/routes";
 import type { ContactSettings } from "@/domain/store-settings";
-import { categoryPath, navCategories, categoryName } from "@/features/navigation/categories";
+import { type CategoryNode, categoryName } from "@/domain/category-tree";
+import { categoryPath } from "@/features/navigation/href";
 import type { Locale } from "@/i18n/locales";
 import { Link } from "@/i18n/navigation";
 import { CookieSettingsButton } from "./cookie-settings-button";
@@ -31,7 +32,13 @@ const SOCIAL = [
   ["linkedin", "LinkedIn"],
 ] as const;
 
-export function SiteFooter({ contact }: { contact: ContactSettings }) {
+export function SiteFooter({
+  contact,
+  categoryTree,
+}: {
+  contact: ContactSettings;
+  categoryTree: readonly CategoryNode[];
+}) {
   const t = useTranslations("Footer");
   const nav = useTranslations("Nav");
   const routeTitle = useTranslations("Routes");
@@ -107,7 +114,7 @@ export function SiteFooter({ contact }: { contact: ContactSettings }) {
             {t("shop")}
           </h2>
           <ul className="mt-2">
-            {navCategories.map((c) => (
+            {categoryTree.map((c) => (
               <li key={c.slug}>
                 <Link href={categoryPath([c.slug])} className={link}>
                   {categoryName(c, locale)}
