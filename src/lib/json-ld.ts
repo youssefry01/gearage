@@ -77,3 +77,28 @@ export function productJsonLd(p: ProductJsonLdInput) {
       : {}),
   };
 }
+
+/**
+ * Organization and WebSite for the home page. Deliberately minimal: name, URL and logo are facts from the brand
+ * config. No contact points, social profiles or SearchAction yet: contact details are editable store settings
+ * (launch blockers in HANDOFF) and /search is not built, so claiming a search action would point at a placeholder.
+ */
+export function organizationJsonLd(input: { name: string; url: string; logo: string }) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: input.name,
+    url: input.url,
+    logo: input.logo,
+  };
+}
+
+export function websiteJsonLd(input: { name: string; url: string; inLanguage: string }) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: input.name,
+    url: input.url,
+    inLanguage: input.inLanguage,
+  };
+}

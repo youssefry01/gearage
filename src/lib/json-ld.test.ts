@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { breadcrumbJsonLd, productJsonLd, serializeJsonLd } from "./json-ld";
+import {
+  breadcrumbJsonLd,
+  organizationJsonLd,
+  productJsonLd,
+  serializeJsonLd,
+  websiteJsonLd,
+} from "./json-ld";
 
 const base = {
   name: "AMD Ryzen 7 7800X3D",
@@ -80,5 +86,25 @@ describe("productJsonLd", () => {
 
   it("never invents a rating", () => {
     expect(JSON.stringify(productJsonLd(base))).not.toMatch(/aggregateRating|review/i);
+  });
+});
+
+describe("organizationJsonLd and websiteJsonLd", () => {
+  it("carry only brand facts: no contact points, profiles or search action", () => {
+    const org = organizationJsonLd({
+      name: "Shop",
+      url: "https://shop.example",
+      logo: "https://shop.example/brand/logo.png",
+    });
+    expect(org).toEqual({
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      name: "Shop",
+      url: "https://shop.example",
+      logo: "https://shop.example/brand/logo.png",
+    });
+    const site = websiteJsonLd({ name: "Shop", url: "https://shop.example/en", inLanguage: "en" });
+    expect(site["@type"]).toBe("WebSite");
+    expect(site).not.toHaveProperty("potentialAction");
   });
 });

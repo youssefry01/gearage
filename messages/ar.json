@@ -10,8 +10,29 @@
     "tryAgain": "حاول مرة أخرى"
   },
   "Home": {
-    "lead": "{tagline}",
-    "status": "{brand} قيد الإنشاء. الكتالوج والدفع قادمان قريبًا."
+    "heroTitle": "كل ما تحتاجه لتجميع جهازك القادم",
+    "heroLead": "تصفّح المعالجات وكروت الشاشة واللوحات الأم والذاكرة ووحدات التخزين وغيرها، أو ابدأ من حزمة قطع مختارة.",
+    "ctaCategories": "تسوّق حسب الفئة",
+    "ctaDeals": "شاهد العروض",
+    "bundleLabel": "حزمة مميزة",
+    "bundleParts": "{count, plural, zero {بدون قطع} one {قطعة واحدة} two {قطعتان} few {# قطع} many {# قطعة} other {# قطعة}}",
+    "bundleMore": "+{count} أخرى",
+    "bundleView": "عرض الحزمة",
+    "categoriesTitle": "تسوّق حسب الفئة",
+    "productCount": "{count, plural, zero {لا توجد منتجات} one {منتج واحد} two {منتجان} few {# منتجات} many {# منتجًا} other {# منتج}}",
+    "dealsTitle": "العروض",
+    "dealsLead": "الأكثر توفيرًا أولًا، ومتوفرة في المخزون.",
+    "featuredTitle": "منتجات مميزة",
+    "featuredLead": "اختيارات المتجر، ومتوفرة في المخزون.",
+    "bestSellersTitle": "الأكثر مبيعًا",
+    "bestSellersLead": "المنتجات الأكثر مبيعًا والمتوفرة في المخزون.",
+    "newArrivalsTitle": "وصل حديثًا",
+    "newArrivalsLead": "أحدث المنتجات المضافة والمتوفرة في المخزون.",
+    "mostViewedTitle": "الأكثر مشاهدة",
+    "mostViewedLead": "المنتجات الأكثر مشاهدة والمتوفرة في المخزون.",
+    "brandsTitle": "تسوّق حسب العلامة التجارية",
+    "emptyTitle": "الكتالوج قيد الإعداد",
+    "emptyBody": "ستظهر المنتجات هنا فور إضافتها."
   },
   "NotFound": {
     "title": "الصفحة غير موجودة",

@@ -67,7 +67,11 @@ test.describe("SEO and branding", () => {
         /\/brand\/og-default\.png$/,
       );
       await expect(page.locator('link[rel="icon"]').first()).toBeAttached();
-      await expect(page.getByRole("heading", { level: 1, name: storeName(locale) })).toBeVisible();
+      // The page's h1 is its headline; the store name is on the header logo link.
+      await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+      await expect(
+        page.locator("header").getByRole("link", { name: storeName(locale) }),
+      ).toBeVisible();
     });
   }
 

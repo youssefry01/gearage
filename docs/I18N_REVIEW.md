@@ -1,6 +1,6 @@
 # Arabic copy that needs native review
 
-638 Arabic strings were written by the assistant, not a native copywriter. Review tone, terminology (Egyptian retail wording, for
+659 Arabic strings were written by the assistant, not a native copywriter. Review tone, terminology (Egyptian retail wording, for
 example the category names) and plural forms. Brand and model names left in Latin (AMD Ryzen, DDR5, ...) are not listed.
 The owner plans one native-review pass once more copy exists.
 
@@ -21,8 +21,29 @@ run `npm run i18n:review` after adding strings (CI runs `npm run i18n:review:che
 | messages: Common.themeSystem | System | حسب النظام |
 | messages: Common.backToHome | Back to home | العودة إلى الرئيسية |
 | messages: Common.tryAgain | Try again | حاول مرة أخرى |
-| messages: Home.lead | {tagline} | {tagline} |
-| messages: Home.status | {brand} is under construction. The catalog and checkout are coming soon. | {brand} قيد الإنشاء. الكتالوج والدفع قادمان قريبًا. |
+| messages: Home.heroTitle | Everything for your next PC build | كل ما تحتاجه لتجميع جهازك القادم |
+| messages: Home.heroLead | Browse CPUs, graphics cards, motherboards, memory, storage and more, or start from a curated bundle of parts. | تصفّح المعالجات وكروت الشاشة واللوحات الأم والذاكرة ووحدات التخزين وغيرها، أو ابدأ من حزمة قطع مختارة. |
+| messages: Home.ctaCategories | Shop by category | تسوّق حسب الفئة |
+| messages: Home.ctaDeals | See deals | شاهد العروض |
+| messages: Home.bundleLabel | Featured bundle | حزمة مميزة |
+| messages: Home.bundleParts | {count, plural, one {# part} other {# parts}} | {count, plural, zero {بدون قطع} one {قطعة واحدة} two {قطعتان} few {# قطع} many {# قطعة} other {# قطعة}} |
+| messages: Home.bundleMore | +{count} more | +{count} أخرى |
+| messages: Home.bundleView | View bundle | عرض الحزمة |
+| messages: Home.categoriesTitle | Shop by category | تسوّق حسب الفئة |
+| messages: Home.productCount | {count, plural, one {# product} other {# products}} | {count, plural, zero {لا توجد منتجات} one {منتج واحد} two {منتجان} few {# منتجات} many {# منتجًا} other {# منتج}} |
+| messages: Home.dealsTitle | Deals | العروض |
+| messages: Home.dealsLead | Biggest savings first, in stock. | الأكثر توفيرًا أولًا، ومتوفرة في المخزون. |
+| messages: Home.featuredTitle | Featured | منتجات مميزة |
+| messages: Home.featuredLead | Picked by the store, in stock. | اختيارات المتجر، ومتوفرة في المخزون. |
+| messages: Home.bestSellersTitle | Best sellers | الأكثر مبيعًا |
+| messages: Home.bestSellersLead | Top sellers that are in stock. | المنتجات الأكثر مبيعًا والمتوفرة في المخزون. |
+| messages: Home.newArrivalsTitle | New arrivals | وصل حديثًا |
+| messages: Home.newArrivalsLead | Recently added and in stock. | أحدث المنتجات المضافة والمتوفرة في المخزون. |
+| messages: Home.mostViewedTitle | Most viewed | الأكثر مشاهدة |
+| messages: Home.mostViewedLead | Most-viewed products that are in stock. | المنتجات الأكثر مشاهدة والمتوفرة في المخزون. |
+| messages: Home.brandsTitle | Shop by brand | تسوّق حسب العلامة التجارية |
+| messages: Home.emptyTitle | The catalog is being set up | الكتالوج قيد الإعداد |
+| messages: Home.emptyBody | Products will appear here as soon as they are added. | ستظهر المنتجات هنا فور إضافتها. |
 | messages: NotFound.title | Page not found | الصفحة غير موجودة |
 | messages: NotFound.body | That page doesn’t exist or has moved. | هذه الصفحة غير موجودة أو تم نقلها. |
 | messages: Error.title | Something went wrong | حدث خطأ ما |

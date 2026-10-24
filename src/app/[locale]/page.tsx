@@ -1,8 +1,20 @@
 import type { Metadata } from "next";
-import { hasLocale, useTranslations } from "next-intl";
-import { Logo } from "@/components/brand/logo";
+import { hasLocale } from "next-intl";
+import { notFound } from "next/navigation";
+import { HomeView } from "@/features/home/home-view";
+import { brand, storeName } from "@/config/brand";
 import { routing } from "@/i18n/routing";
+import { organizationJsonLd, serializeJsonLd, websiteJsonLd } from "@/lib/json-ld";
+import { siteUrl } from "@/lib/site-url";
 import { pageMetadata } from "@/lib/seo";
+import { getHomeData } from "@/server/services/home.service";
+
+/**
+ * Static, refreshed every 5 minutes (ISR) because the rails show stock and prices. Verified against the installed
+ * Next docs: `revalidate` as a literal segment config is valid with Cache Components off (this project), and the
+ * lowest value across layout (3600) and page wins, so this route regenerates every 300 s (ADR 0018).
+ */
+export const revalidate = 300;
 
 export async function generateMetadata({
   params,
@@ -14,20 +26,27 @@ export async function generateMetadata({
   return pageMetadata(locale);
 }
 
-export default function HomePage() {
-  const t = useTranslations("Home");
+export default async function HomePage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  if (!hasLocale(routing.locales, locale)) notFound();
+  const data = await getHomeData();
+  const origin = siteUrl().origin;
+  const name = storeName(locale);
+  const ld = [
+    organizationJsonLd({
+      name,
+      url: origin,
+      logo: `${origin}${brand.logo.icon.onLight.src}`,
+    }),
+    websiteJsonLd({ name, url: `${origin}/${locale}`, inLanguage: locale }),
+  ];
   return (
     <>
-      <main
-        id="main"
-        className="max-w-page px-gutter mx-auto flex w-full flex-1 flex-col justify-center gap-8 py-12"
-      >
-        <h1>
-          <Logo variant="stacked" preload className="w-64 max-w-full sm:w-80" />
-        </h1>
-        <p className="text-heading max-w-prose text-balance">{t("lead")}</p>
-        <p className="text-muted-foreground max-w-prose text-pretty">{t("status")}</p>
-      </main>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(ld) }}
+      />
+      <HomeView data={data} />
     </>
   );
 }

@@ -1,4 +1,5 @@
 import { expect, test } from "./fixtures";
+import { whenHydrated } from "./helpers";
 
 /**
  * React and Next only emit most warnings in DEVELOPMENT, so this spec is meaningful against `next dev`
@@ -14,13 +15,20 @@ test("no console errors or warnings across navigation, locale switch and theme t
   });
   page.on("pageerror", (err) => problems.push(`[pageerror] ${err.message}`));
 
+  // The home page is large, so a click that lands before React hydrates is lost: wait for the real signal first.
+  const click = async (role: "link" | "button", name: string) => {
+    const target = page.getByRole(role, { name });
+    await whenHydrated(target);
+    await target.click();
+  };
+
   await page.goto("/en");
-  await page.getByRole("link", { name: "العربية" }).click();
+  await click("link", "العربية");
   await expect(page).toHaveURL(/\/ar$/);
-  await page.getByRole("link", { name: "English" }).click();
+  await click("link", "English");
   await expect(page).toHaveURL(/\/en$/);
-  await page.getByRole("button", { name: "Light" }).click();
-  await page.getByRole("link", { name: "العربية" }).click();
+  await click("button", "Light");
+  await click("link", "العربية");
   await expect(page).toHaveURL(/\/ar$/);
   await page.goto("/en/styleguide");
 

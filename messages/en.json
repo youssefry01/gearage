@@ -10,8 +10,29 @@
     "tryAgain": "Try again"
   },
   "Home": {
-    "lead": "{tagline}",
-    "status": "{brand} is under construction. The catalog and checkout are coming soon."
+    "heroTitle": "Everything for your next PC build",
+    "heroLead": "Browse CPUs, graphics cards, motherboards, memory, storage and more, or start from a curated bundle of parts.",
+    "ctaCategories": "Shop by category",
+    "ctaDeals": "See deals",
+    "bundleLabel": "Featured bundle",
+    "bundleParts": "{count, plural, one {# part} other {# parts}}",
+    "bundleMore": "+{count} more",
+    "bundleView": "View bundle",
+    "categoriesTitle": "Shop by category",
+    "productCount": "{count, plural, one {# product} other {# products}}",
+    "dealsTitle": "Deals",
+    "dealsLead": "Biggest savings first, in stock.",
+    "featuredTitle": "Featured",
+    "featuredLead": "Picked by the store, in stock.",
+    "bestSellersTitle": "Best sellers",
+    "bestSellersLead": "Top sellers that are in stock.",
+    "newArrivalsTitle": "New arrivals",
+    "newArrivalsLead": "Recently added and in stock.",
+    "mostViewedTitle": "Most viewed",
+    "mostViewedLead": "Most-viewed products that are in stock.",
+    "brandsTitle": "Shop by brand",
+    "emptyTitle": "The catalog is being set up",
+    "emptyBody": "Products will appear here as soon as they are added."
   },
   "NotFound": {
     "title": "Page not found",

@@ -80,9 +80,10 @@ export function ProductCard({
         <h3 className="font-medium">
           <Link
             href={productHref(product.slug)}
-            className="rounded-control line-clamp-3 break-words after:absolute after:inset-0 focus-visible:outline-none"
+            className="rounded-control flex min-h-11 items-center after:absolute after:inset-0 focus-visible:outline-none"
           >
-            {title}
+            {/* The link box is at least 44px tall even for a one-line title (wide cards); the clamp is inside it. */}
+            <span className="line-clamp-3 break-words">{title}</span>
           </Link>
         </h3>
         {isBundle ? (
