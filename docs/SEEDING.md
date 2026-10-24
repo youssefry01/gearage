@@ -74,7 +74,7 @@ interface, so real images can replace them later without touching the data model
 - **Weights and dimensions** are seeded only for a few products; shipping fees are zone-based for now.
 - **Showcase blocks** exist on 7 items (images, text, feature and one video block) to test the layout. The video block embeds
   an open-licence film (Big Buck Bunny, CC BY 3.0) purely to test the layout; its id was written from memory, so check that it
-  plays when M3b renders it.
+  plays (M3b renders it behind a click-to-play button, from `www.youtube-nocookie.com`).
 - **Bundles** carry only editorial specs (`use_case`, `target_resolution`); CPU, GPU, memory and storage summaries are derived
   from the components so they cannot drift. All six pass the compatibility rules with zero warnings (tested).
 - **Intel TDP**: `tdp_w` is Intel's base power (125 W for K-series); real turbo draw reaches 253 W. The PSU rule uses the listed

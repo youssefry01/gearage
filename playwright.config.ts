@@ -16,6 +16,15 @@ export default defineConfig({
   timeout: strict ? 30_000 : 90_000,
   expect: { timeout: strict ? 5_000 : 20_000 },
   fullyParallel: true,
+  // `next dev` compiles routes on demand, so many parallel workers make a cold local run slower and flakier, not
+  // faster. Local default is 2 (4 against a production build); override with PW_WORKERS. CI keeps Playwright's default.
+  workers: process.env.PW_WORKERS
+    ? Number(process.env.PW_WORKERS)
+    : process.env.CI
+      ? undefined
+      : process.env.E2E_PROD
+        ? 4
+        : 2,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   reporter: process.env.CI ? [["github"], ["html", { open: "never" }]] : "list",
@@ -32,7 +41,10 @@ export default defineConfig({
   webServer: {
     command: process.env.CI || process.env.E2E_PROD ? "npm run start" : "npm run dev",
     url: `http://localhost:${port}/api/health`,
-    reuseExistingServer: !process.env.CI,
+    // Never silently attach to whatever is already on the port: a stale or different server gave false
+    // "connection refused" and wrong-app failures. Opt in explicitly with E2E_REUSE_SERVER=1 (scripts/e2e-preflight.mjs
+    // fails fast with a clear message when the port is busy and this is not set).
+    reuseExistingServer: process.env.E2E_REUSE_SERVER === "1",
     timeout: 120_000,
     // The style guide is a dev tool; e2e on a production build opts in explicitly.
     env: { ENABLE_STYLEGUIDE: "1" },

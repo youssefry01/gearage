@@ -129,3 +129,11 @@ export function formatPrice(amount: Piastres, locale: string): string {
     maximumFractionDigits: whole ? 0 : 2,
   }).format(amount / PIASTRES_PER_POUND);
 }
+
+/** Plain decimal string of an amount in pounds ("35000.00"), by integer arithmetic (no float rounding). For machine-readable output such as JSON-LD. */
+export function formatDecimal(amount: Piastres): string {
+  assertPiastres(amount);
+  const pounds = Math.floor(amount / PIASTRES_PER_POUND);
+  const piastres = amount % PIASTRES_PER_POUND;
+  return `${pounds}.${String(piastres).padStart(2, "0")}`;
+}

@@ -4,6 +4,7 @@ import {
   allocate,
   applyDiscountBps,
   assertPiastres,
+  formatDecimal,
   formatPrice,
   fromPounds,
   MAX_PIASTRES,
@@ -143,5 +144,18 @@ describe("formatPrice", () => {
     const text = formatPrice(48_500_00, "ar");
     expect(text).toContain("48,500");
     expect(text).not.toMatch(/[\u0660-\u0669]/);
+  });
+});
+
+describe("formatDecimal", () => {
+  it("renders whole pounds and piastres without float rounding", () => {
+    expect(formatDecimal(3_500_000)).toBe("35000.00");
+    expect(formatDecimal(1999)).toBe("19.99");
+    expect(formatDecimal(5)).toBe("0.05");
+    expect(formatDecimal(0)).toBe("0.00");
+    expect(formatDecimal(MAX_PIASTRES)).toBe("21474836.47");
+  });
+  it("rejects non-integers", () => {
+    expect(() => formatDecimal(1.5)).toThrow();
   });
 });

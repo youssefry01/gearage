@@ -4,6 +4,11 @@ updates:
     directory: /
     schedule: { interval: weekly }
     open-pull-requests-limit: 5
+    # Do not propose a release until it has been out a few days (a bad release is usually yanked or fixed by then).
+    # Security updates ignore cooldown and still arrive immediately.
+    cooldown:
+      default-days: 3
+      semver-major-days: 7
     groups:
       minor-and-patch:
         update-types: [minor, patch]
@@ -32,3 +37,5 @@ updates:
   - package-ecosystem: github-actions
     directory: /
     schedule: { interval: weekly }
+    cooldown:
+      default-days: 3

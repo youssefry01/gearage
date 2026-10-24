@@ -1,4 +1,5 @@
 import { expect, test } from "./fixtures";
+import { whenHydrated } from "./helpers";
 
 // Needs the seeded catalog (CI seeds it; locally run `npm run db:seed` first).
 
@@ -56,16 +57,23 @@ test.describe("category listing", () => {
     await expect(page).toHaveURL(/\/en\/c\/components\/cpus$/);
   });
 
-  test("mobile: the Filters drawer applies a filter", async ({ page, isMobile }) => {
-    test.skip(!isMobile, "mobile only");
-    await page.goto("/en/c/components/cpus");
-    await page.getByRole("button", { name: /^Filters/ }).click();
-    const dialog = page.getByRole("dialog", { name: "Filter products" });
-    await expect(dialog).toBeVisible();
-    await dialog.getByLabel("In stock only").check();
-    await dialog.getByRole("button", { name: "Show results" }).click();
-    await expect(page).toHaveURL(/in_stock=1/);
-    await expect(dialog).toBeHidden();
+  // This test used to call `test.skip(!isMobile)`: the config has ONE desktop Chromium project, so `isMobile` was
+  // false in every run and the test never executed. It now creates its own touch phone context instead.
+  test.describe("on a phone", () => {
+    test.use({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
+
+    test("the Filters drawer applies a filter", async ({ page }) => {
+      await page.goto("/en/c/components/cpus");
+      const open = page.getByRole("button", { name: /^Filters/ });
+      await whenHydrated(open);
+      await open.click();
+      const dialog = page.getByRole("dialog", { name: "Filter products" });
+      await expect(dialog).toBeVisible();
+      await dialog.getByLabel("In stock only").check();
+      await dialog.getByRole("button", { name: "Show results" }).click();
+      await expect(page).toHaveURL(/in_stock=1/);
+      await expect(dialog).toBeHidden();
+    });
   });
 
   test("zero results show the empty state and a way out", async ({ page }) => {
@@ -88,6 +96,10 @@ test.describe("category listing", () => {
       "href",
       /\/c\/components$/,
     );
+    // The canonical is checked on a fresh, server-rendered load of page 2, which is what a crawler fetches.
+    // (After a client-side navigation some browsers briefly keep the previous page's <link rel=canonical> next to
+    // the new one: seen with the sandbox Chromium, also on the unmodified M3a-1; see HANDOFF known issues.)
+    await page.goto("/en/c/components?page=2");
     await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", /\?page=2$/);
   });
 

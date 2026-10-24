@@ -7,6 +7,9 @@ import {
   holdsStock,
   StockError,
   stockLevel,
+  purchasableLimit,
+  clampQuantity,
+  MAX_LINE_QUANTITY,
   type BundleComposition,
 } from "./stock";
 
@@ -147,6 +150,23 @@ describe("stockLevel", () => {
     expect(stockLevel(3, 3)).toBe("low");
     expect(stockLevel(4, 3)).toBe("in");
     expect(stockLevel(null, 3)).toBe("in");
+  });
+});
+
+describe("purchase limits", () => {
+  it("offers at most the stock on hand, capped, and nothing when out of stock", () => {
+    expect(purchasableLimit(0)).toBe(0);
+    expect(purchasableLimit(-4)).toBe(0);
+    expect(purchasableLimit(3)).toBe(3);
+    expect(purchasableLimit(500)).toBe(MAX_LINE_QUANTITY);
+    expect(purchasableLimit(null)).toBe(MAX_LINE_QUANTITY);
+  });
+  it("clamps a requested quantity into 1..limit", () => {
+    expect(clampQuantity(0, 5)).toBe(1);
+    expect(clampQuantity(99, 5)).toBe(5);
+    expect(clampQuantity(2.9, 5)).toBe(2);
+    expect(clampQuantity(Number.NaN, 5)).toBe(1);
+    expect(clampQuantity(3, 0)).toBe(0);
   });
 });
 

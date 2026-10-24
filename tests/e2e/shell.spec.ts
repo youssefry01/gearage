@@ -1,6 +1,6 @@
 import { expect, test } from "./fixtures";
 import { storeName } from "../../src/config/brand";
-import { openDrawer, openMegaMenu } from "./helpers";
+import { openDrawer, openMegaMenu, whenHydrated } from "./helpers";
 
 const SECRET_FREE_STATUS = (overall: string, database = overall) => ({
   ok: true,
@@ -62,13 +62,10 @@ test.describe("desktop header", () => {
   }) => {
     await page.goto("/en");
     const trigger = page.getByRole("button", { name: "Components" });
-    await expect(async () => {
-      await trigger.focus();
-      await page.keyboard.press("Enter");
-      await expect(page.getByRole("link", { name: "Shop all Components" })).toBeVisible({
-        timeout: 1000,
-      });
-    }).toPass({ timeout: 15_000 });
+    await whenHydrated(trigger);
+    await trigger.focus();
+    await page.keyboard.press("Enter");
+    await expect(page.getByRole("link", { name: "Shop all Components" })).toBeVisible();
     await expect(trigger).toHaveAttribute("aria-expanded", "true");
     await page.keyboard.press("Escape");
     await expect(page.getByRole("link", { name: "Shop all Components" })).toBeHidden();
@@ -221,7 +218,9 @@ test.describe("cookie consent", () => {
     expect(
       await page.evaluate(() => document.activeElement?.closest("[role=dialog]") === null),
     ).toBe(true);
-    await dialog.getByRole("button", { name: "Accept all" }).click();
+    const accept = dialog.getByRole("button", { name: "Accept all" });
+    await whenHydrated(accept);
+    await accept.click();
     await expect(dialog).toBeHidden();
     const cookie = (await context.cookies()).find((c) => c.name === "consent");
     expect(JSON.parse(decodeURIComponent(cookie?.value ?? "{}"))).toMatchObject({
@@ -238,11 +237,15 @@ test.describe("cookie consent", () => {
     context,
   }) => {
     await page.goto("/ar");
-    await page.getByRole("dialog").getByRole("button").nth(1).click(); // reject
+    const reject = page.getByRole("dialog").getByRole("button").nth(1);
+    await whenHydrated(reject);
+    await reject.click();
     const cookie = (await context.cookies()).find((c) => c.name === "consent");
     expect(JSON.parse(decodeURIComponent(cookie?.value ?? "{}")).analytics).toBe(false);
 
-    await page.getByRole("button", { name: "إعدادات ملفات الارتباط" }).click();
+    const settings = page.getByRole("button", { name: "إعدادات ملفات الارتباط" });
+    await whenHydrated(settings);
+    await settings.click();
     const dialog = page.getByRole("dialog");
     await expect(dialog).toBeVisible();
     await expect(dialog.getByRole("heading", { name: "خياراتك للخصوصية" })).toBeFocused();
@@ -254,7 +257,9 @@ test.describe("cookie consent", () => {
 
   test("essential storage is always on and cannot be unchecked", async ({ page }) => {
     await page.goto("/en");
-    await page.getByRole("button", { name: "Customize" }).click();
+    const customize = page.getByRole("button", { name: "Customize" });
+    await whenHydrated(customize);
+    await customize.click();
     await expect(page.getByRole("checkbox", { name: "Essential" })).toBeDisabled();
     await expect(page.getByRole("checkbox", { name: "Essential" })).toBeChecked();
   });
@@ -382,15 +387,16 @@ test.describe("sitemap and robots", () => {
     ]) {
       expect(xml, placeholder).not.toContain(placeholder);
     }
-    // ADR 0016: clean category paths only, in every locale; never a filtered/sorted URL or a product placeholder.
+    // ADR 0016/0017: clean category and product paths only, in every locale; never a filtered/sorted URL.
     expect(xml).toContain("/en/c/components/cpus</loc>");
     expect(xml).toContain("/ar/c/components/cpus</loc>");
     const locs = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1] ?? "");
     expect(locs.length).toBeGreaterThan(2);
-    for (const loc of locs) {
-      expect(loc, "no query string in the sitemap").not.toContain("?");
-      expect(loc, "no product placeholder in the sitemap").not.toMatch(/\/p\//);
-    }
+    for (const loc of locs) expect(loc, "no query string in the sitemap").not.toContain("?");
+    // Real product and bundle pages are listed, in both locales (the placeholder era is over).
+    expect(xml).toContain("/en/p/nvidia-geforce-rtx-5080-founders-edition-16gb</loc>");
+    expect(xml).toContain("/ar/p/budget-gaming-pc-ryzen-5-5600-rtx-4060</loc>");
+    expect(locs.filter((l) => /\/p\//.test(l)).length).toBeGreaterThanOrEqual(2 * 80);
     // Gift Cards is inactive, so it never appears.
     expect(xml).not.toContain("/c/gift-cards");
   });
@@ -400,7 +406,7 @@ test.describe("sitemap and robots", () => {
     expect(text).toMatch(/Sitemap:\s*\S+\/sitemap\.xml/);
   });
   test("placeholder pages are noindex", async ({ page }) => {
-    for (const placeholder of ["/en/cart", "/en/p/anything"]) {
+    for (const placeholder of ["/en/cart"]) {
       await page.goto(placeholder);
       await expect(page.locator('meta[name="robots"]'), placeholder).toHaveAttribute(
         "content",

@@ -105,7 +105,7 @@ function CategoryListing({
       id="main"
       className="max-w-page px-gutter mx-auto flex w-full flex-1 flex-col gap-5 py-6 sm:py-8"
     >
-      <Breadcrumbs items={crumbs} />
+      <Breadcrumbs items={crumbs} currentPath={basePath} />
       <header className="flex flex-col gap-2">
         <h1 className="text-title font-bold text-balance">{categoryName(node, locale)}</h1>
         {description ? <p className="text-muted-foreground max-w-prose">{description}</p> : null}

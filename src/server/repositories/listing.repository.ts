@@ -2,6 +2,7 @@ import { Prisma } from "@/generated/prisma/client";
 import { type ListingFilters, type Sort, listingFacets } from "@/domain/listing";
 import type { SpecDef } from "@/domain/specs";
 import { getDb } from "@/server/db";
+import { VISIBLE_PRODUCT } from "./visibility";
 
 type Db = ReturnType<typeof getDb>;
 
@@ -50,8 +51,12 @@ export type ListingQuery = {
   /** The category's filter config. Only filterable facets are queried. */
   specDefs: readonly SpecDef[];
   pageSize: number;
-  /** Skip the facet query (home sections, which only need rows). */
+  /** Skip the facet query (home sections, related products, which only need rows). */
   withFacets?: boolean;
+  /** Only bundles that contain this product as a component ("included in these bundles"). */
+  componentId?: string;
+  /** Leave this product out (related products never list the product itself). */
+  excludeProductId?: string;
 };
 
 // ---------------------------------------------------------------------------------------------------------------
@@ -109,17 +114,16 @@ function specCondition(
 /** WHERE conditions for the query, optionally leaving out one facet (for that facet's own counts). */
 function conditions(q: ListingQuery, skip?: FacetId): Prisma.Sql {
   const f = q.filters;
-  const c: Prisma.Sql[] = [
-    Prisma.sql`p."status" = 'ACTIVE'`,
-    Prisma.sql`p."deletedAt" IS NULL`,
-    Prisma.sql`cat."isActive"`,
-    // A product of a deactivated brand is not listed; products without a brand always are.
-    Prisma.sql`(b."id" IS NULL OR b."isActive")`,
-  ];
+  // The shared visibility rule (ACTIVE, not deleted, active category, active brand or none).
+  const c: Prisma.Sql[] = [VISIBLE_PRODUCT];
   if (q.categoryPath)
     c.push(
       Prisma.sql`(cat."path" = ${q.categoryPath} OR cat."path" LIKE ${likePrefix(q.categoryPath)})`,
     );
+  if (q.componentId)
+    c.push(Prisma.sql`EXISTS (SELECT 1 FROM "bundle_item" bi
+      WHERE bi."bundleId" = p."id" AND bi."componentId" = ${q.componentId}::uuid)`);
+  if (q.excludeProductId) c.push(Prisma.sql`p."id" <> ${q.excludeProductId}::uuid`);
   if (skip !== "brand" && f.brands.length > 0)
     c.push(Prisma.sql`b."slug" = ANY(${f.brands}::text[])`);
   if (skip !== "tag" && f.tags.length > 0)

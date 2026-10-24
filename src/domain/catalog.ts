@@ -34,6 +34,9 @@ export function slugify(text: string): string {
   return cut.slice(0, cut.lastIndexOf("-") > 20 ? cut.lastIndexOf("-") : MAX_SLUG_LENGTH);
 }
 
+/** Locale-less path of a product (or bundle) page. */
+export const productHref = (slug: string): string => `/p/${slug}`;
+
 export const isValidSlug = (slug: string): boolean => SLUG_PATTERN.test(slug);
 
 /** SKUs are stored upper-case; spaces become hyphens. Throws if the result is not a valid SKU. */

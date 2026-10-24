@@ -1,14 +1,34 @@
 import { ChevronRight } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
+import { breadcrumbJsonLd, serializeJsonLd } from "@/lib/json-ld";
+import { siteUrl } from "@/lib/site-url";
 
 export type Crumb = { label: string; href?: string };
 
-/** Visual breadcrumb trail. The last crumb is the current page. (BreadcrumbList JSON-LD joins in M3b.) */
-export function Breadcrumbs({ items }: { items: Crumb[] }) {
+/**
+ * Visual breadcrumb trail plus its BreadcrumbList JSON-LD. The last crumb is the current page; pass `currentPath`
+ * (locale-less, no query string) so structured data carries its canonical URL.
+ */
+export function Breadcrumbs({ items, currentPath }: { items: Crumb[]; currentPath?: string }) {
   const t = useTranslations("Breadcrumb");
+  const locale = useLocale();
+  const origin = siteUrl().origin;
+  const ld = breadcrumbJsonLd(
+    items.map((item, i) => {
+      const path = i === items.length - 1 ? (currentPath ?? item.href) : item.href;
+      return {
+        name: item.label,
+        ...(path === undefined ? {} : { url: `${origin}/${locale}${path === "/" ? "" : path}` }),
+      };
+    }),
+  );
   return (
     <nav aria-label={t("label")}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(ld) }}
+      />
       <ol className="text-small text-muted-foreground flex flex-wrap items-center">
         {items.map((item, i) => {
           const last = i === items.length - 1;

@@ -1,5 +1,6 @@
 import type { Page } from "@playwright/test";
 import { expect, test } from "./fixtures";
+import { whenHydrated } from "./helpers";
 import { brand, localized, storeName } from "../../src/config/brand";
 
 test.describe("locale routing (ADR 0006)", () => {
@@ -125,7 +126,9 @@ test.describe("theme", () => {
     await expect(page.locator("header img.logo-on-dark")).toBeVisible();
     await expect(page.locator("header img.logo-on-light")).toBeHidden();
 
-    await page.getByRole("button", { name: "Light" }).click();
+    const light = page.getByRole("button", { name: "Light" });
+    await whenHydrated(light);
+    await light.click();
     await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
     await expect(page.getByRole("button", { name: "Light" })).toHaveAttribute(
       "aria-pressed",
@@ -145,7 +148,9 @@ test.describe("theme", () => {
   test("'system' follows the OS color scheme", async ({ page }) => {
     await page.emulateMedia({ colorScheme: "light" });
     await page.goto("/en");
-    await page.getByRole("button", { name: "System" }).click();
+    const system = page.getByRole("button", { name: "System" });
+    await whenHydrated(system);
+    await system.click();
     const bg = () => page.evaluate(() => getComputedStyle(document.body).backgroundColor);
     expect(await bg()).toBe("rgb(255, 255, 255)");
     await page.emulateMedia({ colorScheme: "dark" });

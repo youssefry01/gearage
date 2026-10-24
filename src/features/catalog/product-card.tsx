@@ -5,11 +5,12 @@ import { cardSavings } from "@/domain/listing";
 import { formatPrice } from "@/domain/money";
 import { stockLevel } from "@/domain/stock";
 import type { Locale } from "@/i18n/locales";
+import { productHref } from "@/domain/catalog";
 import { Link } from "@/i18n/navigation";
 import type { ProductCardData } from "@/server/services/listing.service";
 
 /** Storefront URL of a product. The page itself ships in M3b; the shape is decided there (HANDOFF). */
-export const productHref = (slug: string): string => `/p/${slug}`;
+export { productHref };
 
 const IMAGE_SIZES =
   "(min-width: 1280px) 22vw, (min-width: 1024px) 24vw, (min-width: 768px) 30vw, 48vw";

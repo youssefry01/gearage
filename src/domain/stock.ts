@@ -93,6 +93,22 @@ export function stockLevel(available: number | null, lowStockThreshold: number):
   return available <= lowStockThreshold ? "low" : "in";
 }
 
+/** Most units of one product a shopper can put in a cart line at once (a sanity cap; checkout re-validates, M6). */
+export const MAX_LINE_QUANTITY = 10;
+
+/** How many units the quantity picker may offer: the stock on hand, capped; 0 when out of stock. null = not stock-tracked. */
+export function purchasableLimit(available: number | null): number {
+  if (available === null) return MAX_LINE_QUANTITY;
+  return Math.max(0, Math.min(Math.floor(available), MAX_LINE_QUANTITY));
+}
+
+/** Clamps a requested quantity into 1..limit (0 when nothing can be bought). Non-finite input becomes 1. */
+export function clampQuantity(requested: number, limit: number): number {
+  if (limit <= 0) return 0;
+  const n = Number.isFinite(requested) ? Math.floor(requested) : 1;
+  return Math.min(Math.max(n, 1), limit);
+}
+
 export type ReservationStatus = "ACTIVE" | "CONVERTED" | "RELEASED" | "EXPIRED";
 
 const RESOLVED: readonly ReservationStatus[] = ["CONVERTED", "RELEASED", "EXPIRED"];

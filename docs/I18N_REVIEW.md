@@ -1,6 +1,6 @@
 # Arabic copy that needs native review
 
-549 Arabic strings were written by the assistant, not a native copywriter. Review tone, terminology (Egyptian retail wording, for
+638 Arabic strings were written by the assistant, not a native copywriter. Review tone, terminology (Egyptian retail wording, for
 example the category names) and plural forms. Brand and model names left in Latin (AMD Ryzen, DDR5, ...) are not listed.
 The owner plans one native-review pass once more copy exists.
 
@@ -166,8 +166,97 @@ run `npm run i18n:review` after adding strings (CI runs `npm run i18n:review:che
 | messages: Pagination.goToPage | Go to page {page} | انتقل إلى الصفحة {page} |
 | messages: Pagination.currentPage | Page {page}, current page | الصفحة {page}، الصفحة الحالية |
 | messages: Pagination.status | Page {page} of {pages} | الصفحة {page} من {pages} |
-| messages: ProductSoon.title | Product page coming soon | صفحة المنتج قريبًا |
-| messages: ProductSoon.body | Product details arrive in the next milestone. For now you can keep browsing the catalog. | تفاصيل المنتج ستتوفر في المرحلة القادمة. يمكنك الآن متابعة تصفح الكتالوج. |
+| messages: Product.galleryLabel | Product images | صور المنتج |
+| messages: Product.showImage | Show image {number} of {total} | عرض الصورة {number} من {total} |
+| messages: Product.enlarge | Enlarge image | تكبير الصورة |
+| messages: Product.viewerTitle | Images of {title} | صور {title} |
+| messages: Product.viewerDescription | Use the arrow keys or the buttons to move between images. Press Escape to close. | استخدم مفاتيح الأسهم أو الأزرار للتنقل بين الصور. اضغط Escape للإغلاق. |
+| messages: Product.imageCounter | Image {current} of {total} | الصورة {current} من {total} |
+| messages: Product.previous | Previous image | الصورة السابقة |
+| messages: Product.next | Next image | الصورة التالية |
+| messages: Product.close | Close | إغلاق |
+| messages: Product.brand | Brand | العلامة التجارية |
+| messages: Product.sku | SKU | رمز المنتج (SKU) |
+| messages: Product.mpn | Part number (MPN) | رقم القطعة (MPN) |
+| messages: Product.model | Model | الموديل |
+| messages: Product.condition | Condition | الحالة |
+| messages: Product.conditionNEW | New | جديد |
+| messages: Product.conditionREFURBISHED | Refurbished | مجدَّد |
+| messages: Product.warranty | {months, plural, one {# month warranty} other {# months warranty}} | {months, plural, one {ضمان شهر واحد} two {ضمان شهرين} few {ضمان # أشهر} many {ضمان # شهرًا} other {ضمان # شهر}} |
+| messages: Product.warrantyLabel | Warranty | الضمان |
+| messages: Product.weight | Weight | الوزن |
+| messages: Product.dimensions | Dimensions (L × W × H) | الأبعاد (الطول × العرض × الارتفاع) |
+| messages: Product.kilograms | {value} kg | {value} كجم |
+| messages: Product.grams | {value} g | {value} جم |
+| messages: Product.millimetres | {length} × {width} × {height} mm | {length} × {width} × {height} مم |
+| messages: Product.quantity | Quantity | الكمية |
+| messages: Product.addToCart | Add to cart | أضف إلى السلة |
+| messages: Product.unavailable | Currently unavailable | غير متاح حاليًا |
+| messages: Product.addedToCart | {count, plural, one {# item added to your cart} other {# items added to your cart}} | {count, plural, one {تمت إضافة منتج واحد إلى سلتك} two {تمت إضافة منتجين إلى سلتك} few {تمت إضافة # منتجات إلى سلتك} many {تمت إضافة # منتجًا إلى سلتك} other {تمت إضافة # منتج إلى سلتك}} |
+| messages: Product.viewCart | View cart | عرض السلة |
+| messages: Product.maxPerOrder | Up to {max} per order | حتى {max} في الطلب الواحد |
+| messages: Product.deliveryTitle | Delivery | التوصيل |
+| messages: Product.deliveryBody | We deliver across Egypt. The delivery fee and estimated time depend on your governorate and are shown at checkout. | نوصّل إلى جميع أنحاء مصر. تعتمد رسوم التوصيل والمدة المتوقعة على محافظتك وتظهر عند إتمام الطلب. |
+| messages: Product.overview | Overview | نظرة عامة |
+| messages: Product.description | Description | الوصف |
+| messages: Product.specifications | Specifications | المواصفات |
+| messages: Product.general | General | معلومات عامة |
+| messages: Product.yes | Yes | نعم |
+| messages: Product.no | No | لا |
+| messages: Product.tags | Tags | الوسوم |
+| messages: Product.showcaseTitle | From the manufacturer | من الشركة المصنّعة |
+| messages: Product.showcaseSource | Source: {credit} | المصدر: {credit} |
+| messages: Product.videoTitle | Product video | فيديو المنتج |
+| messages: Product.videoPlay | Play video | تشغيل الفيديو |
+| messages: Product.videoNote | The video loads from YouTube (privacy-enhanced mode) only after you press play. | لا يتم تحميل الفيديو من يوتيوب (وضع الخصوصية المحسّن) إلا بعد الضغط على التشغيل. |
+| messages: Product.relatedTitle | You may also like | قد يعجبك أيضًا |
+| messages: Product.includedInTitle | Included in these bundles | متوفر ضمن هذه التجميعات |
+| messages: Product.bundleSummaryTitle | At a glance | نظرة سريعة |
+| messages: Product.bundleMemory | Memory | الذاكرة |
+| messages: Product.bundleStorage | Storage | التخزين |
+| messages: Product.bundlePsu | Power supply | مزود الطاقة |
+| messages: Product.bundleEstimatedDraw | Estimated power draw | استهلاك الطاقة التقديري |
+| messages: Product.bundleRecommendedPsu | Recommended power supply | مزود الطاقة الموصى به |
+| messages: Product.watts | {value} W | {value} واط |
+| messages: Product.gigabytes | {value} GB | {value} جيجابايت |
+| messages: Product.terabytes | {value} TB | {value} تيرابايت |
+| messages: Product.bundlePartsTitle | What's included | محتويات التجميعة |
+| messages: Product.bundlePartsCaption | Parts included in this bundle | القطع المضمّنة في هذه التجميعة |
+| messages: Product.colPart | Part | القطعة |
+| messages: Product.colQuantity | Qty | الكمية |
+| messages: Product.colUnitPrice | Unit price | سعر الوحدة |
+| messages: Product.colTotal | Total | الإجمالي |
+| messages: Product.colStock | Availability | التوفر |
+| messages: Product.partsTotal | Parts bought separately | سعر القطع منفصلة |
+| messages: Product.bundlePrice | Bundle price | سعر التجميعة |
+| messages: Product.partShort | Not enough in stock | المخزون غير كافٍ |
+| messages: Product.partUnavailable | No longer sold | لم تعد متاحة للبيع |
+| messages: Product.partOk | In stock | متوفر |
+| messages: Product.bundleUnavailableNote | This bundle can't be ordered right now because at least one of its parts is out of stock or no longer sold. | لا يمكن طلب هذه التجميعة حاليًا لأن إحدى قطعها على الأقل غير متوفرة أو لم تعد متاحة للبيع. |
+| messages: Product.viewPart | View {title} | عرض {title} |
+| messages: Product.perBundle | × {count} | × {count} |
+| messages: Product.cartMax | You already have the maximum of {max} in your cart. | لديك بالفعل الحد الأقصى ({max}) في سلتك. |
+| messages: Product.saving | You save | توفّر |
+| messages: Compatibility.ok | All parts verified compatible | تم التحقق من توافق جميع القطع |
+| messages: Compatibility.notes | Compatible, with notes | متوافقة مع ملاحظات |
+| messages: Compatibility.problem | Compatibility problem | مشكلة في التوافق |
+| messages: Compatibility.heading | Compatibility check | فحص التوافق |
+| messages: Compatibility.intro | Checked automatically from the parts' specifications. | يتم الفحص تلقائيًا من مواصفات القطع. |
+| messages: Compatibility.cpuSocketMismatch | The {cpu} processor does not fit the {motherboard} motherboard socket. | المعالج {cpu} لا يتناسب مع مقبس اللوحة الأم {motherboard}. |
+| messages: Compatibility.ramTypeMismatch | {ram} memory is not supported by this {motherboard} motherboard. | ذاكرة {ram} غير مدعومة في اللوحة الأم {motherboard}. |
+| messages: Compatibility.ramSlotsExceeded | {modules} memory modules do not fit in {slots} slots. | لا يمكن تركيب {modules} وحدات ذاكرة في {slots} منافذ. |
+| messages: Compatibility.ramCapacityExceeded | {gb} GB of memory exceeds the motherboard maximum of {maxGb} GB. | سعة الذاكرة {gb} جيجابايت تتجاوز الحد الأقصى للوحة الأم وهو {maxGb} جيجابايت. |
+| messages: Compatibility.caseFormFactorUnsupported | This case does not support a {motherboard} motherboard (supports: {supported}). | هذا الصندوق لا يدعم لوحة أم بمقاس {motherboard} (المدعوم: {supported}). |
+| messages: Compatibility.gpuTooLong | The graphics card ({gpuMm} mm) is longer than the case allows ({maxMm} mm). | كارت الشاشة ({gpuMm} مم) أطول مما يسمح به الصندوق ({maxMm} مم). |
+| messages: Compatibility.coolerSocketUnsupported | The CPU cooler does not support the {cpu} socket. | مبرّد المعالج لا يدعم مقبس {cpu}. |
+| messages: Compatibility.radiatorUnsupported | The case does not support a {radiatorMm} mm radiator. | الصندوق لا يدعم مشعّ تبريد بطول {radiatorMm} مم. |
+| messages: Compatibility.coolerTooTall | The CPU cooler ({coolerMm} mm) is taller than the case allows ({maxMm} mm). | مبرّد المعالج ({coolerMm} مم) أطول مما يسمح به الصندوق ({maxMm} مم). |
+| messages: Compatibility.coolerUnderRated | The CPU cooler is rated for {ratingW} W, below the processor's {cpuW} W. | مبرّد المعالج مصنَّف لـ {ratingW} واط، أقل من {cpuW} واط للمعالج. |
+| messages: Compatibility.psuFormFactorUnsupported | The case does not support a {psu} power supply. | الصندوق لا يدعم مزود طاقة بمقاس {psu}. |
+| messages: Compatibility.psuInsufficient | The {psuW} W power supply is below the estimated {estimatedW} W draw. | مزود الطاقة {psuW} واط أقل من الاستهلاك التقديري {estimatedW} واط. |
+| messages: Compatibility.psuBelowRecommended | The {psuW} W power supply is below the recommended {recommendedW} W. | مزود الطاقة {psuW} واط أقل من الموصى به {recommendedW} واط. |
+| messages: Compatibility.m2SlotsExceeded | {drives} M.2 drives do not fit in {slots} motherboard slots. | لا يمكن تركيب {drives} أقراص M.2 في {slots} منافذ على اللوحة الأم. |
+| messages: Compatibility.unknownSpec | Could not verify one check because the specification "{spec}" is missing. | تعذّر التحقق من أحد الفحوصات لأن المواصفة "{spec}" غير متوفرة. |
 
 ## Brand copy
 

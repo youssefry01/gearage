@@ -35,4 +35,7 @@ export const PAGES = [
   "/c/components/graphics-cards?in_stock=1&sort=price-asc",
   "/c/pc-bundles",
   "/c/components/cpus?brand=nvidia",
+  // Product pages: a part (low stock, showcase with video) and a bundle (parts table, compatibility badge).
+  "/p/nvidia-geforce-rtx-5080-founders-edition-16gb",
+  "/p/budget-gaming-pc-ryzen-5-5600-rtx-4060",
 ] as const;

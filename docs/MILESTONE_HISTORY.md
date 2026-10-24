@@ -111,3 +111,33 @@ cron endpoints 401 without/with wrong secret and 200 with it, boot fails with a 
 **Not verified (the owner must run):** `npm run db:seed` against his own Postgres on Windows (twice, to see "already up to date"), `npm run test:db` locally, GitHub CI for this delivery, and above all **the specs themselves**: they come from my knowledge, 56 of 79 products carry doubts listed in docs/SEEDING.md, and no spec was checked against a manufacturer page (no internet access to those sites here). Prices are illustrative.
 
 **Found and fixed by seeding:** case fans sat under the `cooler` build role (would have been read as coolers by the PC Builder); case radiator sizes needed a numeric list but spec lists are strings only (accepted as numeric strings, ADR 0015).
+
+## M3a-1 verification record (2026-10-21)
+
+**Verified in the sandbox (real execution, PostgreSQL 18.4, the full seed):**
+
+- Gates all pass: `format:check`, `tokens:check`, `contrast`, `brand:check`, `i18n:review:check` (550 strings), `seed:docs:check`, `lint`, `typecheck`; **373 unit tests** (36 files) and **143 DB tests** (6 files, `npm run test:db`).
+
+- Domain unit tests: URL grammar, normalization, SEO policy, pagination window, selection removal, savings, category tree, TTL cache, storage URL parity, demo flag. Bug found by them: a half-invalid range (`1e3..5`) was accepted as `..5`; now rejected.
+- `tests/db/listing.db.test.ts` (17 tests): exactly 3 statements per request (no N+1); every seeded spec facet (checkbox/enum, range/number) and synthetic list and toggle specs match an independent TypeScript implementation; disjunctive facet counts; every sort paginates disjointly and completely; default sort puts out-of-stock last; draft/archived/deleted excluded; menu tree rules (Gift Cards hidden, emptied categories drop out). Bug found by them: grouping on a bind-parameter spec key failed (fixed with GROUP BY ordinal).
+- Production build with no database (CI verify path) and with the seeded database; HTTP checks on the running build: canonical/hreflang/robots for clean, filtered, page 2 and junk-parameter URLs; zero-result state; sitemap lists 104 category URLs (52 paths x 2 locales); menu categories present.
+- Structural axe-core (WCAG A/AA, best-practice, no color-contrast, no layout rules) in jsdom on 8 server-rendered pages (en/ar, clean, filtered, zero-result, bundles, page 2): see issue 41 for what that does NOT cover.
+- Library facts checked against the docs bundled in `next@16.4.0` (re-checked behavior on 16.4.2 by running the build): `unstable_cache` is superseded by `use cache`; `revalidate` segment config is removed only with `cacheComponents`; not-found status during streaming.
+
+**Not verified (the owner must run):** `npm run test:db` and `npm run db:seed` locally; the Playwright suite (`npm run test:e2e`: new `listing.spec.ts` and the extended viewport matrix were never executed); a visual pass in a real browser (LTR and RTL, 320px to ultrawide, dark and light), including color contrast of the new pages; CI.
+
+**Exact commands:** `npm ci`, `npm run db:seed` (needs the migrated DB), `npm run dev`, then open `/en/c/components/cpus`, `/ar/c/pc-bundles`, `/en/c/components?page=2`.
+
+## M3a-1 follow-up (2026-10-22)
+
+The owner ran e2e on a production build: 199 passed, 36 failed, 1 skipped. Fixes, all UNRUN by me in a browser:
+
+1. **Target size (32 tests, `responsive.spec.ts`, mouse viewports, listing pages):** the 20x20 filter checkboxes. The spec requires 44x44 on the interactive element itself. Fix (UI, not the test): the real `<input>` now covers the whole row (`absolute inset-0`, invisible), so the control is the full-width 44px-high hit area and the label text is part of it; the visible box is drawn beside it and shows focus and checked state via `peer-*` classes. Native keyboard and screen-reader semantics are unchanged.
+2. **`shell.spec.ts` mega-menu test:** locators scoped to the "Product categories" navigation (after navigating, "NVIDIA GeForce" is also a subcategory chip).
+3. **`shell.spec.ts` sitemap:** no longer forbids `/c/`; asserts clean category paths in both locales, no query strings, no `/p/`, no Gift Cards, and the placeholder routes still absent.
+4. **`shell.spec.ts` noindex:** uses real placeholders (`/en/cart`, `/en/p/anything`) and asserts that a clean category page has no robots meta while a filtered one is noindex.
+5. **Unknown category:** now a real 404 (and `?page=50`, `gift-cards`); server HTML has exactly one robots tag; see issue 37 for what is not verified.
+
+Also: `listing.spec.ts` and the viewport matrix are unchanged otherwise; `next` and `eslint-config-next` are 16.4.2.
+
+**Verified here:** HTTP status 404 for six unknown/inactive/out-of-range URLs and 200 for clean and zero-result URLs (production build, seeded DB); exactly one robots tag in the server HTML of `/en/c/nope` and `/en/does-not-exist`; typecheck, lint, format, unit and DB tests, i18n review check. **Not verified (owner runs `npm run test:e2e` on a production build):** that the 32 target-size failures are gone (layout is not measurable without a browser; by construction the input rect equals the label row, at least 44px high and the full row wide), the focus ring on the new checkbox, dark/light look of the checked state, and the post-hydration robots-tag count.
