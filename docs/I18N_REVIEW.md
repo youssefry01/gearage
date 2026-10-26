@@ -1,10 +1,10 @@
 # Arabic copy that needs native review
 
-659 Arabic strings were written by the assistant, not a native copywriter. Review tone, terminology (Egyptian retail wording, for
+753 Arabic strings were written by the assistant, not a native copywriter. Review tone, terminology (Egyptian retail wording, for
 example the category names) and plural forms. Brand and model names left in Latin (AMD Ryzen, DDR5, ...) are not listed.
 The owner plans one native-review pass once more copy exists.
 
-This file is GENERATED from `messages/ar.json`, `src/config/brand.ts`, the category tree and the seed data files (`prisma/seed/data`). Do not edit it by hand:
+This file is GENERATED from `messages/ar.json`, `src/config/brand.ts`, the category tree and the search synonym dictionary (`src/domain/search-synonyms.ts`) and the seed data files (`prisma/seed/data`). Do not edit it by hand:
 run `npm run i18n:review` after adding strings (CI runs `npm run i18n:review:check`).
 
 <!-- prettier-ignore-start -->
@@ -44,6 +44,8 @@ run `npm run i18n:review` after adding strings (CI runs `npm run i18n:review:che
 | messages: Home.brandsTitle | Shop by brand | تسوّق حسب العلامة التجارية |
 | messages: Home.emptyTitle | The catalog is being set up | الكتالوج قيد الإعداد |
 | messages: Home.emptyBody | Products will appear here as soon as they are added. | ستظهر المنتجات هنا فور إضافتها. |
+| messages: Home.viewAll | View all | عرض الكل |
+| messages: Home.viewAllFor | View all: {title} | عرض الكل: {title} |
 | messages: NotFound.title | Page not found | الصفحة غير موجودة |
 | messages: NotFound.body | That page doesn’t exist or has moved. | هذه الصفحة غير موجودة أو تم نقلها. |
 | messages: Error.title | Something went wrong | حدث خطأ ما |
@@ -139,6 +141,7 @@ run `npm run i18n:review` after adding strings (CI runs `npm run i18n:review:che
 | messages: Listing.sort.price-asc | Price: low to high | السعر: من الأقل إلى الأعلى |
 | messages: Listing.sort.price-desc | Price: high to low | السعر: من الأعلى إلى الأقل |
 | messages: Listing.sort.discount | Biggest discount | أكبر خصم |
+| messages: Listing.sort.relevance | Most relevant | الأكثر صلة |
 | messages: Listing.filters | Filters | تصفية |
 | messages: Listing.filtersWithCount | Filters ({count}) | تصفية ({count}) |
 | messages: Listing.filtersTitle | Filter products | تصفية المنتجات |
@@ -170,6 +173,7 @@ run `npm run i18n:review` after adding strings (CI runs `npm run i18n:review:che
 | messages: Filters.rangeFrom | From | من |
 | messages: Filters.rangeTo | To | إلى |
 | messages: Filters.rangeBetween | Available range: {min} to {max} | النطاق المتاح: من {min} إلى {max} |
+| messages: Filters.category | Category | الفئة |
 | messages: ProductCard.bundle | PC bundle | تجميعة كمبيوتر |
 | messages: ProductCard.parts | {count, plural, one {# part} other {# parts}} | {count, plural, zero {بدون قطع} one {قطعة واحدة} two {قطعتان} few {# قطع} many {# قطعة} other {# قطعة}} |
 | messages: ProductCard.youSave | You save {amount} | توفّر {amount} |
@@ -278,14 +282,112 @@ run `npm run i18n:review` after adding strings (CI runs `npm run i18n:review:che
 | messages: Compatibility.psuBelowRecommended | The {psuW} W power supply is below the recommended {recommendedW} W. | مزود الطاقة {psuW} واط أقل من الموصى به {recommendedW} واط. |
 | messages: Compatibility.m2SlotsExceeded | {drives} M.2 drives do not fit in {slots} motherboard slots. | لا يمكن تركيب {drives} أقراص M.2 في {slots} منافذ على اللوحة الأم. |
 | messages: Compatibility.unknownSpec | Could not verify one check because the specification "{spec}" is missing. | تعذّر التحقق من أحد الفحوصات لأن المواصفة "{spec}" غير متوفرة. |
+| messages: Search.title | Search results | نتائج البحث |
+| messages: Search.titleFor | Results for “{query}” | نتائج البحث عن «{query}» |
+| messages: Search.allProducts | All products | كل المنتجات |
+| messages: Search.allProductsLead | Every product in the store. Use the filters and sorting to narrow it down. | كل منتجات المتجر. استخدم عوامل التصفية والترتيب لتضييق النتائج. |
+| messages: Search.metaTitleFor | Search: {query} | البحث: {query} |
+| messages: Search.metaDescriptionFor | Search results for {query} at {store}. | نتائج البحث عن {query} في {store}. |
+| messages: Search.metaDescriptionAll | Browse every product at {store}. | تصفّح كل المنتجات في {store}. |
+| messages: Search.correctedNotice | No results for “{original}”. Showing results for “{corrected}”. | لا توجد نتائج عن «{original}». نعرض نتائج «{corrected}». |
+| messages: Search.partialNotice | No product matches every word of “{query}”. Showing products that match some of the words. | لا يوجد منتج يطابق كل كلمات «{query}». نعرض المنتجات التي تطابق بعض الكلمات. |
+| messages: Search.noResultsTitle | No results for “{query}” | لا توجد نتائج عن «{query}» |
+| messages: Search.noResultsBody | Check the spelling, try fewer or more general words, or browse a category. | تأكد من الإملاء، أو جرّب كلمات أقل أو أعم، أو تصفّح إحدى الفئات. |
+| messages: Search.noResultsInCategory | Nothing in this category matches “{query}”. | لا يوجد في هذه الفئة ما يطابق «{query}». |
+| messages: Search.searchAllCategories | Search all categories | ابحث في كل الفئات |
+| messages: Search.tooShortTitle | Type a little more | اكتب أكثر قليلًا |
+| messages: Search.tooShortBody | Enter at least two characters to search the store. | اكتب حرفين على الأقل للبحث في المتجر. |
+| messages: Search.browseCategories | Browse categories | تصفّح الفئات |
+| messages: Search.clearSearch | Clear search | مسح البحث |
+| messages: Search.categoryHeading | Category | الفئة |
+| messages: Search.allCategories | All categories | كل الفئات |
+| messages: Search.categoryNav | Narrow by category | تضييق حسب الفئة |
+| messages: Search.suggestLabel | Search suggestions | اقتراحات البحث |
+| messages: Search.suggestProducts | Products | المنتجات |
+| messages: Search.suggestCategories | Categories | الفئات |
+| messages: Search.suggestBrands | Brands | العلامات التجارية |
+| messages: Search.suggestSeeAll | See all {count, plural, one {# result} other {# results}} for “{query}” | عرض {count, plural, zero {كل النتائج} one {النتيجة} two {النتيجتين} few {كل # نتائج} many {كل # نتيجة} other {كل # نتيجة}} عن «{query}» |
+| messages: Search.suggestNone | No suggestions. Press Enter to search the whole store. | لا توجد اقتراحات. اضغط Enter للبحث في المتجر كله. |
+| messages: Search.suggestCorrected | Showing suggestions for “{corrected}” | نعرض اقتراحات «{corrected}» |
+| messages: Search.suggestStatus | {count, plural, =0 {No suggestions} one {# suggestion available} other {# suggestions available}} | {count, plural, zero {لا توجد اقتراحات} one {يوجد اقتراح واحد} two {يوجد اقتراحان} few {توجد # اقتراحات} many {يوجد # اقتراحًا} other {يوجد # اقتراح}} |
+| messages: Search.suggestLoading | Searching… | جارٍ البحث… |
+| messages: Search.suggestError | Suggestions are not available right now. Press Enter to search. | الاقتراحات غير متاحة حاليًا. اضغط Enter للبحث. |
+| messages: Search.outOfStock | Out of stock | غير متوفر |
+| messages: Search.bundle | Bundle | تجميعة |
 
 ## Brand copy
 
 | Where | English | Arabic (machine-written) |
 | --- | --- | --- |
-| brand: tagline | PC hardware, delivered across Egypt. | قطع الكمبيوتر وملحقاته، توصيل لجميع أنحاء مصر. |
+| brand: tagline | PC parts, laptops and bundles. | قطع الكمبيوتر واللابتوب والتجميعات. |
 | brand: seo.title | PC hardware store in Egypt | متجر قطع الكمبيوتر في مصر |
-| brand: seo.description | Shop CPUs, graphics cards, motherboards, memory, storage and ready-built gaming PCs, with Cash on Delivery across Egypt. | تسوّق المعالجات وكروت الشاشة واللوحات الأم والذاكرة والتخزين وأجهزة الألعاب الجاهزة مع الدفع عند الاستلام في جميع أنحاء مصر. |
+| brand: seo.description | Shop CPUs, graphics cards, motherboards, memory, storage, laptops and PC bundles. | تسوّق المعالجات وكروت الشاشة واللوحات الأم والذاكرة والتخزين واللابتوب وتجميعات الكمبيوتر. |
+
+## Search synonyms (the Arabic words that find a product type, brand or unit; one row per group)
+
+Wrong or missing entries here mean a shopper who types that word gets no results or the wrong ones. Plurals, spelling
+variants and Egyptian colloquial forms are the most valuable additions.
+
+| Where | English | Arabic (machine-written) |
+| --- | --- | --- |
+| search synonyms: gpu | gpu, graphics card, graphic card, video card, vga | كارت شاشة، كرت شاشة، كروت شاشة، كروت الشاشة، كارت جرافيك، كرت جرافيك، كروت جرافيك، جرافيك، كارت فيجا، كرت فيجا |
+| search synonyms: cpu | cpu, processor, processors | معالج، معالجات، المعالج، المعالجات، بروسيسور، بروسسور |
+| search synonyms: motherboard | motherboard, motherboards, mobo, mainboard | لوحة أم، لوحة الأم، لوحات أم، لوحات الأم، اللوحة الأم، اللوحات الأم، مازر بورد، مازربورد، ماذر بورد، ماذربورد، مذربورد |
+| search synonyms: ram | ram, memory, memories | رام، ذاكرة، ذاكرة عشوائية، ذاكرة رام، الذاكرة العشوائية، ميموري |
+| search synonyms: storage | storage, hard drive, hard disk, hdd | هارد، هارد ديسك، هارد درايف، هاردسك، تخزين، وحدات تخزين، وحدة تخزين |
+| search synonyms: ssd | ssd, solid state, solid state drive | اس اس دي |
+| search synonyms: nvme | nvme | ان في ام اي |
+| search synonyms: psu | psu, power supply, power supplies | مصدر طاقة، مصادر طاقة، مصدر الطاقة، مصادر الطاقة، باور، باور سبلاي، باور سابلاي، بور سبلاي، باور سوبلاي |
+| search synonyms: case | case, pc case, computer case | صندوق كمبيوتر، صناديق كمبيوتر، صندوق الكمبيوتر، صناديق الكمبيوتر، كيس، كيسة، كيس كمبيوتر |
+| search synonyms: liquid-cooler | liquid cooler, water cooler, aio | مبرد مائي، كولر مائي، تبريد مائي، ليكويد |
+| search synonyms: cooler | cooler, coolers, cooling, fan, fans | مبرد، مبردات، تبريد، كولر، مروحة، مراوح، فان |
+| search synonyms: monitor | monitor, monitors, display, screen | شاشة، شاشات، مونيتور، مونيتر |
+| search synonyms: laptop | laptop, laptops, notebook, notebooks | لابتوب، لابتوبات، لاب توب، لاب |
+| search synonyms: ultrabook | ultrabook, ultrabooks | ألترابوك، الترا بوك |
+| search synonyms: keyboard | keyboard, keyboards | كيبورد، كيبوردات، كي بورد، لوحة مفاتيح، لوحات مفاتيح |
+| search synonyms: mouse | mouse, mice | ماوس، ماوسات، فأرة، فأرات، فارة |
+| search synonyms: mouse-pad | mouse pad, mousepad | ماوس باد، ماوسباد |
+| search synonyms: headset | headset, headsets, headphone, headphones | هيدسيت، هيدفون، سماعة، سماعات، سماعة رأس، سماعات رأس |
+| search synonyms: webcam | webcam, webcams, web cam, camera | كاميرا ويب، كاميرات الويب، ويب كام، ويبكام، كاميرا |
+| search synonyms: microphone | microphone, mic | ميكروفون، مايكروفون، مايك، ميك |
+| search synonyms: router | router, routers | راوتر، راوترات، روتر |
+| search synonyms: switch | network switch, switch, switches | سويتش، سوتش |
+| search synonyms: wifi | wifi, wi fi | واي فاي، وايفاي |
+| search synonyms: thermal-paste | thermal paste, thermal compound | معجون حراري |
+| search synonyms: bundle | bundle, bundles, pc build, pc builds | تجميعة، تجميعات، جهاز كامل |
+| search synonyms: workstation | workstation, workstations | محطة عمل، محطات عمل |
+| search synonyms: gaming | gaming, gamer, game, games | ألعاب، للألعاب، جيمنج، جيمينج، قيمنج |
+| search synonyms: office | office | مكتب، مكتبي، أوفيس |
+| search synonyms: gb | gb | جيجا |
+| search synonyms: tb | tb, terabyte | تيرا، تيرابايت |
+| search synonyms: hz | hz | هرتز |
+| search synonyms: watt | watt, watts, w | واط |
+| search synonyms: brand-nvidia | nvidia | انفيديا، إنفيديا، نفيديا |
+| search synonyms: brand-geforce | geforce | جيفورس، جي فورس |
+| search synonyms: brand-rtx | rtx | ار تي اكس |
+| search synonyms: brand-radeon | radeon | ريديون، راديون |
+| search synonyms: brand-amd | amd | ايه ام دي، اي ام دي |
+| search synonyms: brand-ryzen | ryzen | ريزن، رايزن، ريزين |
+| search synonyms: brand-intel | intel | انتل، إنتل |
+| search synonyms: brand-asus | asus | ايسوس، اسوس، أسوس، ايزوس |
+| search synonyms: brand-msi | msi | ام اس اي |
+| search synonyms: brand-gigabyte | gigabyte | جيجابايت، جيجابيت |
+| search synonyms: brand-corsair | corsair | كورسير، كورسايير |
+| search synonyms: brand-kingston | kingston | كينجستون، كنجستون، كينغستون |
+| search synonyms: brand-samsung | samsung | سامسونج، سامسونغ |
+| search synonyms: brand-wd | wd, western digital | ويسترن ديجيتال، دبليو دي |
+| search synonyms: brand-cooler-master | cooler master, coolermaster | كولر ماستر |
+| search synonyms: brand-nzxt | nzxt | ان زد اكس تي |
+| search synonyms: brand-logitech | logitech | لوجيتك، لوجيتيك، لوجيتش |
+| search synonyms: brand-lenovo | lenovo | لينوفو، لينوفا |
+| search synonyms: brand-lg | lg | ال جي |
+| search synonyms: brand-tp-link | tp link, tplink | تي بي لينك، تيبي لينك، تب لينك |
+| search synonyms: brand-hyperx | hyperx, hyper x | هايبر اكس |
+| search synonyms: brand-redragon | redragon | ريدراجون، ريدراغون، ريد دراجون |
+| search synonyms: brand-noctua | noctua | نوكتوا |
+| search synonyms: brand-deepcool | deepcool | ديب كول، ديبكول |
+| search synonyms: brand-lian-li | lian li, lianli | ليان لي |
+| search synonyms: brand-thinkpad | thinkpad | ثينك باد، ثينكباد |
 
 ## Category names (temporary static tree; moves to the database in M3a)
 

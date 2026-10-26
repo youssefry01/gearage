@@ -4,15 +4,32 @@ import { Check, ChevronDown } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { type FormEvent, type ReactNode, useRef } from "react";
 import { buttonStyles } from "@/components/ui/button";
-import { type ListingFilters, listingQuery, parseListingParams } from "@/domain/listing";
+import {
+  type ListingFilters,
+  defaultSortFor,
+  listingQuery,
+  parseListingParams,
+} from "@/domain/listing";
 import { formatPrice, fromPounds } from "@/domain/money";
 import type { SpecDef } from "@/domain/specs";
 import type { Locale } from "@/i18n/locales";
 import { Link, usePathname, useRouter } from "@/i18n/navigation";
-import type { FacetOption, SpecFacet } from "@/server/services/listing.service";
+import type { Bilingual, FacetOption, SpecFacet } from "@/server/services/listing.service";
+
+/** Search results only: the category narrowing, as ready-made links (the server builds them). */
+export type CategoryFacetData = {
+  /** Link that drops the category scope, or null when no category is selected. */
+  allHref: string | null;
+  /** The selected category and its ancestors, outermost first. The last one is the current scope. */
+  trail: { name: Bilingual; href: string }[];
+  /** Sub-categories of the current scope (top-level categories when there is none) with product counts. */
+  options: { name: Bilingual; href: string; count: number }[];
+};
 
 export type FilterPanelData = {
   filters: ListingFilters;
+  /** Present on the search results page only. */
+  categoryFacet?: CategoryFacetData;
   /** Only the filterable facets of the category (needed to validate the submitted values). */
   specDefs: SpecDef[];
   brandOptions: FacetOption[];
@@ -22,6 +39,11 @@ export type FilterPanelData = {
   inStockCount: number;
   onSaleCount: number;
 };
+
+const categoryLink =
+  "rounded-control hover:bg-accent flex min-h-11 items-center gap-2 px-1 hover:underline";
+/** Indentation per category depth (logical, so it mirrors in RTL). */
+const INDENT = ["", "ps-3", "ps-6", "ps-9"] as const;
 
 const field =
   "rounded-control border-input bg-background text-foreground min-h-11 w-full min-w-0 border px-3";
@@ -119,6 +141,7 @@ export function FilterPanel({
 }) {
   const t = useTranslations("Filters");
   const list = useTranslations("Listing");
+  const search = useTranslations("Search");
   const locale = useLocale() as Locale;
   const router = useRouter();
   const pathname = usePathname();
@@ -138,7 +161,7 @@ export function FilterPanel({
       } else push(name, value.trim());
     }
     for (const [key, r] of ranges) push(`spec.${key}`, `${r.min ?? ""}..${r.max ?? ""}`);
-    const next = parseListingParams(raw, data.specDefs); // page is not in the form: back to page 1
+    const next = parseListingParams(raw, data.specDefs, { search: true }); // page is not in the form: back to page 1
     router.push(`${pathname}${listingQuery(next)}`, { scroll: false });
     onApplied?.();
   };
@@ -155,6 +178,7 @@ export function FilterPanel({
     piastres === undefined ? "" : String(piastres / 100);
   const boundPounds = (piastres: number | undefined) =>
     piastres === undefined ? undefined : String(Math.floor(piastres / 100));
+  const optionDepth = (data.categoryFacet?.trail.length ?? 0) + 1;
   const hasSpec = (key: string) => filters.specs[key] !== undefined;
   const id = (...parts: (string | number)[]) => [idPrefix, ...parts].join("-");
 
@@ -175,7 +199,52 @@ export function FilterPanel({
       key={listingQuery(filters)}
       className="flex flex-col"
     >
-      {filters.sort !== "popular" ? <input type="hidden" name="sort" value={filters.sort} /> : null}
+      {filters.sort !== defaultSortFor(filters) ? (
+        <input type="hidden" name="sort" value={filters.sort} />
+      ) : null}
+      {filters.q ? <input type="hidden" name="q" value={filters.q} /> : null}
+      {filters.category ? <input type="hidden" name="category" value={filters.category} /> : null}
+
+      {data.categoryFacet ? (
+        <Group title={t("category")} defaultOpen>
+          <nav aria-label={search("categoryNav")}>
+            <ul>
+              <li>
+                {data.categoryFacet.allHref ? (
+                  <Link href={data.categoryFacet.allHref} className={categoryLink}>
+                    {search("allCategories")}
+                  </Link>
+                ) : (
+                  <span aria-current="true" className={`${categoryLink} font-semibold`}>
+                    {search("allCategories")}
+                  </span>
+                )}
+              </li>
+              {data.categoryFacet.trail.map((c, i, all) => (
+                <li key={c.href} className={INDENT[Math.min(i + 1, INDENT.length - 1)]}>
+                  {i === all.length - 1 ? (
+                    <span aria-current="true" className={`${categoryLink} font-semibold`}>
+                      {c.name[locale]}
+                    </span>
+                  ) : (
+                    <Link href={c.href} className={categoryLink}>
+                      {c.name[locale]}
+                    </Link>
+                  )}
+                </li>
+              ))}
+              {data.categoryFacet.options.map((o) => (
+                <li key={o.href} className={INDENT[Math.min(optionDepth, INDENT.length - 1)]}>
+                  <Link href={o.href} className={`${categoryLink} justify-between`}>
+                    <span className="min-w-0 break-words">{o.name[locale]}</span>
+                    <span className="text-small text-muted-foreground tabular-nums">{o.count}</span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        </Group>
+      ) : null}
 
       <Group title={t("availability")} defaultOpen>
         <ul>

@@ -18,10 +18,13 @@ export function ActiveFilters({
   view,
   basePath,
   clearHref,
+  categoryLabel,
 }: {
   view: ListingView;
   basePath: string;
   clearHref: string;
+  /** Search results: the name of the selected category (shown as a removable chip). */
+  categoryLabel?: string;
 }) {
   const t = useTranslations("Listing");
   const f = useTranslations("Filters");
@@ -34,6 +37,12 @@ export function ActiveFilters({
   const money = (piastres: number) => formatPrice(piastres, locale);
   const chips: Chip[] = [];
 
+  if (filters.category)
+    chips.push({
+      key: "category",
+      label: categoryLabel ?? filters.category,
+      selection: { type: "category" },
+    });
   if (filters.inStock)
     chips.push({ key: "in_stock", label: f("inStock"), selection: { type: "in_stock" } });
   if (filters.onSale) chips.push({ key: "sale", label: f("onSale"), selection: { type: "sale" } });

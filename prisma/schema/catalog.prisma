@@ -188,6 +188,8 @@ model Product {
   /// For a PHYSICAL product: the bundles it is a component of.
   usedInBundles  BundleItem[]          @relation("BundleComponent")
   inventory      Inventory?
+  /// The search document (maintained by triggers).
+  searchDocument ProductSearch?
   reservations   StockReservation[]
   adjustments    InventoryAdjustment[]
 

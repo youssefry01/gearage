@@ -48,3 +48,24 @@ describe("logo files", () => {
     }
   });
 });
+
+describe("brand copy makes no unverified delivery or coverage claims", () => {
+  // Shipping zones and fees are not confirmed until M6a (HANDOFF issue 47). Default SEO copy and the tagline appear
+  // on every page and in search results, so they must stay neutral until the owner confirms coverage.
+  const CLAIM =
+    /deliver|shipping|nationwide|across egypt|all over egypt|cash on delivery|free\s|توصيل|شحن|أنحاء|انحاء|جميع محافظات|الدفع عند الاستلام|ready-built|ready built|جاهز/i;
+  const copy: [string, string | undefined][] = [
+    ["tagline.en", brand.tagline.en],
+    ["tagline.ar", brand.tagline.ar],
+    ["seo.title.en", brand.seo.title.en],
+    ["seo.title.ar", brand.seo.title.ar],
+    ["seo.description.en", brand.seo.description.en],
+    ["seo.description.ar", brand.seo.description.ar],
+  ];
+  for (const [name, text] of copy) {
+    it(`${name} has no delivery, coverage or assembly claim`, () => {
+      expect(text, `${name} is missing`).toBeTruthy();
+      expect(text).not.toMatch(CLAIM);
+    });
+  }
+});

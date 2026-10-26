@@ -1,4 +1,4 @@
-import { type ListingFilters, type Sort, DEFAULT_SORT } from "@/domain/listing";
+import { type ListingFilters, type Sort, DEFAULT_SORT, listingQuery } from "@/domain/listing";
 
 /**
  * Home page rules, pure so they are tested without a database or a browser (ADR 0018).
@@ -51,6 +51,12 @@ export function railFilters(key: HomeRailKey): ListingFilters {
     page: 1,
   };
 }
+
+/**
+ * Query string of a rail's "view all" link on the search results page (no search term: the all-products view). It is
+ * the rail's own filters, so the first products of that page are exactly the rail (a DB test checks it).
+ */
+export const railViewAllQuery = (key: HomeRailKey): string => listingQuery(railFilters(key));
 
 /**
  * The hero shows one featured bundle (a bundle is the most characteristic thing the store sells: a parts list at one

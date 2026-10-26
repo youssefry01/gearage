@@ -83,7 +83,7 @@ test.describe("home", () => {
       await expect(rail.getByText("Out of stock")).toHaveCount(0);
   });
 
-  test("metadata: one self-canonical, hreflang, Organization and WebSite JSON-LD, no search action", async ({
+  test("metadata: one self-canonical, hreflang, Organization and WebSite JSON-LD with a search action", async ({
     page,
   }) => {
     await page.goto("/en");
@@ -93,11 +93,21 @@ test.describe("home", () => {
     const blocks = await page
       .locator('script[type="application/ld+json"]')
       .evaluateAll((els) => els.map((e) => JSON.parse(e.textContent ?? "null")));
-    const flat = blocks.flat() as { "@type": string; potentialAction?: unknown }[];
+    const flat = blocks.flat() as {
+      "@type": string;
+      potentialAction?: { "@type": string; target: { urlTemplate: string }; "query-input": string };
+    }[];
     expect(flat.map((b) => b["@type"])).toEqual(
       expect.arrayContaining(["Organization", "WebSite"]),
     );
-    expect(flat.some((b) => b.potentialAction !== undefined)).toBe(false);
+    const site = flat.find((b) => b["@type"] === "WebSite");
+    expect(site?.potentialAction?.["@type"]).toBe("SearchAction");
+    expect(site?.potentialAction?.target.urlTemplate).toMatch(
+      /\/en\/search\?q=\{search_term_string\}$/,
+    );
+    expect(site?.potentialAction?.["query-input"]).toBe("required name=search_term_string");
+    // the Organization carries no search action
+    expect(flat.find((b) => b["@type"] === "Organization")?.potentialAction).toBeUndefined();
   });
 
   test("Arabic: right-to-left, Arabic copy and Arabic product names", async ({ page }) => {

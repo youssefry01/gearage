@@ -115,7 +115,9 @@ describe("seed: catalog data only", () => {
         "inventory_adjustment",
         "product",
         "product_image",
+        "product_search", // derived: the search triggers build it from the catalog rows above
         "product_tag",
+        "search_vocab", // derived, same
         "showcase_block",
         "spec_definition",
         "tag",

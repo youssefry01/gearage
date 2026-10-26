@@ -32,7 +32,9 @@
     "mostViewedLead": "Most-viewed products that are in stock.",
     "brandsTitle": "Shop by brand",
     "emptyTitle": "The catalog is being set up",
-    "emptyBody": "Products will appear here as soon as they are added."
+    "emptyBody": "Products will appear here as soon as they are added.",
+    "viewAll": "View all",
+    "viewAllFor": "View all: {title}"
   },
   "NotFound": {
     "title": "Page not found",
@@ -150,7 +152,8 @@
       "newest": "Newest",
       "price-asc": "Price: low to high",
       "price-desc": "Price: high to low",
-      "discount": "Biggest discount"
+      "discount": "Biggest discount",
+      "relevance": "Most relevant"
     },
     "filters": "Filters",
     "filtersWithCount": "Filters ({count})",
@@ -184,7 +187,8 @@
     "onSale": "On sale",
     "rangeFrom": "From",
     "rangeTo": "To",
-    "rangeBetween": "Available range: {min} to {max}"
+    "rangeBetween": "Available range: {min} to {max}",
+    "category": "Category"
   },
   "ProductCard": {
     "bundle": "PC bundle",
@@ -301,5 +305,39 @@
     "psuBelowRecommended": "The {psuW} W power supply is below the recommended {recommendedW} W.",
     "m2SlotsExceeded": "{drives} M.2 drives do not fit in {slots} motherboard slots.",
     "unknownSpec": "Could not verify one check because the specification \"{spec}\" is missing."
+  },
+  "Search": {
+    "title": "Search results",
+    "titleFor": "Results for “{query}”",
+    "allProducts": "All products",
+    "allProductsLead": "Every product in the store. Use the filters and sorting to narrow it down.",
+    "metaTitleFor": "Search: {query}",
+    "metaDescriptionFor": "Search results for {query} at {store}.",
+    "metaDescriptionAll": "Browse every product at {store}.",
+    "correctedNotice": "No results for “{original}”. Showing results for “{corrected}”.",
+    "partialNotice": "No product matches every word of “{query}”. Showing products that match some of the words.",
+    "noResultsTitle": "No results for “{query}”",
+    "noResultsBody": "Check the spelling, try fewer or more general words, or browse a category.",
+    "noResultsInCategory": "Nothing in this category matches “{query}”.",
+    "searchAllCategories": "Search all categories",
+    "tooShortTitle": "Type a little more",
+    "tooShortBody": "Enter at least two characters to search the store.",
+    "browseCategories": "Browse categories",
+    "clearSearch": "Clear search",
+    "categoryHeading": "Category",
+    "allCategories": "All categories",
+    "categoryNav": "Narrow by category",
+    "suggestLabel": "Search suggestions",
+    "suggestProducts": "Products",
+    "suggestCategories": "Categories",
+    "suggestBrands": "Brands",
+    "suggestSeeAll": "See all {count, plural, one {# result} other {# results}} for “{query}”",
+    "suggestNone": "No suggestions. Press Enter to search the whole store.",
+    "suggestCorrected": "Showing suggestions for “{corrected}”",
+    "suggestStatus": "{count, plural, =0 {No suggestions} one {# suggestion available} other {# suggestions available}}",
+    "suggestLoading": "Searching…",
+    "suggestError": "Suggestions are not available right now. Press Enter to search.",
+    "outOfStock": "Out of stock",
+    "bundle": "Bundle"
   }
 }

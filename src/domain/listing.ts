@@ -1,4 +1,5 @@
 import { SLUG_PATTERN } from "@/domain/catalog";
+import { cleanQueryInput, normalizeSearchText } from "@/domain/search-normalize";
 import { fromPounds } from "@/domain/money";
 import type { SpecDef } from "@/domain/specs";
 
@@ -15,6 +16,7 @@ import type { SpecDef } from "@/domain/specs";
  *   sort=<sort>             page=<n>
  */
 export const SORTS = [
+  "relevance",
   "popular",
   "best-selling",
   "newest",
@@ -24,6 +26,14 @@ export const SORTS = [
 ] as const;
 export type Sort = (typeof SORTS)[number];
 export const DEFAULT_SORT: Sort = "popular";
+
+/** Relevance only exists while there is a search term; with one, it is the default order. */
+export const defaultSortFor = (f: { q?: string | undefined }): Sort =>
+  f.q ? "relevance" : DEFAULT_SORT;
+
+/** The sorts a shopper can pick for these filters (relevance only for a search). */
+export const sortsFor = (f: { q?: string | undefined }): readonly Sort[] =>
+  SORTS.filter((s) => s !== "relevance" || Boolean(f.q));
 
 export const PAGE_SIZE = 24;
 export const MAX_PAGE = 1000;
@@ -42,6 +52,10 @@ export type SpecSelection = {
 };
 
 export type ListingFilters = {
+  /** Search results only: what the shopper typed (cleaned, at most 100 characters). Absent on category pages. */
+  q?: string;
+  /** Search results only: restrict to this category path ("components/cpus") and everything below it. */
+  category?: string;
   brands: string[];
   tags: string[];
   /** Piastres. */
@@ -103,6 +117,17 @@ export function parseRange(value: string): { min?: number; max?: number } | unde
   return { ...(lo === undefined ? {} : { min: lo }), ...(hi === undefined ? {} : { max: hi }) };
 }
 
+/** The search term from a URL value: cleaned and capped, or undefined when it holds nothing searchable. */
+function searchTerm(value: string | undefined): string | undefined {
+  if (value === undefined) return undefined;
+  const cleaned = cleanQueryInput(value);
+  return normalizeSearchText(cleaned) === "" ? undefined : cleaned;
+}
+
+const CATEGORY_PATH = /^[a-z0-9]+(-[a-z0-9]+)*(\/[a-z0-9]+(-[a-z0-9]+)*){0,2}$/;
+const categoryParam = (value: string | undefined): string | undefined =>
+  value !== undefined && value.length <= 120 && CATEGORY_PATH.test(value) ? value : undefined;
+
 /** The spec definitions that may be filtered on the listing page (the category's SpecDefinition filter config). */
 export const listingFacets = (defs: readonly SpecDef[]): SpecDef[] =>
   defs.filter((d) => d.filterable && d.facet !== "NONE");
@@ -134,7 +159,11 @@ function parseSpec(def: SpecDef, rawValues: string[]): SpecSelection | undefined
  * are honoured, and ENUM values must be real options. Anything else is dropped silently, so a stale bookmark or a
  * tracking parameter never breaks a page (the canonical URL, see listingSeo, shows the cleaned form).
  */
-export function parseListingParams(raw: RawParams, defs: readonly SpecDef[] = []): ListingFilters {
+export function parseListingParams(
+  raw: RawParams,
+  defs: readonly SpecDef[] = [],
+  options: { search?: boolean } = {},
+): ListingFilters {
   const facets = new Map(listingFacets(defs).map((d) => [d.key, d]));
   const specs: Record<string, SpecSelection> = {};
   for (const name of Object.keys(raw)) {
@@ -150,10 +179,14 @@ export function parseListingParams(raw: RawParams, defs: readonly SpecDef[] = []
   if (priceMin !== undefined && priceMax !== undefined && priceMin > priceMax)
     [priceMin, priceMax] = [priceMax, priceMin];
 
+  // q and category belong to the search results page only; on a category page they are ignored like any unknown
+  // parameter (a category page must never turn into a search page because of a query string).
+  const q = options.search ? searchTerm(first(raw, "q")) : undefined;
+  const category = options.search ? categoryParam(first(raw, "category")) : undefined;
   const sortRaw = first(raw, "sort");
-  const sort = (SORTS as readonly string[]).includes(sortRaw ?? "")
-    ? (sortRaw as Sort)
-    : DEFAULT_SORT;
+  const sortOk =
+    (SORTS as readonly string[]).includes(sortRaw ?? "") && (sortRaw !== "relevance" || q);
+  const sort = sortOk ? (sortRaw as Sort) : defaultSortFor({ q });
   const pageRaw = first(raw, "page");
   const page =
     pageRaw !== undefined && /^\d{1,4}$/.test(pageRaw)
@@ -161,6 +194,8 @@ export function parseListingParams(raw: RawParams, defs: readonly SpecDef[] = []
       : 1;
 
   return {
+    ...(q ? { q } : {}),
+    ...(category ? { category } : {}),
     brands: slugList(raw, "brand"),
     tags: slugList(raw, "tag"),
     ...(priceMin === undefined ? {} : { priceMin }),
@@ -183,6 +218,8 @@ const rangeText = (s: SpecSelection): string =>
  */
 export function listingQuery(filters: ListingFilters, options: { page?: boolean } = {}): string {
   const p = new URLSearchParams();
+  if (filters.q) p.set("q", filters.q);
+  if (filters.category) p.set("category", filters.category);
   for (const b of filters.brands) p.append("brand", b);
   for (const t of filters.tags) p.append("tag", t);
   if (filters.priceMin !== undefined) p.set("price_min", String(filters.priceMin / POUND));
@@ -195,7 +232,7 @@ export function listingQuery(filters: ListingFilters, options: { page?: boolean 
     else if (s.on) p.set(`spec.${key}`, "1");
     else if (s.min !== undefined || s.max !== undefined) p.set(`spec.${key}`, rangeText(s));
   }
-  if (filters.sort !== DEFAULT_SORT) p.set("sort", filters.sort);
+  if (filters.sort !== defaultSortFor(filters)) p.set("sort", filters.sort);
   if (options.page !== false && filters.page > 1) p.set("page", String(filters.page));
   const text = p.toString();
   return text ? `?${text}` : "";
@@ -204,6 +241,7 @@ export function listingQuery(filters: ListingFilters, options: { page?: boolean 
 /** Number of active facet selections (what the "Filters (3)" badge shows). Sort and page are not filters. */
 export function activeFilterCount(filters: ListingFilters): number {
   return (
+    (filters.category ? 1 : 0) +
     filters.brands.length +
     filters.tags.length +
     (filters.priceMin !== undefined || filters.priceMax !== undefined ? 1 : 0) +
@@ -234,7 +272,7 @@ export type ListingSeo = {
 };
 
 export function listingSeo(filters: ListingFilters): ListingSeo {
-  const refined = hasActiveFilters(filters) || filters.sort !== DEFAULT_SORT;
+  const refined = hasActiveFilters(filters) || filters.sort !== defaultSortFor(filters);
   return {
     indexable: !refined,
     canonicalQuery: listingQuery(filters),
@@ -305,7 +343,7 @@ export function cardSavings(p: {
 /** One removable selection (a chip above the results). */
 export type Selection =
   | { type: "brand" | "tag"; value: string }
-  | { type: "price" | "in_stock" | "sale" }
+  | { type: "price" | "in_stock" | "sale" | "category" }
   | { type: "spec"; key: string; value?: string };
 
 /** Filters with one selection removed. Any change of filters returns to page 1. */
@@ -321,6 +359,9 @@ export function withoutSelection(f: ListingFilters, s: Selection): ListingFilter
     case "price":
       delete next.priceMin;
       delete next.priceMax;
+      break;
+    case "category":
+      delete next.category;
       break;
     case "in_stock":
       next.inStock = false;
@@ -348,6 +389,7 @@ export const withPage = (f: ListingFilters, page: number): ListingFilters => ({ 
 
 /** Drops every facet selection but keeps the chosen sort. */
 export const clearedFilters = (f: ListingFilters): ListingFilters => ({
+  ...(f.q ? { q: f.q } : {}),
   brands: [],
   tags: [],
   inStock: false,
@@ -356,3 +398,30 @@ export const clearedFilters = (f: ListingFilters): ListingFilters => ({
   sort: f.sort,
   page: 1,
 });
+
+/** Filters for the same view without the search term (the sort falls back to the category default). */
+export function withoutQuery(f: ListingFilters): ListingFilters {
+  const { q: _q, ...rest } = f;
+  return { ...rest, sort: f.sort === "relevance" ? DEFAULT_SORT : f.sort, page: 1 };
+}
+
+/** Selecting a category (or none) returns to page 1 and drops spec filters, which belong to the previous category. */
+export function withCategory(f: ListingFilters, category: string | undefined): ListingFilters {
+  const { category: _c, ...rest } = f;
+  return { ...rest, ...(category ? { category } : {}), specs: {}, page: 1 };
+}
+
+/**
+ * Index policy for the search results page: never indexed. Internal search results (and the all-products, deals and
+ * sorted views, which are the same page without a term) are near-duplicates of category pages and an unbounded URL
+ * space; `noindex, follow` keeps them out of the index while crawlers still reach products through them. The
+ * canonical is the page's own normalized URL; there is no hreflang cluster for a noindex page (ADR 0016).
+ */
+export function searchSeo(filters: ListingFilters): ListingSeo {
+  return {
+    indexable: false,
+    canonicalQuery: listingQuery(filters),
+    hreflang: false,
+    nofollowPagination: true,
+  };
+}

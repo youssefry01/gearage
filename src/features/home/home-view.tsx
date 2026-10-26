@@ -1,6 +1,7 @@
 import { useTranslations } from "next-intl";
 import { DemoNotice } from "@/features/catalog/demo-notice";
-import { HOME_RAILS, type HomeRailKey } from "@/domain/home";
+import { routes } from "@/config/routes";
+import { HOME_RAILS, type HomeRailKey, railViewAllQuery } from "@/domain/home";
 import type { HomeData } from "@/server/services/home.service";
 import { BrandStrip } from "./brand-strip";
 import { CategoryTiles } from "./category-tiles";
@@ -54,6 +55,7 @@ export function HomeView({ data }: { data: HomeData }) {
           title={t(RAIL_COPY[key].title)}
           lead={t(RAIL_COPY[key].lead)}
           products={data.rails[key]}
+          viewAllHref={`${routes.search}${railViewAllQuery(key)}`}
         />
       ))}
       <BrandStrip brands={data.brands} />

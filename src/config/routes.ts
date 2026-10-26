@@ -28,9 +28,12 @@ export type RouteKey = keyof typeof routes;
 /** Routes that have a title message (`Routes.*`): everything except home. */
 export type PlaceholderRouteKey = Exclude<RouteKey, "home">;
 
-/** Routes without a real page yet (everything except home). Remove a key from here when its page ships. */
+/** Routes that have a real page, so the "coming soon" catch-all must not serve them. */
+const REAL_PAGES: ReadonlySet<RouteKey> = new Set<RouteKey>(["home", "search", "deals"]);
+
+/** Routes without a real page yet. Add a key to REAL_PAGES when its page ships. */
 export const PLACEHOLDER_ROUTES = (Object.keys(routes) as RouteKey[]).filter(
-  (k): k is PlaceholderRouteKey => k !== "home",
+  (k): k is PlaceholderRouteKey => !REAL_PAGES.has(k),
 );
 
 export function routeKeyForPath(path: string): PlaceholderRouteKey | undefined {

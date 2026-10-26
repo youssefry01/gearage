@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   PAGE_SIZE,
+  type RawParams,
   activeFilterCount,
   cardSavings,
   listingQuery,
@@ -14,6 +15,11 @@ import {
   parseRange,
   specsMatch,
   totalPages,
+  defaultSortFor,
+  sortsFor,
+  withCategory,
+  withoutQuery,
+  searchSeo,
 } from "./listing";
 import type { SpecDef } from "./specs";
 
@@ -375,5 +381,94 @@ describe("changing filters", () => {
     expect(activeFilterCount(cleared)).toBe(0);
     expect(cleared.sort).toBe("newest");
     expect(listingQuery(cleared)).toBe("?sort=newest");
+  });
+});
+
+describe("search URL grammar (q, category, relevance)", () => {
+  const parse = (raw: RawParams) => parseListingParams(raw, [], { search: true });
+
+  it("ignores q and category unless the page is a search page", () => {
+    const f = parseListingParams({ q: "rtx", category: "components" });
+    expect(f).not.toHaveProperty("q");
+    expect(f).not.toHaveProperty("category");
+    expect(f.sort).toBe("popular");
+  });
+
+  it("reads and cleans the search term", () => {
+    expect(parse({ q: "  rtx   4060 " }).q).toBe("rtx 4060");
+    expect(parse({ q: "x".repeat(300) }).q).toHaveLength(100);
+    expect(parse({ q: "!!!" })).not.toHaveProperty("q");
+    expect(parse({ q: "" })).not.toHaveProperty("q");
+  });
+
+  it("makes relevance the default order with a term, and only then", () => {
+    expect(parse({ q: "rtx" }).sort).toBe("relevance");
+    expect(parse({ q: "rtx", sort: "newest" }).sort).toBe("newest");
+    expect(parse({ sort: "relevance" }).sort).toBe("popular");
+    expect(parse({}).sort).toBe("popular");
+    expect(defaultSortFor({ q: "x" })).toBe("relevance");
+    expect(defaultSortFor({})).toBe("popular");
+    expect(sortsFor({})).not.toContain("relevance");
+    expect(sortsFor({ q: "x" })[0]).toBe("relevance");
+  });
+
+  it("accepts only well-formed category paths", () => {
+    expect(parse({ category: "components/cpus" }).category).toBe("components/cpus");
+    for (const bad of ["Components", "a//b", "a/b/c/d", "../x", "a b", "", "-a"])
+      expect(parse({ category: bad }), bad).not.toHaveProperty("category");
+  });
+
+  it("round-trips through the URL", () => {
+    for (const raw of [
+      { q: "rtx 4060", category: "components/gpus", brand: "asus", sort: "price-asc" },
+      { q: "كارت شاشة", in_stock: "1" },
+      { sale: "1", sort: "discount", in_stock: "1" },
+      { q: "x1" },
+    ]) {
+      const a = parse(raw);
+      const qs = listingQuery(a);
+      const b = parse(Object.fromEntries(new URLSearchParams(qs)));
+      expect(b).toEqual(a);
+    }
+  });
+
+  it("omits the default sort from the URL, whichever default applies", () => {
+    expect(listingQuery(parse({ q: "rtx" }))).toBe("?q=rtx");
+    expect(listingQuery(parse({ q: "rtx", sort: "popular" }))).toBe("?q=rtx&sort=popular");
+    expect(listingQuery(parse({}))).toBe("");
+  });
+
+  it("counts a category scope as an active filter and can remove it", () => {
+    const f = parse({ q: "rtx", category: "components" });
+    expect(activeFilterCount(f)).toBe(1);
+    expect(withoutSelection(f, { type: "category" })).not.toHaveProperty("category");
+    expect(withoutSelection(f, { type: "category" }).q).toBe("rtx");
+  });
+
+  it("keeps the search term when filters are cleared, and resets spec filters when the category changes", () => {
+    const f = parse({ q: "rtx", brand: "asus", in_stock: "1", category: "components" });
+    const cleared = clearedFilters(f);
+    expect(cleared.q).toBe("rtx");
+    expect(cleared.brands).toEqual([]);
+    expect(cleared).not.toHaveProperty("category");
+    const moved = withCategory({ ...f, specs: { vram: { values: ["8"] } } }, "components/gpus");
+    expect(moved.category).toBe("components/gpus");
+    expect(moved.specs).toEqual({});
+    expect(moved.page).toBe(1);
+  });
+
+  it("drops the term and falls back to the browse order", () => {
+    const f = withoutQuery(parse({ q: "rtx" }));
+    expect(f).not.toHaveProperty("q");
+    expect(f.sort).toBe("popular");
+    expect(withoutQuery(parse({ q: "rtx", sort: "newest" })).sort).toBe("newest");
+  });
+
+  it("never indexes search results", () => {
+    for (const raw of [{}, { q: "rtx" }, { sale: "1", sort: "discount" }]) {
+      const seo = searchSeo(parse(raw));
+      expect(seo.indexable).toBe(false);
+      expect(seo.hreflang).toBe(false);
+    }
   });
 });

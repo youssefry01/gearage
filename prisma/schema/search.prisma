@@ -1,0 +1,36 @@
+// Search schema (M4a, ADR 0019). The text functions, the document builder, the refresh triggers and the vocabulary's
+// trigram EXPRESSION index live in the hand-written migration SQL (Prisma cannot express them).
+
+/// One search document per non-deleted product, maintained by triggers (never written by application code).
+/// `vector` is weighted: A title/brand/model/SKU, B categories and tags, C short descriptions, D specs and bundle parts.
+model ProductSearch {
+  productId String   @id @db.Uuid
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  vector    Unsupported("tsvector")
+  /// search_fold(title en + ar): normalized words plus letter/digit-split forms, for the "contains the phrase" boost.
+  titleFold String
+  updatedAt DateTime
+
+  @@index([vector], type: Gin, map: "product_search_vector_idx")
+  @@map("product_search")
+}
+
+/// Letters-only words of the catalog with their document frequency, for typo correction (trigrams over search_ascii_key).
+model SearchVocab {
+  word String @id
+  freq Int    @default(0)
+
+  @@map("search_vocab")
+}
+
+/// Searches that returned nothing, one row per day and normalized term (zero-result analytics, pruned after 90 days).
+model SearchZeroResult {
+  day    DateTime @db.Date
+  term   String
+  count  Int      @default(1)
+  lastAt DateTime
+
+  @@id([day, term])
+  @@index([day])
+  @@map("search_zero_result")
+}

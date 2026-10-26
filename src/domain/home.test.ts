@@ -7,8 +7,9 @@ import {
   foldBrandStrip,
   pickHero,
   railFilters,
+  railViewAllQuery,
 } from "./home";
-import { SORTS } from "./listing";
+import { SORTS, parseListingParams } from "./listing";
 
 const p = (id: string, type = "PHYSICAL") => ({ id, type });
 
@@ -110,5 +111,26 @@ describe("foldBrandStrip", () => {
   it("respects the limit and handles no rows", () => {
     expect(foldBrandStrip(rows, all, 2)).toHaveLength(2);
     expect(foldBrandStrip([], all)).toEqual([]);
+  });
+});
+
+describe("rail view-all links", () => {
+  it("send each rail to the results page with the rail's own filters and sort", () => {
+    expect(railViewAllQuery("deals")).toBe("?in_stock=1&sale=1&sort=discount");
+    expect(railViewAllQuery("bestSellers")).toBe("?in_stock=1&sort=best-selling");
+    expect(railViewAllQuery("newArrivals")).toBe("?in_stock=1&sort=newest");
+    expect(railViewAllQuery("mostViewed")).toBe("?in_stock=1");
+    expect(railViewAllQuery("featured")).toBe(`?tag=${FEATURED_TAG}&in_stock=1`);
+  });
+
+  it("round-trip: the link parses back to the rail's filters", () => {
+    for (const key of HOME_RAILS) {
+      const parsed = parseListingParams(
+        Object.fromEntries(new URLSearchParams(railViewAllQuery(key))),
+        [],
+        { search: true },
+      );
+      expect(parsed).toEqual(railFilters(key));
+    }
   });
 });

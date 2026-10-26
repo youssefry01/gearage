@@ -58,7 +58,17 @@ Check: `curl localhost:3000/api/health` and `curl localhost:3000/api/health/read
 | `npm run format` / `format:check`                  | Prettier                                                                                                                      |
 | `npm run db:migrate` / `db:deploy` / `db:validate` | Prisma                                                                                                                        |
 | `npm run db:seed`                                  | Idempotent catalog seed (local database only; see [docs/SEEDING.md](docs/SEEDING.md))                                         |
+| `npm run search:try -- "query"`                    | Run the real search pipeline against `DATABASE_URL` (read-only): tier, matches, top results                                   |
 | `npm run seed:docs` / `seed:docs:check`            | Regenerate / verify the generated block of docs/SEEDING.md (specs to verify)                                                  |
+
+## Search
+
+Postgres full-text search plus `pg_trgm`, no extra service: one weighted document per product in English and Arabic,
+Arabic normalization shared by the index (SQL) and the query (TypeScript), a synonym list for product types, brands and
+units in both languages, model numbers that match however they are typed, and typo tolerance against the catalog's own
+words. `/search` is also the all-products, deals, best-sellers and new-arrivals view. Decisions:
+[ADR 0019](docs/adr/0019-search.md); measured quality and limits: [docs/SEARCH_QUALITY.md](docs/SEARCH_QUALITY.md).
+The migration is hand-written: run the drift check below after `prisma migrate dev`.
 
 ## Demo data (`npm run db:seed`)
 

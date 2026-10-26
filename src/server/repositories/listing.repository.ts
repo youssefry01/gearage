@@ -31,6 +31,8 @@ export type ListingRow = {
 
 /** Counts of products per option, each computed with every OTHER filter applied (disjunctive faceting). */
 export type FacetCounts = {
+  /** Search only: products per category one level below the selected category (or per top-level category). */
+  categories: Record<string, number>;
   brands: Record<string, number>;
   tags: Record<string, number>;
   price: { min: number; max: number } | null;
@@ -57,6 +59,23 @@ export type ListingQuery = {
   componentId?: string;
   /** Leave this product out (related products never list the product itself). */
   excludeProductId?: string;
+  /** Search: only products whose document matches, ranked by relevance (ADR 0019). */
+  search?: SearchMatch;
+  /** Search results also count products per sub-category (the category facet). */
+  withCategoryFacet?: boolean;
+};
+
+/**
+ * A built search: the tsquery text that decides which products match (from domain/search), optionally a wider one
+ * used only for ranking (partial matches rank products that also have the number higher), and LIKE patterns for the
+ * phrase boost.
+ */
+export type SearchMatch = {
+  tsQuery: string;
+  rankTsQuery?: string;
+  /** Partial matches: one tsquery per term; products matching more of them rank first. */
+  termTsQueries?: string[];
+  phrasePatterns: string[];
 };
 
 // ---------------------------------------------------------------------------------------------------------------
@@ -64,11 +83,17 @@ export type ListingQuery = {
 // ORDER BY is chosen from a closed map keyed by the validated Sort.
 // ---------------------------------------------------------------------------------------------------------------
 
-const FROM = Prisma.sql`FROM "product" p
+const FROM_BASE = Prisma.sql`FROM "product" p
   JOIN "category" cat ON cat."id" = p."categoryId"
   JOIN "product_pricing" pr ON pr."productId" = p."id"
   JOIN "product_availability" av ON av."productId" = p."id"
   LEFT JOIN "brand" b ON b."id" = p."brandId"`;
+
+/** The FROM clause; a search joins its document table. */
+const from = (q: ListingQuery): Prisma.Sql =>
+  q.search
+    ? Prisma.sql`${FROM_BASE} JOIN "product_search" ps ON ps."productId" = p."id"`
+    : FROM_BASE;
 
 /** Savings in piastres: compare-at for physical products, parts total for bundles. Mirrors domain cardSavings. */
 const SAVINGS = Prisma.sql`(CASE WHEN p."type" = 'BUNDLE'
@@ -80,6 +105,8 @@ const SAVINGS_BASE = Prisma.sql`(CASE WHEN p."type" = 'BUNDLE' THEN pr."listTota
 const IN_STOCK = Prisma.sql`(av."available" IS NULL OR av."available" > 0)`;
 
 const ORDER_BY: Record<Sort, Prisma.Sql> = {
+  // Only reachable without a search term, where parsing never produces it; the safe fallback is "popular".
+  relevance: Prisma.sql`(av."available" IS NOT NULL AND av."available" <= 0), p."viewCount" DESC, p."unitsSold" DESC, p."id"`,
   // In-stock first, then what shoppers look at, then what sells.
   popular: Prisma.sql`(av."available" IS NOT NULL AND av."available" <= 0), p."viewCount" DESC, p."unitsSold" DESC, p."id"`,
   "best-selling": Prisma.sql`p."unitsSold" DESC, p."viewCount" DESC, p."id"`,
@@ -88,6 +115,30 @@ const ORDER_BY: Record<Sort, Prisma.Sql> = {
   "price-desc": Prisma.sql`pr."effectivePrice" DESC, p."id"`,
   discount: Prisma.sql`(${SAVINGS} * 1000 / NULLIF(${SAVINGS_BASE}, 0)) DESC NULLS LAST, ${SAVINGS} DESC, p."id"`,
 };
+
+/**
+ * Relevance: titles that contain what was typed come first, then the weighted text-search rank (title and brand
+ * count most, then categories and tags, descriptions, specs), then what a shopper can buy, then popularity.
+ */
+function orderBy(q: ListingQuery): Prisma.Sql {
+  if (q.filters.sort === "relevance" && q.search) {
+    const terms = q.search.termTsQueries ?? [];
+    const matched =
+      terms.length > 1
+        ? Prisma.sql`(${Prisma.join(
+            terms.map(
+              (t) =>
+                Prisma.sql`(CASE WHEN ps."vector" @@ to_tsquery('simple', ${t}) THEN 1 ELSE 0 END)`,
+            ),
+            " + ",
+          )}) DESC,`
+        : Prisma.empty;
+    return Prisma.sql`${matched} (CASE WHEN ps."titleFold" LIKE ANY(${q.search.phrasePatterns}::text[]) THEN 0 ELSE 1 END),
+      ts_rank_cd('{0.1,0.2,0.4,1.0}', ps."vector", to_tsquery('simple', ${q.search.rankTsQuery ?? q.search.tsQuery}), 1) DESC,
+      (av."available" IS NOT NULL AND av."available" <= 0), p."viewCount" DESC, p."id"`;
+  }
+  return ORDER_BY[q.filters.sort];
+}
 
 const likePrefix = (path: string): string => `${path.replace(/[\\%_]/g, "\\$&")}/%`;
 
@@ -116,6 +167,7 @@ function conditions(q: ListingQuery, skip?: FacetId): Prisma.Sql {
   const f = q.filters;
   // The shared visibility rule (ACTIVE, not deleted, active category, active brand or none).
   const c: Prisma.Sql[] = [VISIBLE_PRODUCT];
+  if (q.search) c.push(Prisma.sql`ps."vector" @@ to_tsquery('simple', ${q.search.tsQuery})`);
   if (q.categoryPath)
     c.push(
       Prisma.sql`(cat."path" = ${q.categoryPath} OR cat."path" LIKE ${likePrefix(q.categoryPath)})`,
@@ -152,13 +204,13 @@ function facetQuery(q: ListingQuery): Prisma.Sql {
   const parts: Prisma.Sql[] = [
     part(
       cols(Prisma.sql`'brand'`, Prisma.sql`b."slug"`, Prisma.sql`COUNT(*)`, nul, nul),
-      FROM,
+      from(q),
       Prisma.sql`${conditions(q, "brand")} AND b."slug" IS NOT NULL`,
       Prisma.sql`GROUP BY b."slug"`,
     ),
     part(
       cols(Prisma.sql`'tag'`, Prisma.sql`t."slug"`, Prisma.sql`COUNT(*)`, nul, nul),
-      Prisma.sql`${FROM} JOIN "product_tag" pt ON pt."productId" = p."id" JOIN "tag" t ON t."id" = pt."tagId"`,
+      Prisma.sql`${from(q)} JOIN "product_tag" pt ON pt."productId" = p."id" JOIN "tag" t ON t."id" = pt."tagId"`,
       conditions(q, "tag"),
       Prisma.sql`GROUP BY t."slug"`,
     ),
@@ -170,20 +222,41 @@ function facetQuery(q: ListingQuery): Prisma.Sql {
         Prisma.sql`MIN(pr."effectivePrice")`,
         Prisma.sql`MAX(pr."effectivePrice")`,
       ),
-      FROM,
+      from(q),
       conditions(q, "price"),
     ),
     part(
       cols(Prisma.sql`'in_stock'`, nul, Prisma.sql`COUNT(*) FILTER (WHERE ${IN_STOCK})`, nul, nul),
-      FROM,
+      from(q),
       conditions(q, "in_stock"),
     ),
     part(
       cols(Prisma.sql`'sale'`, nul, Prisma.sql`COUNT(*) FILTER (WHERE ${SAVINGS} > 0)`, nul, nul),
-      FROM,
+      from(q),
       conditions(q, "sale"),
     ),
   ];
+
+  if (q.withCategoryFacet) {
+    // Products per category one level below the selected one (or per top-level category). Products sitting directly
+    // in the selected category have no deeper segment and are not counted here.
+    const depth = q.categoryPath ? q.categoryPath.split("/").length : 0;
+    const segments = Prisma.sql`string_to_array(cat."path", '/')`;
+    parts.push(
+      part(
+        cols(
+          Prisma.sql`'category'`,
+          Prisma.sql`array_to_string((${segments})[1:${depth + 1}::int], '/')`,
+          Prisma.sql`COUNT(*)`,
+          nul,
+          nul,
+        ),
+        from(q),
+        Prisma.sql`${conditions(q)} AND cardinality(${segments}) > ${depth}::int`,
+        Prisma.sql`GROUP BY 2`,
+      ),
+    );
+  }
 
   for (const def of listingFacets(q.specDefs)) {
     const id: FacetId = `spec:${def.key}`;
@@ -194,7 +267,7 @@ function facetQuery(q: ListingQuery): Prisma.Sql {
       parts.push(
         part(
           cols(g, Prisma.sql`v.val`, Prisma.sql`COUNT(DISTINCT p."id")`, nul, nul),
-          Prisma.sql`${FROM} CROSS JOIN LATERAL jsonb_array_elements_text(
+          Prisma.sql`${from(q)} CROSS JOIN LATERAL jsonb_array_elements_text(
             CASE WHEN jsonb_typeof(p."specs" -> ${key}) = 'array' THEN p."specs" -> ${key} ELSE '[]'::jsonb END) AS v(val)`,
           where,
           Prisma.sql`GROUP BY v.val`,
@@ -204,7 +277,7 @@ function facetQuery(q: ListingQuery): Prisma.Sql {
       parts.push(
         part(
           cols(g, Prisma.sql`p."specs" ->> ${key}`, Prisma.sql`COUNT(*)`, nul, nul),
-          FROM,
+          from(q),
           Prisma.sql`${where} AND p."specs" ->> ${key} IS NOT NULL`,
           // By ordinal: the key is a bind parameter, so repeating the expression here would be a different parameter.
           Prisma.sql`GROUP BY 2`,
@@ -220,7 +293,7 @@ function facetQuery(q: ListingQuery): Prisma.Sql {
             nul,
             nul,
           ),
-          FROM,
+          from(q),
           where,
         ),
       );
@@ -229,7 +302,7 @@ function facetQuery(q: ListingQuery): Prisma.Sql {
       parts.push(
         part(
           cols(g, nul, Prisma.sql`COUNT(${num})`, Prisma.sql`MIN(${num})`, Prisma.sql`MAX(${num})`),
-          FROM,
+          from(q),
           where,
         ),
       );
@@ -241,10 +314,19 @@ function facetQuery(q: ListingQuery): Prisma.Sql {
 type FacetRow = { g: string; k: string | null; n: number; lo: string | null; hi: string | null };
 
 function foldFacets(rows: readonly FacetRow[], defs: readonly SpecDef[]): FacetCounts {
-  const out: FacetCounts = { brands: {}, tags: {}, price: null, inStock: 0, onSale: 0, specs: {} };
+  const out: FacetCounts = {
+    categories: {},
+    brands: {},
+    tags: {},
+    price: null,
+    inStock: 0,
+    onSale: 0,
+    specs: {},
+  };
   const kinds = new Map(defs.map((d) => [d.key, d.facet]));
   for (const r of rows) {
-    if (r.g === "brand" && r.k) out.brands[r.k] = r.n;
+    if (r.g === "category" && r.k) out.categories[r.k] = r.n;
+    else if (r.g === "brand" && r.k) out.brands[r.k] = r.n;
     else if (r.g === "tag" && r.k) out.tags[r.k] = r.n;
     else if (r.g === "price") {
       if (r.n > 0 && r.lo !== null && r.hi !== null)
@@ -282,16 +364,16 @@ export async function queryListing(q: ListingQuery, db: Db = getDb()): Promise<L
            img."storageKey" AS "imageKey", img."altEn" AS "imageAltEn", img."altAr" AS "imageAltAr",
            (CASE WHEN p."type" = 'BUNDLE'
               THEN (SELECT COUNT(*)::int FROM "bundle_item" bi WHERE bi."bundleId" = p."id") ELSE 0 END) AS "componentCount"
-    ${FROM}
+    ${from(q)}
     LEFT JOIN LATERAL (
       SELECT i."storageKey", i."altEn", i."altAr" FROM "product_image" i
       WHERE i."productId" = p."id" ORDER BY i."sortOrder", i."id" LIMIT 1) img ON TRUE
     WHERE ${conditions(q)}
-    ORDER BY ${ORDER_BY[q.filters.sort]}
+    ORDER BY ${orderBy(q)}
     LIMIT ${q.pageSize} OFFSET ${offset}`;
   const totalP = db.$queryRaw<
     { n: number }[]
-  >`SELECT COUNT(*)::int AS n ${FROM} WHERE ${conditions(q)}`;
+  >`SELECT COUNT(*)::int AS n ${from(q)} WHERE ${conditions(q)}`;
   const facetsP =
     q.withFacets === false
       ? Promise.resolve<FacetRow[]>([])

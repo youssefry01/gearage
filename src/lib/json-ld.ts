@@ -80,8 +80,9 @@ export function productJsonLd(p: ProductJsonLdInput) {
 
 /**
  * Organization and WebSite for the home page. Deliberately minimal: name, URL and logo are facts from the brand
- * config. No contact points, social profiles or SearchAction yet: contact details are editable store settings
- * (launch blockers in HANDOFF) and /search is not built, so claiming a search action would point at a placeholder.
+ * config. No contact points or social profiles yet: contact details are editable store settings (launch blockers in
+ * HANDOFF). The WebSite carries a SearchAction pointing at the real results page (M4a). Note: Google retired the
+ * sitelinks search box in November 2024 and no longer uses this markup; it stays valid schema.org and harmless.
  */
 export function organizationJsonLd(input: { name: string; url: string; logo: string }) {
   return {
@@ -93,12 +94,27 @@ export function organizationJsonLd(input: { name: string; url: string; logo: str
   };
 }
 
-export function websiteJsonLd(input: { name: string; url: string; inLanguage: string }) {
+export function websiteJsonLd(input: {
+  name: string;
+  url: string;
+  inLanguage: string;
+  /** Absolute URL of the results page with the literal placeholder {search_term_string} as the query. */
+  searchUrlTemplate?: string;
+}) {
   return {
     "@context": "https://schema.org",
     "@type": "WebSite",
     name: input.name,
     url: input.url,
     inLanguage: input.inLanguage,
+    ...(input.searchUrlTemplate
+      ? {
+          potentialAction: {
+            "@type": "SearchAction",
+            target: { "@type": "EntryPoint", urlTemplate: input.searchUrlTemplate },
+            "query-input": "required name=search_term_string",
+          },
+        }
+      : {}),
   };
 }

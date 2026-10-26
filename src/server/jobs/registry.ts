@@ -1,5 +1,6 @@
 import { logger } from "@/lib/logger";
 import { expireReservations } from "@/server/services/inventory.service";
+import { pruneOldZeroResults, runSearchIndexRebuild } from "@/server/services/search.service";
 
 export type JobCadence = "tick" | "daily";
 export type Job = { name: string; cadence: JobCadence; run: () => Promise<void> };
@@ -15,6 +16,19 @@ const jobs: Job[] = [
     cadence: "tick",
     run: async () => {
       await expireReservations();
+    },
+  },
+  {
+    // Safety net only: triggers keep the search index current (ADR 0019).
+    name: "rebuild-search-index",
+    cadence: "daily",
+    run: runSearchIndexRebuild,
+  },
+  {
+    name: "prune-search-zero-results",
+    cadence: "daily",
+    run: async () => {
+      await pruneOldZeroResults();
     },
   },
   {

@@ -38,4 +38,9 @@ export const PAGES = [
   // Product pages: a part (low stock, showcase with video) and a bundle (parts table, compatibility badge).
   "/p/nvidia-geforce-rtx-5080-founders-edition-16gb",
   "/p/budget-gaming-pc-ryzen-5-5600-rtx-4060",
+  // Search results (M4a): matches, the all-products view (also deals / best sellers), a corrected search, no results.
+  "/search?q=rtx%204060",
+  "/search?in_stock=1&sale=1&sort=discount",
+  "/search?q=ryzn%205%205600",
+  "/search?q=xyzzy",
 ] as const;

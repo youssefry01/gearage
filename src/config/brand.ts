@@ -22,8 +22,8 @@ export const brand = {
   /** Store name per locale. Locales without an entry fall back to English. */
   name: { en: "Gearage" } as Localized,
   tagline: {
-    en: "PC hardware, delivered across Egypt.",
-    ar: "قطع الكمبيوتر وملحقاته، توصيل لجميع أنحاء مصر.",
+    en: "PC parts, laptops and bundles.",
+    ar: "قطع الكمبيوتر واللابتوب والتجميعات.",
   } as Localized,
   /** Default SEO text. Pages override with their own; these apply when a page has none. */
   seo: {
@@ -32,8 +32,8 @@ export const brand = {
       ar: "متجر قطع الكمبيوتر في مصر",
     } as Localized,
     description: {
-      en: "Shop CPUs, graphics cards, motherboards, memory, storage and ready-built gaming PCs, with Cash on Delivery across Egypt.",
-      ar: "تسوّق المعالجات وكروت الشاشة واللوحات الأم والذاكرة والتخزين وأجهزة الألعاب الجاهزة مع الدفع عند الاستلام في جميع أنحاء مصر.",
+      en: "Shop CPUs, graphics cards, motherboards, memory, storage, laptops and PC bundles.",
+      ar: "تسوّق المعالجات وكروت الشاشة واللوحات الأم والذاكرة والتخزين واللابتوب وتجميعات الكمبيوتر.",
     } as Localized,
   },
   /** Default Open Graph / Twitter image (icon-only logo on the dark surface, derived by `npm run brand:assets`). */

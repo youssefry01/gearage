@@ -1,3 +1,5 @@
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import type { ProductCardData } from "@/server/services/listing.service";
 import { ProductCard } from "@/features/catalog/product-card";
 
@@ -11,21 +13,36 @@ export function ProductRail({
   title,
   lead,
   products,
+  viewAllHref,
 }: {
   id: string;
   title: string;
   lead: string;
   products: readonly ProductCardData[];
+  /** Where "View all" goes (the results page, filtered and sorted like this rail). */
+  viewAllHref?: string;
 }) {
+  const t = useTranslations("Home");
   if (products.length === 0) return null;
   const headingId = `${id}-title`;
   return (
     <section id={id} aria-labelledby={headingId} className="flex scroll-mt-24 flex-col gap-4">
-      <div className="flex flex-col gap-1">
-        <h2 id={headingId} className="text-heading font-semibold">
-          {title}
-        </h2>
-        <p className="text-small text-muted-foreground">{lead}</p>
+      <div className="flex items-end justify-between gap-3">
+        <div className="flex min-w-0 flex-col gap-1">
+          <h2 id={headingId} className="text-heading font-semibold">
+            {title}
+          </h2>
+          <p className="text-small text-muted-foreground">{lead}</p>
+        </div>
+        {viewAllHref ? (
+          <Link
+            href={viewAllHref}
+            aria-label={t("viewAllFor", { title })}
+            className="text-link hover:text-link-hover rounded-control inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center px-2 font-medium underline underline-offset-4"
+          >
+            {t("viewAll")}
+          </Link>
+        ) : null}
       </div>
       <ul
         data-testid="product-rail"

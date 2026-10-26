@@ -2,9 +2,9 @@
 
 > Resume rule: a new chat must be able to continue from this file alone. Update it every milestone.
 
-## 1. Status (2026-10-24)
+## 1. Status (2026-10-25)
 
-- Proposal **approved**. **M0**, **M1a**, **M1b**, **M2a**, **M2b**, **M3a-1**, **M3b** and **M3a-2** (home page; see section 11 and ADR 0018) are **delivered**. **M4 (search and discovery) is next; ask the owner before starting it.** The owner approved the four M3b decisions (issue 44) on 2026-10-24.
+- **M4a (search: index, suggestions, results page, rail "view all" links) is DELIVERED; see section 11 and ADR 0019. M4b (compare, recently viewed, view tracking) is next.** Proposal **approved**. **M0**, **M1a**, **M1b**, **M2a**, **M2b**, **M3a-1**, **M3b** and **M3a-2** (home page; see section 11 and ADR 0018) are **delivered**. **M4 (search and discovery) is next; ask the owner before starting it.** The owner approved the four M3b decisions (issue 44) on 2026-10-24.
   M3a-1 was verified by the owner (373 unit, 143 DB, full e2e on a production build, CI green); the Dependabot minor-and-patch group (PR #7, 21 updates) is merged and included; `next`/`eslint-config-next` stay pinned at 16.4.2.
   Owner verified M2b locally (Node 22.23.3): seed created 53 categories, 21 brands, 79 products, 6 bundles, 251 images and a second run was "already up to date"; test:db 126 passed; 336 unit tests and all gates passed; CI on main green.
 - Owner verified M1b locally and pushed: tokens, contrast, brand, lint, typecheck and 158 unit tests pass; e2e 147/151 on the first run (12 workers, dev server; the 4 failures were cold-start flakes and passed on rerun); CI on main green including e2e on the production build.
@@ -28,24 +28,24 @@
 
 ## 3. Approved decisions
 
-| Area               | Decision                                                                                                                         |
-| ------------------ | -------------------------------------------------------------------------------------------------------------------------------- |
-| App                | One Next.js (App Router, TS strict) modular monolith. No separate Node framework.                                                |
-| DB                 | PostgreSQL; Prisma + `@prisma/adapter-pg`; pooled runtime URL, direct URL for migrations; raw SQL for views/FTS/partial indexes. |
-| Auth               | Better Auth (Auth.js team joined Better Auth Sept 2025; Auth.js is security-patch-only). Wrapped behind our own `getSession()`.  |
-| Hashing            | Argon2id via `@node-rs/argon2`, target m=64 MiB, t=3, p=1, pepper as Argon2 secret; benchmark to ~150-300 ms; rehash on login.   |
-| Payments           | Paymob behind `PaymentProvider`; re-verify docs at M7. Live mode needs merchant onboarding + fees (only unavoidable paid item).  |
-| Search             | Postgres FTS (`simple`) + `pg_trgm` on a normalized `search_document`; `SearchProvider` interface.                               |
-| Specs              | JSONB + typed `SpecDefinition` per category (Zod generated from definitions).                                                    |
-| Email              | Brevo + React Email, via `EmailOutbox` with retries.                                                                             |
-| Rate limit         | Upstash free tier, Postgres fallback behind one interface.                                                                       |
-| Slugs              | One Latin slug for both locales. Prices use Western digits (`ar-EG` + `latn`).                                                   |
-| Buttons            | Orange fill + dark label.                                                                                                        |
-| **Guest checkout** | **No.** Checkout requires a verified-email account. Guest _cart_ is allowed and merges on login.                                 |
-| **Locale**         | **Accept-Language detection, fallback `en`, choice remembered in a cookie.** See ADR 0006.                                       |
-| **Stock model**    | **COD decrements at order creation; online payment reserves with expiry then converts.** See ADR 0008.                           |
-| **Milestones**     | **M2 split into M2a / M2b; other oversized milestones split too (§6).**                                                          |
-| Hosting            | Vercel Hobby is non-commercial: fine for demo, Pro (or other host) needed for real sales.                                        |
+| Area               | Decision                                                                                                                                                    |
+| ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| App                | One Next.js (App Router, TS strict) modular monolith. No separate Node framework.                                                                           |
+| DB                 | PostgreSQL; Prisma + `@prisma/adapter-pg`; pooled runtime URL, direct URL for migrations; raw SQL for views/FTS/partial indexes.                            |
+| Auth               | Better Auth (Auth.js team joined Better Auth Sept 2025; Auth.js is security-patch-only). Wrapped behind our own `getSession()`.                             |
+| Hashing            | Argon2id via `@node-rs/argon2`, target m=64 MiB, t=3, p=1, pepper as Argon2 secret; benchmark to ~150-300 ms; rehash on login.                              |
+| Payments           | Paymob behind `PaymentProvider`; re-verify docs at M7. Live mode needs merchant onboarding + fees (only unavoidable paid item).                             |
+| Search             | One weighted `tsvector` document per product (both languages), trigram typo tolerance on an ASCII key, synonyms as data; maintained by triggers (ADR 0019). |
+| Specs              | JSONB + typed `SpecDefinition` per category (Zod generated from definitions).                                                                               |
+| Email              | Brevo + React Email, via `EmailOutbox` with retries.                                                                                                        |
+| Rate limit         | Upstash free tier, Postgres fallback behind one interface.                                                                                                  |
+| Slugs              | One Latin slug for both locales. Prices use Western digits (`ar-EG` + `latn`).                                                                              |
+| Buttons            | Orange fill + dark label.                                                                                                                                   |
+| **Guest checkout** | **No.** Checkout requires a verified-email account. Guest _cart_ is allowed and merges on login.                                                            |
+| **Locale**         | **Accept-Language detection, fallback `en`, choice remembered in a cookie.** See ADR 0006.                                                                  |
+| **Stock model**    | **COD decrements at order creation; online payment reserves with expiry then converts.** See ADR 0008.                                                      |
+| **Milestones**     | **M2 split into M2a / M2b; other oversized milestones split too (§6).**                                                                                     |
+| Hosting            | Vercel Hobby is non-commercial: fine for demo, Pro (or other host) needed for real sales.                                                                   |
 
 ## 4. Architecture and layering
 
@@ -92,7 +92,8 @@ Rule: every milestone is runnable, tested, ends with the web-design-guidelines a
 | M3a-1   | Menu from DB, listings, filters               | **DELIVERED.** Category tree from the DB, listing engine (3 statements, disjunctive facets), URL-synced filters from SpecDefinition, numbered pagination, SEO policy (ADR 0016), cards, skeletons, empty states                                          |
 | M3a-2   | Home page                                     | **DELIVERED.** Hero (featured bundle as a parts list), category tiles, deals, featured, best sellers, new arrivals, most viewed, brand strip, all from seeded data via `queryListing`; in-stock only; ISR 300 s; Organization/WebSite JSON-LD (ADR 0018) |
 | M3b     | Product + bundle pages                        | **DELIVERED.** Gallery + zoom viewer, specs, showcase (click-to-load video), bundle parts table + compatibility, related/included-in, JSON-LD, products in the sitemap, resilient sitemap (ADR 0017)                                                     |
-| M4      | Search and discovery                          | FTS + trigram, suggestions, compare, recently viewed, view tracking                                                                                                                                                                                      |
+| M4a     | Search                                        | **DELIVERED.** Weighted FTS + trigram typo tolerance, Arabic normalization, synonyms, suggestions, results page (also all-products/deals/best sellers/new arrivals), category facet, rail "view all", zero-result analytics (ADR 0019)                   |
+| M4b     | Discovery                                     | Compare (up to 4), recently viewed, view tracking (needs the rate limiter from M5a for the write endpoint, or a cookie-deduplicated, per-instance limit until then)                                                                                      |
 | M5a     | Auth core                                     | Register, login, verify, OTP, reset, Argon2id, HIBP, rate limit, lockout, Brevo outbox                                                                                                                                                                   |
 | M5b     | Account security                              | Sessions list, email change, profile, addresses, audit log, admin TOTP                                                                                                                                                                                   |
 | M6a     | Cart, promo, shipping                         | Cart merge, promo engine, shipping zones/fees                                                                                                                                                                                                            |
@@ -124,6 +125,7 @@ Cut: Cloudinary provider, PWA, live chat, loyalty, multi-currency, multi-vendor.
 
 Conventional commits. No `any`. Zod at every boundary. Money only via `domain/money`. Authorization check in every mutation.
 Errors via `AppError`; API format `{ ok, data | error:{code,message} }`. Detail goes in `docs/adr/`.
+Search (ADR 0019): normalize with `domain/search-normalize` ONLY (its SQL twins in the migration must stay identical; a DB test compares them); new searchable text goes into `search_build_vector` via a migration (the no-drift test enforces it); search is never indexed; model numbers and anything with a digit are never auto-corrected; Arabic synonyms live in `domain/search-synonyms.ts` and need native review. `npm run search:try -- "query"` runs the real pipeline from the terminal.
 
 - **Never hardcode the store name**: use `src/config/brand.ts` (code) or `{brand}`/`{tagline}` (messages). `npm run brand:check` enforces it.
 - **Never write hex colors** in components: semantic classes only. Add/change colors in `src/design/tokens.ts`, then `npm run tokens:build`; add a `CONTRAST_PAIRS` entry for every new usage.
@@ -158,7 +160,7 @@ component-level returns refund allocated price; seed bundles use fixed price.
 ### Launch blockers (clear all before real launch; copied into the M13b release checklist)
 
 1. **Verify all 56 flagged seed products** against manufacturer pages (list: docs/SEEDING.md); owner will do this before launch (decided 2026-10-21).
-2. Replace illustrative prices, compare-at prices, costs, stock, warranty and delivery data with real ones (and confirm or reword the tagline's nationwide-delivery claim, issue 47); check compare-at/"Was" pricing against the Consumer Protection Law.
+2. Replace illustrative prices, compare-at prices, costs, stock, warranty and delivery data with real ones (the tagline and default SEO text no longer claim delivery coverage (issue 47); the product page still says "We deliver across Egypt" (issue 52): confirm or reword it once shipping zones are known); check compare-at/"Was" pricing against the Consumer Protection Law.
 3. Set `CATALOG_DEMO_NOTICE=false` only after 1 and 2 (the demo notice hides only for that exact value).
 4. Native review of all Arabic copy (docs/I18N_REVIEW.md); legal review of the legal pages (M12).
 
@@ -213,27 +215,49 @@ component-level returns refund allocated price; seed bundles use fixed price.
 44. **M3b decisions** (ADR 0017): Product JSON-LD omits `offers` while the demo notice is on; no `aggregateRating`; the delivery line says fee and time are shown at checkout (no estimate until M6a); a bundle shows no single warranty (per component); the add button uses the minimal cart store (capped by stock and 10 per line, re-validated at checkout in M6); product and sitemap routes are dynamic; only the showcase credit is public.
 45. Spec units come from the seed (`GB`, `W`, `mm`) and are shown as-is in both languages; Arabic unit words would need a per-unit translation (native review pass).
 46. (Resolved 2026-10-24) The owner removed `HANDOFF.md` from `.gitignore`; it is tracked by git now.
-47. **The brand tagline claims nationwide delivery** ("PC hardware, delivered across Egypt." / the Arabic equivalent, `brand.tagline`, approved with the brand config in M1a). It is shown in the footer on every page. Shipping zones and fees are not confirmed until M6a (the top bar was already made neutral for this reason). The home page does NOT use the tagline. Owner: confirm coverage or reword the tagline before launch (added to launch blocker 2).
-48. **Home rails have no "view all" link, and brand chips are indirect.** There is no all-products or deals listing yet, so a rail cannot link to a full view; each brand chip opens the top-level category where the brand sells most, filtered to that brand (so a brand that also sells in other categories shows only that category). Options for the owner: serve an all-products listing from the M4 search results page, and/or build brand pages. Until decided, rails stay link-less.
+47. (Resolved in M4a: the tagline is now neutral, "PC parts, laptops and bundles.", and the default SEO description lost its Cash-on-Delivery and ready-built claims; a unit test blocks delivery, coverage and assembly words in brand copy.) Original issue: **the brand tagline claimed nationwide delivery** ("PC hardware, delivered across Egypt." / the Arabic equivalent, `brand.tagline`, approved with the brand config in M1a). It is shown in the footer on every page. Shipping zones and fees are not confirmed until M6a (the top bar was already made neutral for this reason). The home page does NOT use the tagline. Owner: confirm coverage or reword the tagline before launch (added to launch blocker 2).
+48. (Resolved in M4a: every rail links to `/search` with its own filters, and `/deals` redirects to the deals view; brand chips stay category + brand filter, brand pages come later.) Original issue: **home rails had no "view all" link, and brand chips are indirect.** There is no all-products or deals listing yet, so a rail cannot link to a full view; each brand chip opens the top-level category where the brand sells most, filtered to that brand (so a brand that also sells in other categories shows only that category). Options for the owner: serve an all-products listing from the M4 search results page, and/or build brand pages. Until decided, rails stay link-less.
 49. **Showcase video embed domain** (recorded as requested): the iframe is created ONLY after the shopper clicks the poster, from `https://www.youtube-nocookie.com/embed/<id>?autoplay=1&rel=0` (the id is allow-listed and the URL rebuilt by `parseVideoEmbed`; no other host is accepted). No third-party request happens on page load. There is no CSP yet: **the M13a CSP must allow `frame-src https://www.youtube-nocookie.com`** (and nothing broader). The seeded id is still unverified (issue 34).
 50. **Home page hydration and weight.** The home page is much larger than the placeholder it replaced (up to 40 product cards, 8 category tiles and a hero image). In the sandbox a click that landed before React hydrated was lost (two e2e specs raced it; fixed with `whenHydrated`); I did not measure hydration time. Measure LCP (the hero image is `priority`) and hydration in M13a Lighthouse; on a slow phone a very early tap on a client-side link (language switch, theme) may not register.
 51. **Home data can be up to 5 minutes old** (ISR `revalidate = 300`): price, stock and ranking on the home page lag the database by up to that long. Add-to-cart is capped by the stock known to the page and is re-validated at checkout in M6 (issue 44). Admin edits will revalidate the page on demand in M10a.
+52. **The product page says "We deliver across Egypt."** (`messages/en.json` `deliveryBody` and the Arabic equivalent, approved in M3b). It is a coverage claim like the tagline was; shipping zones are confirmed in M6a. Left unchanged in M4a because it was approved; owner to decide (launch blocker 2).
+53. **The migration `20261024000000_search` is hand-written and its drift check has not run** (issue 21 procedure). Unverified: whether Prisma reports the GIN index on the `tsvector` column.
+54. **`/api/search/suggest` has no per-IP rate limit** until M5a (same as issue 15). Load is bounded by: 2-character minimum, 200 ms debounce and request abort in the client, CDN `s-maxage=60`, and every query being a single indexed read. Apply the shared limiter in M5a.
+55. **Search maintenance.** The index is maintained by triggers (ADR 0019). Anything that adds searchable text must extend `search_build_vector` in a new migration; the no-drift DB test fails until it does. The daily jobs `rebuild-search-index` (a no-op when triggers did their job) and `prune-search-zero-results` (90 days) are registered but run only when the cron workflow is activated (issue 24 / section 14).
+56. **Search is unmeasured at scale** (85 products). Before launch, load real or generated volume and `EXPLAIN ANALYZE` the results query and the vocabulary lookup. If quality or latency disappoints, ADR 0019 names the exit (Meilisearch/Typesense behind a provider).
+57. **Search quality limits** are listed in docs/SEARCH_QUALITY.md (typos inside model numbers are not corrected on purpose; `شاشة` also returns graphics cards; a "2x32GB" kit matches `32gb`).
+58. **Arabic synonyms are machine-written** (`src/domain/search-synonyms.ts`, 51 groups) and are in docs/I18N_REVIEW.md under "Search synonyms". Native review is the biggest quality lever for Arabic search. The Arabic spelling of the brand Gigabyte collides with the unit "gigabyte" (treated as the brand).
+59. **Search results are never indexed** (`noindex, follow`, self canonical, no hreflang), including the all-products, deals, best-sellers and new-arrivals views. A dedicated indexable `/deals` landing page can replace the redirect later.
+60. **The WebSite JSON-LD carries a `SearchAction`** as the brief asks. Google retired the sitelinks search box in November 2024 and no longer uses the markup; it is valid and harmless.
+61. **No TanStack Query yet**: the suggestions use `fetch` + `AbortController` and a session cache (ADR 0019). Introduce it in M6a with cart mutations.
+62. **Typed-before-hydration text:** the header search is a controlled input, so text typed before the script loads can be discarded when React hydrates it (the box itself is no longer swapped). Negligible on a fast connection.
+63. **Sandbox cold-start e2e:** `language switcher navigates and remembers the choice` fails when it is the first test against a cold server in the authoring sandbox, on the original M3a-2 too. Passes warm and (expected) in CI.
 
-## 11. Verification record: M3a-2 (2026-10-24)
+## 11. Verification record: M4a (2026-10-25)
 
-Earlier records (M0 to M3b): [docs/MILESTONE_HISTORY.md](docs/MILESTONE_HISTORY.md). The owner verified M3b locally (Node 22.23.3): all gates, 411 unit, 152 DB, production build, all 303 e2e on a production build; product and bundle pages checked by hand (EN/AR, both themes, phone); canonical link count after clicking to page 2 is 1 (issue 43 resolved). The owner's CI status line was left as a template placeholder ("[green / failing step]"), so CI for M3b is **unconfirmed**.
+Earlier records (M0 to M3a-2): [docs/MILESTONE_HISTORY.md](docs/MILESTONE_HISTORY.md). The owner verified M3a-2 locally (Node 22.23.3): all gates, 424 unit, 162 DB, `npm audit --omit=dev` 0, production build, all 310 e2e; home reviewed by hand EN/AR in both themes; CI green (M3b and M3a-2).
 
-**Verified in the sandbox (real execution; PostgreSQL 18.4 with the full seed; real Chromium 153 on a production build, 1 worker):**
+**Verified in the sandbox (real execution; PostgreSQL 18.4 with the full seed; real Chromium 153 on a production build):**
 
-- Gates: `format:check`, `tokens:check`, `contrast` (60/60), `brand:check` (496 files), `i18n:review:check` (659 strings), `seed:docs:check` (56 flagged), `lint`, `typecheck`; **424 unit tests** (44 files); **162 DB tests** (8 files); production build with the seeded DB AND with no database (`SKIP_ENV_VALIDATION=1`, the CI verify path; the home page prerenders its empty state). `npm audit --omit=dev`: **0 vulnerabilities** (fast-uri 3.1.9 from your patched lockfile, kept).
-- **e2e: 310 of 310 passed** (303 existing + 7 new in `home.spec.ts`), run in chunks of spec files on one production build. Home is covered by the existing matrix automatically: axe 2 locales x 2 themes and responsive 10 viewports x 2 locales (no horizontal scroll, 44px targets, direction).
-- New tests: `domain/home` (rail rules, hero pick, brand strip fold: 12), JSON-LD Organization/WebSite (1), DB tests on the full seed (10: every rail in stock and correctly ordered, best sellers really are the top in-stock sellers, deals carry real savings, featured carry the tag, hero is a featured bundle with its full parts list and is not repeated, tiles equal the tree's top level, every brand link points at an existing category and counts match SQL, an archived product leaves every rail and the brand count), e2e (shelves and hero, every tile and chip returns 200, tile and chip navigation, "See deals" anchor, no out-of-stock on shelves, one canonical + hreflang + Organization/WebSite and no search action, Arabic RTL).
-- Bugs the new page found: (1) `ProductCard` title link was 28px tall on wide cards (11 responsive failures) and is now a 44px box (ADR 0018); (2) two older specs assumed the placeholder home (h1 = logo; instant hydration): the SEO spec now asserts the real h1 plus the header logo link, the console spec waits for hydration (`whenHydrated`) before clicking.
-- Visual check by me (screenshots viewed): home at 1280 (en, dark), 390 (ar, light, top), 390 (en, dark, rails), and the category tiles at 1280 (en, light) after the final crop.
+- Gates: `format:check`, `lint`, `typecheck`, `tokens:check`, `contrast` (60/60), `brand:check` (514 files), `i18n:review:check` (753 strings), `seed:docs:check` (56 flagged), `npm audit --omit=dev` (0). Lockfile untouched.
+- **493 unit tests** (46 files). **291 DB tests** (10 files; 129 are new and cover the search index and search behavior). The 129 search DB tests were ALSO run on a second cluster with a plain `C` locale and pass (that locale gives `pg_trgm` no Arabic trigrams; the ASCII key makes it irrelevant).
+- **e2e on a production build, run in batches:** accessibility 62/62; responsive 260/260 (includes the four new search pages in the matrix); smoke, console, home, listing, product 39/39; shell + search + i18n-theme 83 passed, 1 failed (below).
+- The one failing e2e is `i18n-theme.spec.ts: language switcher navigates and remembers the choice`, when it is the first test to hit a COLD server in this sandbox (software rendering). It passes 6/6 when run alone, and **the original M3a-2 zip fails it identically in the same cold run**, so it is not a regression. Expect it to pass for you.
+- Two other specs lost a click that landed before hydration once under 3 parallel workers (home category tile; search filter checkbox); both passed repeated in isolation. This is the known race in issue 50. If CI shows it, raise the timeout or add `whenHydrated`.
+- Bugs the new tests found and fixed during M4a: (1) `2tb` matched a 1 TB drive (letter/digit split parts were not adjacent; now a phrase); (2) a partial match could rest on a model number alone; (3) partial results were not ranked by how many words matched; (4) bundles ranked as results for generic words (their part titles were indexed; now only brand and model); (5) the synonym phrase "ان في ام اي" had four words but the limit was three; (6) Arabic typos in brand spellings were not corrected (synonym words are now correction candidates); (7) the open suggestion list was not keyboard-reachable when it scrolled on a 320 px phone (axe `scrollable-region-focusable`), and the arrow keys never scrolled the highlighted option into view; (8) swapping a placeholder search form for the real one on hydration made the field vanish for a moment and discarded early typing (the box is now in the server HTML).
+- Checked by hand over HTTP on the production build: `/en/deals` is a 307 to the deals view; `/api/search/suggest` returns the shaped result with `Cache-Control: public, max-age=30, s-maxage=60, stale-while-revalidate=300`, 422 for an oversized `q`; the results page has `noindex, follow`.
+- Search quality, measured: [docs/SEARCH_QUALITY.md](docs/SEARCH_QUALITY.md) (73 expectation rows, all met; limitations listed). Decisions: [ADR 0019](docs/adr/0019-search.md).
 
-**Not verified (the owner must run / look at):** a visual pass of every other combination (light desktop hero, ar desktop, tablet, ultra-wide); swiping the rails on a real touch device; other browsers; the Playwright run in the owner's environment; CI on GitHub (M3b and M3a-2); Lighthouse/LCP and real hydration timing of the heavier home page (M13a); Arabic copy (docs/I18N_REVIEW.md, 21 new strings).
+**NOT verified (the owner must run / look at):**
 
-**Exact commands:** `npm ci`, `npm run db:seed` (idempotent, nothing new to seed), `npm run dev`, then open `/en` and `/ar`. Gates: `npm run lint && npm run typecheck && npm test && npm run test:db`; e2e on a production build: `npm run build && E2E_PROD=1 npm run test:e2e` (PowerShell: `$env:E2E_PROD=1; npm run test:e2e`; stop anything on port 3000 first, or `PORT=3100`).
+- **The migration was hand-written and the Prisma schema engine cannot run here.** Run `npx prisma migrate dev` and `npx prisma migrate diff --from-config-datasource --to-schema prisma/schema --exit-code` (issue 21). This is the most likely local failure: I am not certain Prisma accepts the GIN index declared on the `tsvector` column (`@@index([vector], type: Gin)`) without reporting drift. If it reports a diff on `product_search_vector_idx`, paste it and I will adjust the model.
+- Performance at any real catalog size (only 85 products were measured; issue 56).
+- Your local PostgreSQL version and locale, and Supabase's. Run `SELECT datcollate FROM pg_database WHERE datname = current_database();` for information only: search works in every locale.
+- Looks: I did not view screenshots of the suggestion dropdown or the results page. Open `/en` and `/ar`, type in the header search (mouse, keyboard, and a phone), then `/en/search?q=rtx+4060`, `?q=xyzzy`, `?q=ryzn+5+5600` in both themes.
+- Real Arabic quality: every Arabic synonym is machine-written (docs/I18N_REVIEW.md, "Search synonyms").
+- Other browsers, a real touch device, CI on GitHub.
+
+**Exact commands:** `npm ci`, `npx prisma migrate dev` (applies the new migration; then run the diff above), `npm run db:seed` (idempotent; the triggers index the products), `npm run dev`. Try the pipeline: `npm run search:try -- "rtx 4060" "كارت شاشة" "ryzn 5 5600"`. Gates: `npm run lint && npm run typecheck && npm test && npm run test:db`; e2e on a production build: `npm run build && E2E_PROD=1 npm run test:e2e`.
 
 ## 14. Environment strategy
 
@@ -268,7 +292,11 @@ Open for the owner:
 6. (Answered 2026-10-22) 404 status: real 404, skeleton dropped (issue 37).
 7. (Answered 2026-10-24) Build M3b (product + bundle pages) before M3a-2 (home); M3b was not split.
 8. (Answered 2026-10-24) The four M3b decisions in issue 44 are approved.
-9. Open: M3a-2 decisions (ADR 0018): rails show in-stock products only and are not de-duplicated against each other; the hero is a featured bundle as a parts list; brands are text chips linking to category + brand filter; no "view all" links (issue 48); the tagline is not used on the home page (issue 47). Say if you want any changed.
+9. (Answered 2026-10-25) M3a-2 decisions (ADR 0018) approved with changes: rails stay in-stock only and a product may appear in two rails; brand chips link to a top-level category plus a brand filter; the rail "view all" links are served by the M4 results page (all products, deals, best sellers and new arrivals as sorted/filtered views); brand pages come later; the tagline's delivery claim is removed now (issue 47). Original text: M3a-2 decisions (ADR 0018): rails show in-stock products only and are not de-duplicated against each other; the hero is a featured bundle as a parts list; brands are text chips linking to category + brand filter; no "view all" links (issue 48); the tagline is not used on the home page (issue 47). Say if you want any changed.
+
+10. Open: **split M4**. M4a (search) is delivered; M4b is compare, recently viewed and view tracking. Say go, or reorder (view tracking needs a rate limit on its write endpoint).
+11. Open: the product page's "We deliver across Egypt." text (issue 52): neutral now, or keep until M6a?
+12. Open: M4a left the Google-ineffective `SearchAction` in the JSON-LD because the brief lists it (issue 60). Remove it if you prefer.
 
 ## 17. Needs native review: machine-written Arabic
 

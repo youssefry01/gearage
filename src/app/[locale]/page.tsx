@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { HomeView } from "@/features/home/home-view";
 import { brand, storeName } from "@/config/brand";
 import { routing } from "@/i18n/routing";
+import { routes } from "@/config/routes";
 import { organizationJsonLd, serializeJsonLd, websiteJsonLd } from "@/lib/json-ld";
 import { siteUrl } from "@/lib/site-url";
 import { pageMetadata } from "@/lib/seo";
@@ -38,7 +39,12 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       url: origin,
       logo: `${origin}${brand.logo.icon.onLight.src}`,
     }),
-    websiteJsonLd({ name, url: `${origin}/${locale}`, inLanguage: locale }),
+    websiteJsonLd({
+      name,
+      url: `${origin}/${locale}`,
+      inLanguage: locale,
+      searchUrlTemplate: `${origin}/${locale}${routes.search}?q={search_term_string}`,
+    }),
   ];
   return (
     <>

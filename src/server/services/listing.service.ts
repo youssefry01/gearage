@@ -9,6 +9,7 @@ import {
 import type { SpecDef } from "@/domain/specs";
 import {
   type FacetCounts,
+  type ListingResult,
   type ListingRow,
   fetchBrandNames,
   fetchTagNames,
@@ -147,23 +148,15 @@ function buildSpecFacets(
 }
 
 /**
- * The category listing page's data: parse the URL, run the three listing statements, add names for the facet
- * options (two small lookups, never per option). `categoryPath` undefined = the whole catalog.
+ * Everything a listing page shows, from filters and a query result: names for the facet options (two small lookups,
+ * never per option) and the shaped facets. Shared by category pages and the search results page.
  */
-export async function getListing(
-  categoryPath: string | undefined,
-  raw: RawParams,
-  pageSize: number = PAGE_SIZE,
+export async function assembleListingView(
+  filters: ListingFilters,
+  specDefs: readonly SpecDef[],
+  result: ListingResult,
+  pageSize: number,
 ): Promise<ListingView> {
-  const specDefs = categoryPath ? await getSpecDefinitions(categoryPath) : [];
-  const filters = parseListingParams(raw, specDefs);
-  const result = await queryListing({
-    ...(categoryPath ? { categoryPath } : {}),
-    filters,
-    specDefs,
-    pageSize,
-  });
-
   const brandSlugs = [...new Set([...Object.keys(result.facets.brands), ...filters.brands])];
   const tagSlugs = [...new Set([...Object.keys(result.facets.tags), ...filters.tags])];
   const [brands, tags] = await Promise.all([fetchBrandNames(brandSlugs), fetchTagNames(tagSlugs)]);
@@ -186,4 +179,24 @@ export async function getListing(
     inStockCount: result.facets.inStock,
     onSaleCount: result.facets.onSale,
   };
+}
+
+/**
+ * The category listing page's data: parse the URL, run the three listing statements, shape the view.
+ * `categoryPath` undefined = the whole catalog.
+ */
+export async function getListing(
+  categoryPath: string | undefined,
+  raw: RawParams,
+  pageSize: number = PAGE_SIZE,
+): Promise<ListingView> {
+  const specDefs = categoryPath ? await getSpecDefinitions(categoryPath) : [];
+  const filters = parseListingParams(raw, specDefs);
+  const result = await queryListing({
+    ...(categoryPath ? { categoryPath } : {}),
+    filters,
+    specDefs,
+    pageSize,
+  });
+  return assembleListingView(filters, specDefs, result, pageSize);
 }

@@ -5,21 +5,10 @@ import { notFound } from "next/navigation";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import { storeName } from "@/config/brand";
 import { type CategoryNode, categoryHref, categoryName } from "@/domain/category-tree";
-import {
-  activeFilterCount,
-  clearedFilters,
-  listingQuery,
-  listingSeo,
-  parseListingParams,
-} from "@/domain/listing";
-import { ActiveFilters } from "@/features/catalog/active-filters";
+import { clearedFilters, listingQuery, listingSeo, parseListingParams } from "@/domain/listing";
 import { DemoNotice } from "@/features/catalog/demo-notice";
-import { FilterDrawer } from "@/features/catalog/filter-drawer";
-import { FilterPanel, type FilterPanelData, ClearAllLink } from "@/features/catalog/filter-panel";
 import { ListingEmpty } from "@/features/catalog/listing-empty";
-import { Pagination } from "@/features/catalog/pagination";
-import { ProductGrid } from "@/features/catalog/product-card";
-import { SortSelect } from "@/features/catalog/sort-select";
+import { ListingBody } from "@/features/catalog/listing-body";
 import { categoryPath } from "@/features/navigation/href";
 import type { Locale } from "@/i18n/locales";
 import { Link } from "@/i18n/navigation";
@@ -81,16 +70,6 @@ function CategoryListing({
   const basePath = categoryHref(node.path);
   const seo = listingSeo(view.filters);
   const clearHref = `${basePath}${listingQuery(clearedFilters(view.filters), { page: false })}`;
-  const panel: FilterPanelData = {
-    filters: view.filters,
-    specDefs: view.specDefs,
-    brandOptions: view.brandOptions,
-    tagOptions: view.tagOptions,
-    specFacets: view.specFacets,
-    priceBounds: view.priceBounds,
-    inStockCount: view.inStockCount,
-    onSaleCount: view.onSaleCount,
-  };
   const crumbs = [
     { label: crumbsT("home"), href: "/" },
     ...chain.map((c, i) => ({
@@ -132,50 +111,13 @@ function CategoryListing({
         </nav>
       ) : null}
 
-      <div className="grid gap-6 lg:grid-cols-[16rem_minmax(0,1fr)] lg:items-start">
-        <aside
-          aria-labelledby="filters-heading"
-          className="hidden lg:sticky lg:top-24 lg:block lg:max-h-[calc(100dvh-7rem)] lg:overflow-y-auto lg:pe-2"
-        >
-          <h2 id="filters-heading" className="text-heading mb-1 font-semibold">
-            {t("filters")}
-          </h2>
-          <FilterPanel data={panel} idPrefix="side" autoApply />
-          {activeFilterCount(view.filters) > 0 ? (
-            <ClearAllLink
-              href={clearHref}
-              className="text-link hover:text-link-hover rounded-control mt-2 inline-flex min-h-11 items-center underline underline-offset-4"
-            />
-          ) : null}
-        </aside>
-
-        <section aria-labelledby="products-heading" className="flex min-w-0 flex-col gap-4">
-          <h2 id="products-heading" className="sr-only">
-            {t("productsHeading")}
-          </h2>
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <p role="status" className="text-muted-foreground">
-              {t("resultCount", { count: view.total })}
-            </p>
-            <div className="flex flex-wrap items-center gap-2">
-              <FilterDrawer data={panel} clearHref={clearHref} />
-              <SortSelect filters={view.filters} />
-            </div>
-          </div>
-          <ActiveFilters view={view} basePath={basePath} clearHref={clearHref} />
-          {view.total === 0 ? (
-            <ListingEmpty clearHref={clearHref} />
-          ) : (
-            <ProductGrid products={view.items} />
-          )}
-          <Pagination
-            basePath={basePath}
-            filters={view.filters}
-            pages={view.pages}
-            nofollow={seo.nofollowPagination}
-          />
-        </section>
-      </div>
+      <ListingBody
+        view={view}
+        basePath={basePath}
+        clearHref={clearHref}
+        empty={<ListingEmpty clearHref={clearHref} />}
+        nofollowPagination={seo.nofollowPagination}
+      />
     </main>
   );
 }

@@ -30,7 +30,7 @@ test.describe("desktop header", () => {
     await expect(header.getByRole("link", { name: /Account/ })).toBeVisible();
     await expect(header.getByRole("link", { name: /^Cart/ })).toBeVisible();
     await expect(header.getByRole("navigation", { name: "Product categories" })).toBeVisible();
-    const search = await header.getByRole("searchbox").boundingBox();
+    const search = await header.locator("#site-search").boundingBox();
     expect(
       search?.width ?? 0,
       "search should be the widest element of the main row",
@@ -76,7 +76,7 @@ test.describe("desktop header", () => {
     await page.goto("/en/styleguide");
     await page.evaluate(() => window.scrollTo(0, 2000));
     await page.waitForTimeout(150);
-    const search = page.getByRole("searchbox");
+    const search = page.locator("#site-search");
     const box = await search.boundingBox();
     expect(box && box.y >= 0 && box.y < 120, `search at y=${box?.y}`).toBe(true);
     const bar = await page.locator("[data-topbar]").boundingBox();
@@ -89,15 +89,21 @@ test.describe("desktop header", () => {
 
   test("search submits to the localized results route", async ({ page }) => {
     await page.goto("/en");
-    await page.getByRole("searchbox").fill("rtx 4060");
+    const box = page.locator("#site-search");
+    await whenHydrated(box);
+    await box.fill("rtx 4060");
     await page.keyboard.press("Enter");
     await expect(page).toHaveURL(/\/en\/search\?q=rtx\+4060$/);
-    await expect(page.getByRole("heading", { level: 1, name: "Search" })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { level: 1, name: "Results for “rtx 4060”" }),
+    ).toBeVisible();
   });
 
   test("Arabic: search goes to /ar/search and the layout mirrors", async ({ page }) => {
     await page.goto("/ar");
-    await page.getByRole("searchbox").fill("معالج");
+    const box = page.locator("#site-search");
+    await whenHydrated(box);
+    await box.fill("معالج");
     await page.keyboard.press("Enter");
     await expect(page).toHaveURL(/\/ar\/search\?q=/);
     const logo = await page.locator("header a[href='/ar']").first().boundingBox();
@@ -189,7 +195,7 @@ for (const locale of ["en", "ar"] as const) {
       await page.goto(`/${locale}/styleguide`);
       await page.evaluate(() => window.scrollTo(0, 1500));
       await page.waitForTimeout(150);
-      const box = await page.getByRole("searchbox").boundingBox();
+      const box = await page.locator("#site-search").boundingBox();
       expect(box && box.y >= 0 && box.y < 160, `search at y=${box?.y}`).toBe(true);
     });
   });
@@ -339,8 +345,12 @@ test("no dead links: every internal header, mega-menu and footer link resolves",
   expect(unique.length).toBeGreaterThan(30);
   const bad: string[] = [];
   for (const href of unique) {
-    const status = (await request.get(href, { maxRedirects: 0 })).status();
-    if (status !== 200) bad.push(`${href} -> ${status}`);
+    let res = await request.get(href, { maxRedirects: 0 });
+    // A link may redirect (Deals is a view of the results page) as long as it lands on a working internal page.
+    const location = res.headers()["location"];
+    if ([307, 308].includes(res.status()) && location?.startsWith("/"))
+      res = await request.get(location, { maxRedirects: 0 });
+    if (res.status() !== 200) bad.push(`${href} -> ${res.status()}`);
   }
   expect(bad).toEqual([]);
 });

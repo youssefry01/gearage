@@ -32,7 +32,9 @@
     "mostViewedLead": "المنتجات الأكثر مشاهدة والمتوفرة في المخزون.",
     "brandsTitle": "تسوّق حسب العلامة التجارية",
     "emptyTitle": "الكتالوج قيد الإعداد",
-    "emptyBody": "ستظهر المنتجات هنا فور إضافتها."
+    "emptyBody": "ستظهر المنتجات هنا فور إضافتها.",
+    "viewAll": "عرض الكل",
+    "viewAllFor": "عرض الكل: {title}"
   },
   "NotFound": {
     "title": "الصفحة غير موجودة",
@@ -150,7 +152,8 @@
       "newest": "الأحدث",
       "price-asc": "السعر: من الأقل إلى الأعلى",
       "price-desc": "السعر: من الأعلى إلى الأقل",
-      "discount": "أكبر خصم"
+      "discount": "أكبر خصم",
+      "relevance": "الأكثر صلة"
     },
     "filters": "تصفية",
     "filtersWithCount": "تصفية ({count})",
@@ -184,7 +187,8 @@
     "onSale": "عليه خصم",
     "rangeFrom": "من",
     "rangeTo": "إلى",
-    "rangeBetween": "النطاق المتاح: من {min} إلى {max}"
+    "rangeBetween": "النطاق المتاح: من {min} إلى {max}",
+    "category": "الفئة"
   },
   "ProductCard": {
     "bundle": "تجميعة كمبيوتر",
@@ -301,5 +305,39 @@
     "psuBelowRecommended": "مزود الطاقة {psuW} واط أقل من الموصى به {recommendedW} واط.",
     "m2SlotsExceeded": "لا يمكن تركيب {drives} أقراص M.2 في {slots} منافذ على اللوحة الأم.",
     "unknownSpec": "تعذّر التحقق من أحد الفحوصات لأن المواصفة \"{spec}\" غير متوفرة."
+  },
+  "Search": {
+    "title": "نتائج البحث",
+    "titleFor": "نتائج البحث عن «{query}»",
+    "allProducts": "كل المنتجات",
+    "allProductsLead": "كل منتجات المتجر. استخدم عوامل التصفية والترتيب لتضييق النتائج.",
+    "metaTitleFor": "البحث: {query}",
+    "metaDescriptionFor": "نتائج البحث عن {query} في {store}.",
+    "metaDescriptionAll": "تصفّح كل المنتجات في {store}.",
+    "correctedNotice": "لا توجد نتائج عن «{original}». نعرض نتائج «{corrected}».",
+    "partialNotice": "لا يوجد منتج يطابق كل كلمات «{query}». نعرض المنتجات التي تطابق بعض الكلمات.",
+    "noResultsTitle": "لا توجد نتائج عن «{query}»",
+    "noResultsBody": "تأكد من الإملاء، أو جرّب كلمات أقل أو أعم، أو تصفّح إحدى الفئات.",
+    "noResultsInCategory": "لا يوجد في هذه الفئة ما يطابق «{query}».",
+    "searchAllCategories": "ابحث في كل الفئات",
+    "tooShortTitle": "اكتب أكثر قليلًا",
+    "tooShortBody": "اكتب حرفين على الأقل للبحث في المتجر.",
+    "browseCategories": "تصفّح الفئات",
+    "clearSearch": "مسح البحث",
+    "categoryHeading": "الفئة",
+    "allCategories": "كل الفئات",
+    "categoryNav": "تضييق حسب الفئة",
+    "suggestLabel": "اقتراحات البحث",
+    "suggestProducts": "المنتجات",
+    "suggestCategories": "الفئات",
+    "suggestBrands": "العلامات التجارية",
+    "suggestSeeAll": "عرض {count, plural, zero {كل النتائج} one {النتيجة} two {النتيجتين} few {كل # نتائج} many {كل # نتيجة} other {كل # نتيجة}} عن «{query}»",
+    "suggestNone": "لا توجد اقتراحات. اضغط Enter للبحث في المتجر كله.",
+    "suggestCorrected": "نعرض اقتراحات «{corrected}»",
+    "suggestStatus": "{count, plural, zero {لا توجد اقتراحات} one {يوجد اقتراح واحد} two {يوجد اقتراحان} few {توجد # اقتراحات} many {يوجد # اقتراحًا} other {يوجد # اقتراح}}",
+    "suggestLoading": "جارٍ البحث…",
+    "suggestError": "الاقتراحات غير متاحة حاليًا. اضغط Enter للبحث.",
+    "outOfStock": "غير متوفر",
+    "bundle": "تجميعة"
   }
 }
