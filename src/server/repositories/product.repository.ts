@@ -203,3 +203,68 @@ export async function fetchPublicProductSlugs(db: Db = getDb()): Promise<string[
     ORDER BY p."slug"`);
   return rows.map((r) => r.slug);
 }
+
+export type CompareRow = ProductRow & {
+  imageKey: string | null;
+  imageAltEn: string | null;
+  imageAltAr: string | null;
+};
+
+/**
+ * The visible products with these slugs (shared visibility rule), with price, availability and first image: ONE
+ * statement for the whole comparison. Order is not guaranteed; the service restores the requested order.
+ */
+export async function fetchCompareRows(
+  slugs: readonly string[],
+  db: Db = getDb(),
+): Promise<CompareRow[]> {
+  if (slugs.length === 0) return [];
+  return db.$queryRaw<CompareRow[]>`
+    SELECT p."id", p."type", p."slug", p."sku", p."mpn", p."modelName",
+           p."titleEn", p."titleAr", p."shortDescriptionEn", p."shortDescriptionAr",
+           p."descriptionEn", p."descriptionAr", p."condition", p."compareAtPrice", p."lowStockThreshold",
+           p."warrantyMonths", p."weightGrams", p."lengthMm", p."widthMm", p."heightMm", p."specs",
+           p."seoTitleEn", p."seoTitleAr", p."seoDescriptionEn", p."seoDescriptionAr",
+           cat."path" AS "categoryPath",
+           pr."effectivePrice"::int AS "effectivePrice", pr."listTotal"::int AS "listTotal",
+           av."available"::int AS "available",
+           b."slug" AS "brandSlug", b."nameEn" AS "brandNameEn", b."nameAr" AS "brandNameAr",
+           img."storageKey" AS "imageKey", img."altEn" AS "imageAltEn", img."altAr" AS "imageAltAr"
+    FROM "product" p
+    JOIN "category" cat ON cat."id" = p."categoryId"
+    JOIN "product_pricing" pr ON pr."productId" = p."id"
+    JOIN "product_availability" av ON av."productId" = p."id"
+    LEFT JOIN "brand" b ON b."id" = p."brandId"
+    LEFT JOIN LATERAL (
+      SELECT i."storageKey", i."altEn", i."altAr" FROM "product_image" i
+      WHERE i."productId" = p."id" ORDER BY i."sortOrder", i."id" LIMIT 1) img ON TRUE
+    WHERE p."slug" = ANY(${[...slugs]}::text[]) AND ${VISIBLE_PRODUCT}`;
+}
+
+export type BundlePartsRow = BundlePartRow & { bundleId: string };
+
+/** Components of SEVERAL bundles in one statement (comparison of bundles): no query per bundle. */
+export async function fetchBundlePartsMany(
+  bundleIds: readonly string[],
+  db: Db = getDb(),
+): Promise<BundlePartsRow[]> {
+  if (bundleIds.length === 0) return [];
+  return db.$queryRaw<BundlePartsRow[]>`
+    SELECT bi."bundleId", bi."componentId", bi."quantity", p."slug", p."sku", p."titleEn", p."titleAr", p."status",
+           (p."deletedAt" IS NOT NULL) AS deleted,
+           (${VISIBLE_PRODUCT}) AS "linkable",
+           p."price", p."specs", cat."path" AS "categoryPath",
+           COALESCE(av."available", 0)::int AS available,
+           b."nameEn" AS "brandNameEn", b."nameAr" AS "brandNameAr",
+           img."storageKey" AS "imageKey", img."altEn" AS "imageAltEn", img."altAr" AS "imageAltAr"
+    FROM "bundle_item" bi
+    JOIN "product" p ON p."id" = bi."componentId"
+    JOIN "category" cat ON cat."id" = p."categoryId"
+    LEFT JOIN "brand" b ON b."id" = p."brandId"
+    LEFT JOIN "product_availability" av ON av."productId" = p."id"
+    LEFT JOIN LATERAL (
+      SELECT i."storageKey", i."altEn", i."altAr" FROM "product_image" i
+      WHERE i."productId" = p."id" ORDER BY i."sortOrder", i."id" LIMIT 1) img ON TRUE
+    WHERE bi."bundleId" = ANY(${[...bundleIds]}::uuid[])
+    ORDER BY bi."bundleId", bi."sortOrder", p."slug"`;
+}

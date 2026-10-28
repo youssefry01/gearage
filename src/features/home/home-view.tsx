@@ -6,6 +6,7 @@ import type { HomeData } from "@/server/services/home.service";
 import { BrandStrip } from "./brand-strip";
 import { CategoryTiles } from "./category-tiles";
 import { Hero } from "./hero";
+import { RecentlyViewed } from "@/features/recently-viewed/recently-viewed";
 import { ProductRail } from "./product-rail";
 
 /** Message keys per rail, kept in one typed map so a new rail cannot be added without its copy. */
@@ -58,6 +59,7 @@ export function HomeView({ data }: { data: HomeData }) {
           viewAllHref={`${routes.search}${railViewAllQuery(key)}`}
         />
       ))}
+      <RecentlyViewed />
       <BrandStrip brands={data.brands} />
     </main>
   );

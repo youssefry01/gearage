@@ -324,16 +324,18 @@ export async function getSuggestions(rawQuery: string): Promise<Suggestions> {
   return {
     query: parsed.input,
     corrected: tiered.tier === "corrected" ? effective.input || effective.normalized : null,
-    products: tiered.result.rows.map(toCardData).map((p) => ({
-      id: p.id,
-      slug: p.slug,
-      type: p.type,
-      title: p.title,
-      effectivePrice: p.effectivePrice,
-      available: p.available,
-      image: p.image,
-      brandName: p.brand?.name ?? null,
-    })),
+    products: tiered.result.rows
+      .map((r) => toCardData(r, (path) => path))
+      .map((p) => ({
+        id: p.id,
+        slug: p.slug,
+        type: p.type,
+        title: p.title,
+        effectivePrice: p.effectivePrice,
+        available: p.available,
+        image: p.image,
+        brandName: p.brand?.name ?? null,
+      })),
     categories,
     brands: matchedBrands,
     total: tiered.result.total,

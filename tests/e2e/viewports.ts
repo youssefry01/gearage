@@ -43,4 +43,8 @@ export const PAGES = [
   "/search?in_stock=1&sale=1&sort=discount",
   "/search?q=ryzn%205%205600",
   "/search?q=xyzzy",
+  // Compare (M4b): three graphics cards of different brands, two bundles, and the empty state.
+  "/compare?p=asus-dual-geforce-rtx-4060-oc-edition-8gb,asus-prime-geforce-rtx-5070-oc-edition-12gb,gigabyte-geforce-rtx-5060-ti-windforce-oc-16gb",
+  "/compare?p=budget-gaming-pc-ryzen-5-5600-rtx-4060,high-end-gaming-pc-ryzen-7-7800x3d-rtx-5080",
+  "/compare",
 ] as const;

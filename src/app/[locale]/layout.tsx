@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { notFound } from "next/navigation";
 import { CookieBanner } from "@/components/layout/cookie-banner";
+import { CompareTray } from "@/features/compare/compare-tray";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
 import { getCategoryTree } from "@/server/services/category.service";
@@ -92,6 +93,7 @@ export default async function LocaleLayout({ children, params }: LayoutProps) {
           />
           {children}
           <SiteFooter contact={contact} categoryTree={categoryTree} />
+          <CompareTray />
           <CookieBanner />
         </NextIntlClientProvider>
       </body>

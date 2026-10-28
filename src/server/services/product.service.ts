@@ -5,6 +5,7 @@ import {
   type CompatibilityReport,
 } from "@/domain/compatibility";
 import { isValidSlug } from "@/domain/catalog";
+import { compareGroup } from "@/domain/compare";
 import { cardSavings, parseListingParams } from "@/domain/listing";
 import {
   buildSpecRows,
@@ -28,7 +29,12 @@ import {
   type ProductRow,
 } from "@/server/repositories/product.repository";
 import { publicImageUrl } from "@/server/storage/public-url";
-import { getCategory, getSpecDefinitions } from "./category.service";
+import {
+  getCategory,
+  getSpecDefinitions,
+  getSpecOwnerResolver,
+  type SpecOwnerResolver,
+} from "./category.service";
 import { toCardData, type ProductCardData } from "./listing.service";
 
 export type { ProductCardData };
@@ -110,6 +116,8 @@ export type ProductPage = {
   available: number | null;
   lowStockThreshold: number;
   categoryPath: string;
+  /** What the product may be compared with ("bundle", or its spec family); null = cannot be compared. */
+  compareGroup: string | null;
   /** Category trail for breadcrumbs; empty when the category tree has no entry (stale cache). */
   trail: { slug: string; path: string; name: Bilingual }[];
   images: PageImage[];
@@ -133,7 +141,7 @@ export type ProductPage = {
   related: ProductCardData[];
 };
 
-const toImage = (
+export const toImage = (
   key: string,
   en: string | null,
   ar: string | null,
@@ -177,6 +185,7 @@ const RELATED_LIMIT = 4;
 async function fetchRelated(
   categoryPath: string,
   excludeProductId: string,
+  owner: SpecOwnerResolver,
 ): Promise<ProductCardData[]> {
   const filters = parseListingParams({});
   const ask = async (path: string, pageSize: number) =>
@@ -191,12 +200,13 @@ async function fetchRelated(
       })
     ).rows;
   const own = await ask(categoryPath, RELATED_LIMIT);
-  if (own.length >= RELATED_LIMIT || !categoryPath.includes("/")) return own.map(toCardData);
+  if (own.length >= RELATED_LIMIT || !categoryPath.includes("/"))
+    return own.map((r) => toCardData(r, owner));
   const parent = categoryPath.slice(0, categoryPath.lastIndexOf("/"));
   const wider = await ask(parent, RELATED_LIMIT * 3);
   const seen = new Set(own.map((r) => r.id));
   const merged = [...own, ...wider.filter((r) => !seen.has(r.id))].slice(0, RELATED_LIMIT);
-  return merged.map(toCardData);
+  return merged.map((r) => toCardData(r, owner));
 }
 
 /**
@@ -213,6 +223,7 @@ export async function getProductPage(slug: string): Promise<ProductPage | null> 
 
   const title = { en: row.titleEn, ar: row.titleAr };
   const isBundle = row.type === "BUNDLE";
+  const owner = await getSpecOwnerResolver();
   const [media, specDefs, found, partRows, pricing, includedIn, related] = await Promise.all([
     fetchProductMedia(row.id),
     isBundle ? Promise.resolve([]) : getSpecDefinitions(row.categoryPath),
@@ -227,8 +238,8 @@ export async function getProductPage(slug: string): Promise<ProductPage | null> 
           pageSize: 6,
           withFacets: false,
           componentId: row.id,
-        }).then((r) => r.rows.map(toCardData)),
-    fetchRelated(row.categoryPath, row.id),
+        }).then((r) => r.rows.map((x) => toCardData(x, owner))),
+    fetchRelated(row.categoryPath, row.id, owner),
   ]);
 
   const parts = partRows.map(toPartView);
@@ -285,6 +296,7 @@ export async function getProductPage(slug: string): Promise<ProductPage | null> 
     available: row.available,
     lowStockThreshold: row.lowStockThreshold,
     categoryPath: row.categoryPath,
+    compareGroup: compareGroup(row.type, owner(row.categoryPath)),
     trail: (found?.chain ?? []).map((n) => ({
       slug: n.slug,
       path: n.path,

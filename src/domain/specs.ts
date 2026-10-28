@@ -106,3 +106,18 @@ export function resolveSpecDefinitions<T>(
   }
   return [];
 }
+
+/**
+ * The category that OWNS the spec definitions a category uses: the nearest ancestor (or itself) that has definitions,
+ * the same rule as resolveSpecDefinitions. Products that share an owner share a spec table, so they can be compared
+ * (an NVIDIA and an AMD graphics card both belong to `components/graphics-cards`). With no definitions anywhere on
+ * the path the category stands alone.
+ */
+export function specOwnerPath(categoryPath: string, ownerPaths: ReadonlySet<string>): string {
+  const parts = categoryPath.split("/");
+  for (let n = parts.length; n >= 1; n--) {
+    const candidate = parts.slice(0, n).join("/");
+    if (ownerPaths.has(candidate)) return candidate;
+  }
+  return categoryPath;
+}

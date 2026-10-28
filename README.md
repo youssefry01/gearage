@@ -70,6 +70,13 @@ words. `/search` is also the all-products, deals, best-sellers and new-arrivals 
 [ADR 0019](docs/adr/0019-search.md); measured quality and limits: [docs/SEARCH_QUALITY.md](docs/SEARCH_QUALITY.md).
 The migration is hand-written: run the drift check below after `prisma migrate dev`.
 
+## Compare and recently viewed
+
+Up to four products side by side at `/compare?p=slug,slug` (a shareable, server-rendered page): products of the same
+spec family only (all graphics cards together, whatever the brand), bundles with bundles, differences marked, no
+"best" claims. The compare list and the "recently viewed" shelf live in the browser only (nothing is sent to the
+server). Decisions: [ADR 0020](docs/adr/0020-compare-and-recently-viewed.md).
+
 ## Demo data (`npm run db:seed`)
 
 An idempotent seed fills your **local** database with realistic catalog data: 9 top-level categories (53 in the tree) with

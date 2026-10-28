@@ -1,6 +1,6 @@
 # Arabic copy that needs native review
 
-753 Arabic strings were written by the assistant, not a native copywriter. Review tone, terminology (Egyptian retail wording, for
+816 Arabic strings were written by the assistant, not a native copywriter. Review tone, terminology (Egyptian retail wording, for
 example the category names) and plural forms. Brand and model names left in Latin (AMD Ryzen, DDR5, ...) are not listed.
 The owner plans one native-review pass once more copy exists.
 
@@ -221,7 +221,7 @@ run `npm run i18n:review` after adding strings (CI runs `npm run i18n:review:che
 | messages: Product.viewCart | View cart | عرض السلة |
 | messages: Product.maxPerOrder | Up to {max} per order | حتى {max} في الطلب الواحد |
 | messages: Product.deliveryTitle | Delivery | التوصيل |
-| messages: Product.deliveryBody | We deliver across Egypt. The delivery fee and estimated time depend on your governorate and are shown at checkout. | نوصّل إلى جميع أنحاء مصر. تعتمد رسوم التوصيل والمدة المتوقعة على محافظتك وتظهر عند إتمام الطلب. |
+| messages: Product.deliveryBody | The delivery fee and estimated time are shown at checkout. | تظهر رسوم التوصيل والمدة المتوقعة عند إتمام الطلب. |
 | messages: Product.overview | Overview | نظرة عامة |
 | messages: Product.description | Description | الوصف |
 | messages: Product.specifications | Specifications | المواصفات |
@@ -314,6 +314,69 @@ run `npm run i18n:review` after adding strings (CI runs `npm run i18n:review:che
 | messages: Search.suggestError | Suggestions are not available right now. Press Enter to search. | الاقتراحات غير متاحة حاليًا. اضغط Enter للبحث. |
 | messages: Search.outOfStock | Out of stock | غير متوفر |
 | messages: Search.bundle | Bundle | تجميعة |
+| messages: Compare.title | Compare products | مقارنة المنتجات |
+| messages: Compare.metaDescription | Compare specifications, prices and availability side by side at {brand}. | قارن المواصفات والأسعار والتوفر جنبًا إلى جنب في {brand}. |
+| messages: Compare.lead | Compare up to {max} products from the same category. | قارن حتى {max} منتجات من الفئة نفسها. |
+| messages: Compare.toggle | Compare | قارن |
+| messages: Compare.trayLabel | Compare list | قائمة المقارنة |
+| messages: Compare.trayCount | {count, plural, one {# product} other {# products}} selected | {count, plural, zero {لا منتجات محددة} one {منتج واحد محدد} two {منتجان محددان} few {# منتجات محددة} many {# منتجًا محددًا} other {# منتج محدد}} |
+| messages: Compare.trayOpen | Compare now | قارن الآن |
+| messages: Compare.trayNeedMore | Add one more product to compare. | أضف منتجًا آخر للمقارنة. |
+| messages: Compare.trayClear | Clear | مسح |
+| messages: Compare.trayRemove | Remove {title} from the compare list | إزالة {title} من قائمة المقارنة |
+| messages: Compare.trayFull | You can compare up to {max} products. Remove one to add another. | يمكنك مقارنة {max} منتجات كحد أقصى. أزل منتجًا لإضافة آخر. |
+| messages: Compare.trayMismatch | Only products from the same category can be compared. Clear the list to start a new comparison. | يمكن مقارنة منتجات الفئة نفسها فقط. امسح القائمة لبدء مقارنة جديدة. |
+| messages: Compare.trayDismiss | Dismiss message | إخفاء الرسالة |
+| messages: Compare.emptyTitle | Nothing to compare yet | لا شيء للمقارنة بعد |
+| messages: Compare.emptyBody | Tick “Compare” on up to {max} products from the same category, then come back here. | حدّد «قارن» على {max} منتجات كحد أقصى من الفئة نفسها، ثم عد إلى هنا. |
+| messages: Compare.emptyCta | Browse products | تصفّح المنتجات |
+| messages: Compare.loading | Loading your compare list | جارٍ تحميل قائمة المقارنة |
+| messages: Compare.headingParts | Comparing {category} | مقارنة {category} |
+| messages: Compare.headingBundles | Comparing PC bundles | مقارنة تجميعات الكمبيوتر |
+| messages: Compare.needMore | Add another product from this category to compare it side by side. | أضف منتجًا آخر من هذه الفئة لمقارنته جنبًا إلى جنب. |
+| messages: Compare.differencesOnly | Show differences only | عرض الاختلافات فقط |
+| messages: Compare.showAll | Show all rows | عرض كل الصفوف |
+| messages: Compare.differs | Differs | مختلف |
+| messages: Compare.noDifferences | These products have the same value in every row. | هذه المنتجات متطابقة في كل الصفوف. |
+| messages: Compare.removeFromList | Remove {title} | إزالة {title} |
+| messages: Compare.viewProduct | View product | عرض المنتج |
+| messages: Compare.tableLabel | Product comparison table. Scroll sideways to see all products. | جدول مقارنة المنتجات. مرّر أفقيًا لرؤية كل المنتجات. |
+| messages: Compare.caption | Product comparison | مقارنة المنتجات |
+| messages: Compare.notListed | Not listed | غير مذكور |
+| messages: Compare.missingNotice | {count, plural, one {# product is} other {# products are}} no longer available and was left out. | {count, plural, zero {لا منتجات} one {منتج واحد لم يعد متاحًا وتم استبعاده} two {منتجان لم يعودا متاحين وتم استبعادهما} few {# منتجات لم تعد متاحة وتم استبعادها} many {# منتجًا لم تعد متاحة وتم استبعادها} other {# منتج لم تعد متاحة وتم استبعادها}}. |
+| messages: Compare.droppedNotice | {count, plural, one {# product was} other {# products were}} left out: only products from the same category can be compared. | {count, plural, zero {لا منتجات} one {تم استبعاد منتج واحد} two {تم استبعاد منتجين} few {تم استبعاد # منتجات} many {تم استبعاد # منتجًا} other {تم استبعاد # منتج}}: يمكن مقارنة منتجات الفئة نفسها فقط. |
+| messages: Compare.truncatedNotice | Only the first {max} products are shown. | يتم عرض أول {max} منتجات فقط. |
+| messages: Compare.sectionOverview | Overview | نظرة عامة |
+| messages: Compare.sectionSpecs | Specifications | المواصفات |
+| messages: Compare.sectionParts | Included parts | القطع المرفقة |
+| messages: Compare.sectionSummary | Build summary | ملخص التجميعة |
+| messages: Compare.rowPrice | Price | السعر |
+| messages: Compare.rowSavings | You save | توفّر |
+| messages: Compare.rowAvailability | Availability | التوفر |
+| messages: Compare.rowBrand | Brand | العلامة التجارية |
+| messages: Compare.rowModel | Model | الطراز |
+| messages: Compare.rowCondition | Condition | الحالة |
+| messages: Compare.rowWarranty | Warranty | الضمان |
+| messages: Compare.rowMemory | Memory | الذاكرة |
+| messages: Compare.rowStorage | Storage | التخزين |
+| messages: Compare.rowPsu | Power supply | مصدر الطاقة |
+| messages: Compare.rowCompat | Compatibility | التوافق |
+| messages: Compare.inStock | In stock | متوفر |
+| messages: Compare.lowStock | Low stock | كمية محدودة |
+| messages: Compare.outOfStock | Out of stock | غير متوفر |
+| messages: Compare.conditionNEW | New | جديد |
+| messages: Compare.conditionREFURBISHED | Refurbished | مجدّد |
+| messages: Compare.months | {count, plural, one {# month} other {# months}} | {count, plural, zero {بدون ضمان} one {شهر واحد} two {شهران} few {# أشهر} many {# شهرًا} other {# شهر}} |
+| messages: Compare.gigabytes | {value} GB | {value} جيجابايت |
+| messages: Compare.watts | {value} W | {value} واط |
+| messages: Compare.compatOk | Compatible | متوافق |
+| messages: Compare.compatNotes | Compatible, with notes | متوافق مع ملاحظات |
+| messages: Compare.compatProblem | Compatibility problem | مشكلة في التوافق |
+| messages: Compare.legend | Rows marked with a dot differ between the products. | الصفوف المعلّمة بنقطة تختلف بين المنتجات. |
+| messages: RecentlyViewed.title | Recently viewed | شاهدتَها مؤخرًا |
+| messages: RecentlyViewed.lead | Products you looked at on this device. | المنتجات التي تصفّحتها على هذا الجهاز. |
+| messages: RecentlyViewed.clear | Clear history | مسح السجل |
+| messages: RecentlyViewed.clearLabel | Clear recently viewed products | مسح المنتجات التي شوهدت مؤخرًا |
 
 ## Brand copy
 

@@ -3,6 +3,32 @@
 Records moved out of HANDOFF.md to keep it short for resuming. Newest first is NOT guaranteed; each section names its milestone.
 The current status, conventions, known issues and decisions are in [HANDOFF.md](../HANDOFF.md).
 
+## M4a verification record (2026-10-25)
+
+The owner verified M3a-2 locally (Node 22.23.3): all gates, 424 unit, 162 DB, `npm audit --omit=dev` 0, production build, all 310 e2e; home reviewed by hand EN/AR in both themes; CI green (M3b and M3a-2).
+
+**Verified in the sandbox (real execution; PostgreSQL 18.4 with the full seed; real Chromium 153 on a production build):**
+
+- Gates: `format:check`, `lint`, `typecheck`, `tokens:check`, `contrast` (60/60), `brand:check` (514 files), `i18n:review:check` (753 strings), `seed:docs:check` (56 flagged), `npm audit --omit=dev` (0). Lockfile untouched.
+- **493 unit tests** (46 files). **291 DB tests** (10 files; 129 are new and cover the search index and search behavior). The 129 search DB tests were ALSO run on a second cluster with a plain `C` locale and pass (that locale gives `pg_trgm` no Arabic trigrams; the ASCII key makes it irrelevant).
+- **e2e on a production build, run in batches:** accessibility 62/62; responsive 260/260 (includes the four new search pages in the matrix); smoke, console, home, listing, product 39/39; shell + search + i18n-theme 83 passed, 1 failed (below).
+- The one failing e2e is `i18n-theme.spec.ts: language switcher navigates and remembers the choice`, when it is the first test to hit a COLD server in this sandbox (software rendering). It passes 6/6 when run alone, and **the original M3a-2 zip fails it identically in the same cold run**, so it is not a regression. Expect it to pass for you.
+- Two other specs lost a click that landed before hydration once under 3 parallel workers (home category tile; search filter checkbox); both passed repeated in isolation. This is the known race in issue 50. If CI shows it, raise the timeout or add `whenHydrated`.
+- Bugs the new tests found and fixed during M4a: (1) `2tb` matched a 1 TB drive (letter/digit split parts were not adjacent; now a phrase); (2) a partial match could rest on a model number alone; (3) partial results were not ranked by how many words matched; (4) bundles ranked as results for generic words (their part titles were indexed; now only brand and model); (5) the synonym phrase "ان في ام اي" had four words but the limit was three; (6) Arabic typos in brand spellings were not corrected (synonym words are now correction candidates); (7) the open suggestion list was not keyboard-reachable when it scrolled on a 320 px phone (axe `scrollable-region-focusable`), and the arrow keys never scrolled the highlighted option into view; (8) swapping a placeholder search form for the real one on hydration made the field vanish for a moment and discarded early typing (the box is now in the server HTML).
+- Checked by hand over HTTP on the production build: `/en/deals` is a 307 to the deals view; `/api/search/suggest` returns the shaped result with `Cache-Control: public, max-age=30, s-maxage=60, stale-while-revalidate=300`, 422 for an oversized `q`; the results page has `noindex, follow`.
+- Search quality, measured: [docs/SEARCH_QUALITY.md](docs/SEARCH_QUALITY.md) (73 expectation rows, all met; limitations listed). Decisions: [ADR 0019](docs/adr/0019-search.md).
+
+**NOT verified (the owner must run / look at):**
+
+- **The migration was hand-written and the Prisma schema engine cannot run here.** Run `npx prisma migrate dev` and `npx prisma migrate diff --from-config-datasource --to-schema prisma/schema --exit-code` (issue 21). This is the most likely local failure: I am not certain Prisma accepts the GIN index declared on the `tsvector` column (`@@index([vector], type: Gin)`) without reporting drift. If it reports a diff on `product_search_vector_idx`, paste it and I will adjust the model.
+- Performance at any real catalog size (only 85 products were measured; issue 56).
+- Your local PostgreSQL version and locale, and Supabase's. Run `SELECT datcollate FROM pg_database WHERE datname = current_database();` for information only: search works in every locale.
+- Looks: I did not view screenshots of the suggestion dropdown or the results page. Open `/en` and `/ar`, type in the header search (mouse, keyboard, and a phone), then `/en/search?q=rtx+4060`, `?q=xyzzy`, `?q=ryzn+5+5600` in both themes.
+- Real Arabic quality: every Arabic synonym is machine-written (docs/I18N_REVIEW.md, "Search synonyms").
+- Other browsers, a real touch device, CI on GitHub.
+
+**Exact commands:** `npm ci`, `npx prisma migrate dev` (applies the new migration; then run the diff above), `npm run db:seed` (idempotent; the triggers index the products), `npm run dev`. Try the pipeline: `npm run search:try -- "rtx 4060" "كارت شاشة" "ryzn 5 5600"`. Gates: `npm run lint && npm run typecheck && npm test && npm run test:db`; e2e on a production build: `npm run build && E2E_PROD=1 npm run test:e2e`.
+
 ## M2a verification record (2026-10-15)
 
 **Verified in the sandbox (real execution, not just written):**

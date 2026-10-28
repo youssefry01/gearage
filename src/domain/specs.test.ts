@@ -4,6 +4,7 @@ import {
   filterableSpecs,
   parseSpecs,
   resolveSpecDefinitions,
+  specOwnerPath,
   type SpecDef,
 } from "./specs";
 
@@ -118,5 +119,32 @@ describe("resolveSpecDefinitions", () => {
   });
   it("also accepts a plain record", () => {
     expect(resolveSpecDefinitions("a/b", { a: cooling })).toBe(cooling);
+  });
+});
+
+describe("specOwnerPath", () => {
+  const owners = new Set([
+    "components/graphics-cards",
+    "components/cooling",
+    "components/cooling/case-fans",
+    "laptops",
+  ]);
+  it("finds the nearest ancestor with definitions", () => {
+    expect(specOwnerPath("components/graphics-cards/nvidia-geforce", owners)).toBe(
+      "components/graphics-cards",
+    );
+    expect(specOwnerPath("components/graphics-cards/amd-radeon", owners)).toBe(
+      "components/graphics-cards",
+    );
+    expect(specOwnerPath("laptops/gaming-laptops", owners)).toBe("laptops");
+  });
+  it("a sub-category with its own definitions owns them", () => {
+    expect(specOwnerPath("components/cooling/case-fans", owners)).toBe(
+      "components/cooling/case-fans",
+    );
+    expect(specOwnerPath("components/cooling/air-coolers", owners)).toBe("components/cooling");
+  });
+  it("is the category itself when nothing on the path has definitions", () => {
+    expect(specOwnerPath("misc/things", owners)).toBe("misc/things");
   });
 });

@@ -13,7 +13,7 @@ function useNumber() {
   return new Intl.NumberFormat(locale, { numberingSystem: "latn", maximumFractionDigits: 2 });
 }
 
-function SpecValue({ display }: { display: SpecDisplay }) {
+export function SpecValue({ display }: { display: SpecDisplay }) {
   const t = useTranslations("Product");
   const locale = useLocale() as Locale;
   const number = useNumber();

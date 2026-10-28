@@ -1,6 +1,6 @@
 import { type CategoryNode, buildCategoryTree, findCategory } from "@/domain/category-tree";
 import type { SpecDef } from "@/domain/specs";
-import { resolveSpecDefinitions } from "@/domain/specs";
+import { resolveSpecDefinitions, specOwnerPath } from "@/domain/specs";
 import { ttlCache } from "@/server/cache/ttl";
 import {
   fetchActiveCategories,
@@ -30,6 +30,15 @@ export async function getCategory(trail: readonly string[]) {
 export async function getSpecDefinitions(categoryPath: string): Promise<readonly SpecDef[]> {
   if (!process.env.DATABASE_URL) return [];
   return resolveSpecDefinitions(categoryPath, await specCache.get());
+}
+
+/** Category path to the path that owns its spec definitions (the compare group of a product). Cached like the definitions. */
+export type SpecOwnerResolver = (categoryPath: string) => string;
+
+export async function getSpecOwnerResolver(): Promise<SpecOwnerResolver> {
+  if (!process.env.DATABASE_URL) return (path) => path;
+  const owners = new Set((await specCache.get()).keys());
+  return (path) => specOwnerPath(path, owners);
 }
 
 /** Test hook. */

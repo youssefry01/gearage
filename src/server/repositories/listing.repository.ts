@@ -59,6 +59,8 @@ export type ListingQuery = {
   componentId?: string;
   /** Leave this product out (related products never list the product itself). */
   excludeProductId?: string;
+  /** Only these products (cards for the recently viewed shelf); the visibility rule still applies. */
+  slugs?: readonly string[];
   /** Search: only products whose document matches, ranked by relevance (ADR 0019). */
   search?: SearchMatch;
   /** Search results also count products per sub-category (the category facet). */
@@ -176,6 +178,7 @@ function conditions(q: ListingQuery, skip?: FacetId): Prisma.Sql {
     c.push(Prisma.sql`EXISTS (SELECT 1 FROM "bundle_item" bi
       WHERE bi."bundleId" = p."id" AND bi."componentId" = ${q.componentId}::uuid)`);
   if (q.excludeProductId) c.push(Prisma.sql`p."id" <> ${q.excludeProductId}::uuid`);
+  if (q.slugs) c.push(Prisma.sql`p."slug" = ANY(${[...q.slugs]}::text[])`);
   if (skip !== "brand" && f.brands.length > 0)
     c.push(Prisma.sql`b."slug" = ANY(${f.brands}::text[])`);
   if (skip !== "tag" && f.tags.length > 0)

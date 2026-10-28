@@ -14,6 +14,7 @@ export function ProductRail({
   lead,
   products,
   viewAllHref,
+  action,
 }: {
   id: string;
   title: string;
@@ -21,6 +22,8 @@ export function ProductRail({
   products: readonly ProductCardData[];
   /** Where "View all" goes (the results page, filtered and sorted like this rail). */
   viewAllHref?: string;
+  /** Extra control beside the title (the recently viewed shelf puts \"Clear history\" here). */
+  action?: React.ReactNode;
 }) {
   const t = useTranslations("Home");
   if (products.length === 0) return null;
@@ -43,6 +46,7 @@ export function ProductRail({
             {t("viewAll")}
           </Link>
         ) : null}
+        {action}
       </div>
       <ul
         data-testid="product-rail"

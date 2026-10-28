@@ -7,6 +7,8 @@ import { stockLevel } from "@/domain/stock";
 import type { Locale } from "@/i18n/locales";
 import { productHref } from "@/domain/catalog";
 import { Link } from "@/i18n/navigation";
+import { CompareToggle } from "@/features/compare/compare-toggle";
+import { toCompareItem } from "@/features/compare/item";
 import type { ProductCardData } from "@/server/services/listing.service";
 
 /** Storefront URL of a product. The page itself ships in M3b; the shape is decided there (HANDOFF). */
@@ -23,9 +25,12 @@ const IMAGE_SIZES =
 export function ProductCard({
   product,
   priority = false,
+  showCompare = false,
 }: {
   product: ProductCardData;
   priority?: boolean;
+  /** Offer the "Compare" checkbox (listings, search and related products; not the home shelves). */
+  showCompare?: boolean;
 }) {
   const t = useTranslations("ProductCard");
   const locale = useLocale() as Locale;
@@ -34,6 +39,7 @@ export function ProductCard({
   const level = stockLevel(product.available, product.lowStockThreshold);
   const isBundle = product.type === "BUNDLE";
   const money = (amount: number) => formatPrice(amount, locale);
+  const compareItem = showCompare ? toCompareItem(product) : null;
 
   return (
     <article
@@ -128,6 +134,7 @@ export function ProductCard({
             </p>
           ) : null}
         </div>
+        {compareItem ? <CompareToggle item={compareItem} /> : null}
       </div>
     </article>
   );
@@ -144,7 +151,7 @@ export function ProductGrid({
     <ul className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 xl:grid-cols-4">
       {products.map((p, i) => (
         <li key={p.id} className="min-w-0">
-          <ProductCard product={p} priority={i < eager} />
+          <ProductCard product={p} priority={i < eager} showCompare />
         </li>
       ))}
     </ul>

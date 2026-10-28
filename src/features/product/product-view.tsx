@@ -5,6 +5,10 @@ import { productHref } from "@/domain/catalog";
 import { formatPrice } from "@/domain/money";
 import { DemoNotice } from "@/features/catalog/demo-notice";
 import { ProductGrid } from "@/features/catalog/product-card";
+import { CompareToggle } from "@/features/compare/compare-toggle";
+import { toCompareItem } from "@/features/compare/item";
+import { RecentlyViewed } from "@/features/recently-viewed/recently-viewed";
+import { RecordView } from "@/features/recently-viewed/record-view";
 import type { Locale } from "@/i18n/locales";
 import { isDemoCatalog } from "@/lib/demo-catalog";
 import { productJsonLd, serializeJsonLd } from "@/lib/json-ld";
@@ -30,6 +34,7 @@ export function ProductView({ product }: { product: ProductPage }) {
   const title = product.title[locale];
   const origin = siteUrl().origin;
   const path = productHref(product.slug);
+  const compareItem = toCompareItem({ ...product, image: product.images[0] ?? null });
 
   const crumbs = [
     { label: crumbsT("home"), href: "/" },
@@ -133,6 +138,7 @@ export function ProductView({ product }: { product: ProductPage }) {
               lowStockThreshold={product.lowStockThreshold}
             />
             <AddToCart productId={product.id} available={product.available} />
+            {compareItem ? <CompareToggle item={compareItem} /> : null}
 
             <div className="border-border text-small flex flex-col gap-2 border-t pt-4">
               {!isBundle && product.warrantyMonths > 0 ? (
@@ -209,6 +215,9 @@ export function ProductView({ product }: { product: ProductPage }) {
           <ProductGrid products={product.related} eager={0} />
         </section>
       ) : null}
+
+      <RecordView slug={product.slug} />
+      <RecentlyViewed exceptSlug={product.slug} />
     </main>
   );
 }

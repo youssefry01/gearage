@@ -16,7 +16,12 @@ import {
   queryListing,
 } from "@/server/repositories/listing.repository";
 import { publicImageUrl } from "@/server/storage/public-url";
-import { getSpecDefinitions } from "./category.service";
+import { compareGroup } from "@/domain/compare";
+import {
+  getSpecDefinitions,
+  getSpecOwnerResolver,
+  type SpecOwnerResolver,
+} from "./category.service";
 
 export type Bilingual = { en: string; ar: string };
 
@@ -25,6 +30,9 @@ export type ProductCardData = {
   id: string;
   type: ListingRow["type"];
   slug: string;
+  categoryPath: string;
+  /** What the product may be compared with ("bundle", or its spec family); null = cannot be compared. */
+  compareGroup: string | null;
   title: Bilingual;
   brand: { slug: string; name: Bilingual } | null;
   effectivePrice: number;
@@ -36,11 +44,13 @@ export type ProductCardData = {
   componentCount: number;
 };
 
-export function toCardData(row: ListingRow): ProductCardData {
+export function toCardData(row: ListingRow, owner: SpecOwnerResolver): ProductCardData {
   return {
     id: row.id,
     type: row.type,
     slug: row.slug,
+    categoryPath: row.categoryPath,
+    compareGroup: compareGroup(row.type, owner(row.categoryPath)),
     title: { en: row.titleEn, ar: row.titleAr },
     brand: row.brandSlug
       ? {
@@ -159,7 +169,11 @@ export async function assembleListingView(
 ): Promise<ListingView> {
   const brandSlugs = [...new Set([...Object.keys(result.facets.brands), ...filters.brands])];
   const tagSlugs = [...new Set([...Object.keys(result.facets.tags), ...filters.tags])];
-  const [brands, tags] = await Promise.all([fetchBrandNames(brandSlugs), fetchTagNames(tagSlugs)]);
+  const [brands, tags, owner] = await Promise.all([
+    fetchBrandNames(brandSlugs),
+    fetchTagNames(tagSlugs),
+    getSpecOwnerResolver(),
+  ]);
   const brandLabels = new Map(
     brands.map((b) => [b.slug, { en: b.nameEn, ar: b.nameAr ?? b.nameEn }] as const),
   );
@@ -168,7 +182,7 @@ export async function assembleListingView(
   return {
     filters,
     specDefs: listingFacets(specDefs),
-    items: result.rows.map(toCardData),
+    items: result.rows.map((r) => toCardData(r, owner)),
     total: result.total,
     pages: totalPages(result.total, pageSize),
     pageSize,

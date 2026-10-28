@@ -12,7 +12,7 @@ import { fetchBrandCategoryCounts } from "@/server/repositories/home.repository"
 import { queryListing } from "@/server/repositories/listing.repository";
 import { fetchBundleParts } from "@/server/repositories/product.repository";
 import { publicImageUrl } from "@/server/storage/public-url";
-import { getCategoryTree } from "./category.service";
+import { getCategoryTree, getSpecOwnerResolver } from "./category.service";
 import { type Bilingual, type ProductCardData, toCardData } from "./listing.service";
 
 export type HomeCategory = {
@@ -60,13 +60,16 @@ const toHomeCategory = (c: CategoryNode): HomeCategory => ({
 
 /** Rows for one rail. The featured rail fetches a larger pool (the hero bundle is picked from it). */
 async function railRows(key: HomeRailKey): Promise<ProductCardData[]> {
-  const result = await queryListing({
-    filters: railFilters(key),
-    specDefs: [],
-    pageSize: key === "featured" ? HOME_FEATURED_POOL : HOME_RAIL_SIZE,
-    withFacets: false,
-  });
-  return result.rows.map(toCardData);
+  const [owner, result] = await Promise.all([
+    getSpecOwnerResolver(),
+    queryListing({
+      filters: railFilters(key),
+      specDefs: [],
+      pageSize: key === "featured" ? HOME_FEATURED_POOL : HOME_RAIL_SIZE,
+      withFacets: false,
+    }),
+  ]);
+  return result.rows.map((r) => toCardData(r, owner));
 }
 
 /**

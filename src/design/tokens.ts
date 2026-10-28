@@ -100,6 +100,7 @@ export const CONTRAST_PAIRS: readonly ContrastPair[] = [
   { fg: "muted-foreground", bg: "background", kind: "text", use: "secondary text" },
   { fg: "muted-foreground", bg: "card", kind: "text", use: "secondary text on cards" },
   { fg: "muted-foreground", bg: "muted", kind: "text", use: "text on muted fills" },
+  { fg: "foreground", bg: "muted", kind: "text", use: "comparison table section headers" },
   { fg: "primary-foreground", bg: "primary", kind: "text", use: "primary button label" },
   {
     fg: "primary-foreground",
