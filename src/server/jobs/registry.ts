@@ -1,4 +1,6 @@
 import { logger } from "@/lib/logger";
+import { pruneCounters } from "@/server/repositories/rate-limit.repository";
+import { dispatchDueEmails, pruneEmailOutbox } from "@/server/services/email.service";
 import { expireReservations } from "@/server/services/inventory.service";
 import { pruneOldZeroResults, runSearchIndexRebuild } from "@/server/services/search.service";
 
@@ -7,7 +9,7 @@ export type Job = { name: string; cadence: JobCadence; run: () => Promise<void> 
 
 /**
  * Every job MUST be idempotent and safe to run twice (ADR 0007): Vercel cron is best-effort and may double-fire.
- * Real jobs (outbox sweeper, reservation expiry, low-stock digest...) register here in later milestones.
+ * Later milestones register more here (low-stock digest, abandoned-cart email...).
  */
 const jobs: Job[] = [
   {
@@ -29,6 +31,29 @@ const jobs: Job[] = [
     cadence: "daily",
     run: async () => {
       await pruneOldZeroResults();
+    },
+  },
+  {
+    // Sends queued emails that were not dispatched inline and retries failures with backoff (ADR 0022).
+    name: "dispatch-email-outbox",
+    cadence: "tick",
+    run: async () => {
+      await dispatchDueEmails();
+    },
+  },
+  {
+    // Housekeeping only: the counter SQL already ignores expired windows (ADR 0021).
+    name: "prune-rate-limit-counters",
+    cadence: "daily",
+    run: async () => {
+      await pruneCounters(new Date());
+    },
+  },
+  {
+    name: "prune-email-outbox",
+    cadence: "daily",
+    run: async () => {
+      await pruneEmailOutbox();
     },
   },
   {

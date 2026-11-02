@@ -1,0 +1,58 @@
+/**
+ * Rate-limit policies (ADR 0021). A policy is a fixed window: at most `max` hits per `windowSec` per identifier.
+ * `failMode` is what happens when NEITHER the Upstash limiter NOR the Postgres fallback can answer:
+ *   "closed" = refuse (brute-force defence for authentication: better to be unavailable than unprotected),
+ *   "open"   = allow (a public read must not break because a counter store is down).
+ * Authentication policies are all fail-closed and public reads all fail-open; a test enforces both rules.
+ */
+export type RateLimitPolicy = {
+  readonly name: string;
+  readonly max: number;
+  readonly windowSec: number;
+  readonly failMode: "open" | "closed";
+};
+
+const policy = (
+  name: string,
+  max: number,
+  windowSec: number,
+  failMode: "open" | "closed",
+): RateLimitPolicy => Object.freeze({ name, max, windowSec, failMode });
+
+export const policies = {
+  // Public reads (fail open). Per client IP; a shared "unknown" bucket applies when no trusted IP is available.
+  searchSuggest: policy("search.suggest", 120, 60, "open"),
+  productCards: policy("products.cards", 60, 60, "open"),
+  status: policy("status", 60, 60, "open"),
+  // View tracking (fail open: the event is dropped, the shopper never notices).
+  viewIp: policy("product.view.ip", 120, 60, "open"),
+  viewDedupe: policy("product.view.dedupe", 1, 30 * 60, "open"),
+  // Authentication (fail closed). Used from M5a-2; declared here so the failure policy is decided once, in one place.
+  loginIp: policy("auth.login.ip", 20, 5 * 60, "closed"),
+  loginEmail: policy("auth.login.email", 10, 15 * 60, "closed"),
+  registerIp: policy("auth.register.ip", 10, 60 * 60, "closed"),
+  codeSendEmail: policy("auth.code.send.email", 3, 10 * 60, "closed"),
+  codeSendIp: policy("auth.code.send.ip", 10, 60 * 60, "closed"),
+  codeVerifyEmail: policy("auth.code.verify.email", 10, 15 * 60, "closed"),
+  resetRequestEmail: policy("auth.reset.request.email", 3, 60 * 60, "closed"),
+  resetRequestIp: policy("auth.reset.request.ip", 10, 60 * 60, "closed"),
+  resetConfirmIp: policy("auth.reset.confirm.ip", 10, 15 * 60, "closed"),
+} as const;
+
+export type LimitResult = {
+  /** The request may proceed. */
+  allowed: boolean;
+  /** Seconds until the window resets (0 when allowed and nothing is known). */
+  retryAfterSec: number;
+  /** Neither store could answer; `allowed` then follows the policy's failMode. */
+  unavailable: boolean;
+};
+
+/** Fixed-window decision for the count INCLUDING the current hit. */
+export function isAllowed(count: number, max: number): boolean {
+  return count <= max;
+}
+
+export function retryAfterSeconds(resetAtMs: number, nowMs: number): number {
+  return Math.max(1, Math.ceil((resetAtMs - nowMs) / 1000));
+}

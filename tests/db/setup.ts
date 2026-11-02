@@ -1,3 +1,4 @@
+import "../test-env";
 // Runs in every DB test worker BEFORE any test code. From here on, the app's own `getDb()` can only reach the test
 // database: DATABASE_URL and DIRECT_URL are overwritten with it, and we stop if it is not clearly a `_test` database.
 const url = process.env["TEST_DATABASE_URL_RESOLVED"];

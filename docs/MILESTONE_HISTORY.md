@@ -197,3 +197,26 @@ Earlier records (M0 to M3b): [docs/MILESTONE_HISTORY.md](docs/MILESTONE_HISTORY.
 **Not verified (the owner must run / look at):** a visual pass of every other combination (light desktop hero, ar desktop, tablet, ultra-wide); swiping the rails on a real touch device; other browsers; the Playwright run in the owner's environment; CI on GitHub (M3b and M3a-2); Lighthouse/LCP and real hydration timing of the heavier home page (M13a); Arabic copy (docs/I18N_REVIEW.md, 21 new strings).
 
 **Exact commands:** `npm ci`, `npm run db:seed` (idempotent, nothing new to seed), `npm run dev`, then open `/en` and `/ar`. Gates: `npm run lint && npm run typecheck && npm test && npm run test:db`; e2e on a production build: `npm run build && E2E_PROD=1 npm run test:e2e` (PowerShell: `$env:E2E_PROD=1; npm run test:e2e`; stop anything on port 3000 first, or `PORT=3100`).
+
+## Verification record: M4b (2026-10-27)
+
+Earlier records (M0 to M4a): [docs/MILESTONE_HISTORY.md](docs/MILESTONE_HISTORY.md). The owner verified M4a locally (Node 22.23.3) on 2026-10-26: `migrate dev` applied `20261024000000_search`, the drift check exited 0 (issue 53 is closed), test:db 291 passed, all gates, 493 unit tests, `npm audit --omit=dev` 0, production build and e2e on a production build all passed, EN/AR search tried by hand in both themes, CI green. The owner also merged Dependabot PR #9 (lucide-react 1.61.0, zustand 5.0.16).
+
+**Verified in the sandbox (real execution; PostgreSQL 18.4 with the full seed; real Chromium on a production build; 1 CPU):**
+
+- Gates: `format:check`, `lint`, `typecheck`, `tokens:check`, `contrast` (62/62; one pair added), `brand:check`, `i18n:review:check`, `seed:docs:check`. `npm audit` not re-run (no dependency changed; lockfile untouched).
+- **558 unit tests** (53 files; 65 new: compare rules, table builder, storage validation, both stores incl. tampered storage, recently viewed, `specOwnerPath`, a test that no delivery message claims coverage).
+- **312 DB tests** (11 files; 21 new, all real queries against the seed: order, limits, family grouping across brands, bundles with bundles, hidden/deleted/inactive-brand products never shown, bundle compatibility, bounded statement counts, cards in requested order).
+- **e2e on a production build:** the new `compare.spec.ts` 14/14 (tray, limits, refusals, cross-brand, bundles, URL state, removal, reload, tampered storage, Arabic RTL, recently viewed on product page and home, delivery text); responsive 320 combinations incl. 3 new compare pages (the first run found a real horizontal-scroll bug at 320px, fixed, rerun 60/60 for the compare pages); axe + console + smoke + shell 111/111; home + listing + product + i18n-theme 46 passed, 1 failed (below); search 39/39.
+- Bugs found by the new tests and fixed during M4b: (1) comparing by leaf category refused NVIDIA against AMD (now the spec family, ADR 0020); (2) bundle part rows were per brand sub-category (now per family); (3) the heading named the brand sub-category, not the family; (4) screen-reader-only text in scrolled table cells made the page scroll sideways at 320px (the scroll region is now positioned); (5) the native checkbox was a 20px target (now the whole 44px label); (6) a "dropped notice" and the empty state were missing when no product was visible.
+- The one failing e2e is `i18n-theme.spec.ts: language switcher navigates and remembers the choice` (issue 63), which fails under 3 parallel workers on this 1-CPU sandbox and passes 3/3 with one worker, and in a standalone browser (switch in under 0.7 s). Expect it to pass for you.
+- Checked over HTTP on the production build: `/en/compare?p=...` returns 200 with `noindex, follow`; `/api/products/cards` returns the cards with the cache header, and 422 for a bad slug, 13 slugs, or none.
+- The web-design-guidelines audit was applied to the new UI (focus rings, sticky bar vs focus, non-breaking space before units, icon-only buttons named, tap targets, URL state, hydration). **I could not fetch the canonical `command.md`** (the fetch tool only opens URLs that appear as search-result links), so the audit used the rules quoted in search results about it. Two findings fixed: the sticky tray now reserves `scroll-padding-bottom`; units use a non-breaking space.
+
+**NOT verified (the owner must run / look at):**
+
+- Looks: I did not view screenshots. Open `/en/c/components/graphics-cards`, tick "Compare" on a few cards, open the tray's "Compare now", try "Show differences only", remove a column, then repeat in `/ar` (RTL), both themes, and on a phone (320 to 430 px). Also `/en/compare?p=<two bundle slugs>` and visit two product pages to see "Recently viewed".
+- Real touch devices, other browsers, CI on GitHub, the Windows setup.
+- That a click before hydration on "Compare" is lost (same race as issue 50); a fast shopper may need to tick twice on a slow phone.
+
+**Exact commands:** `npm ci`, `npm run db:seed` (nothing new to migrate: **M4b has no migration**), `npm run dev`. Gates: `npm run lint && npm run typecheck && npm test && npm run test:db`; e2e on a production build: `npm run build && E2E_PROD=1 npm run test:e2e`.

@@ -209,11 +209,16 @@ export function CompareBody({
           tabIndex={0}
           className="border-border rounded-panel relative overflow-x-auto border"
         >
-          <table className="w-full border-collapse text-start" data-testid="compare-table">
+          <table
+            className="w-full border-collapse text-start tabular-nums"
+            data-testid="compare-table"
+          >
             <caption className="sr-only">{t("caption")}</caption>
             <thead>
               <tr>
-                <td className={`${stickyHead} border-border border-b`} />
+                <th scope="col" className={`${stickyHead} border-border border-b`}>
+                  <span className="sr-only">{t("attributeColumn")}</span>
+                </th>
                 {view.columns.map((c) => {
                   const title = c.title[locale];
                   return (

@@ -1,0 +1,59 @@
+// Cross-cutting infrastructure (M5a-1): the Postgres rate-limit fallback (ADR 0021), the email outbox (ADR 0022) and
+// anonymous daily view counts (ADR 0023). The authentication tables (user, session, account...) arrive in M5a-2.
+
+enum EmailOutboxStatus {
+  PENDING
+  SENDING
+  SENT
+  FAILED
+  EXPIRED
+}
+
+/// Fixed-window counters, the fallback behind Upstash. `key` is an HMAC (never a raw IP or email address).
+/// Expired rows are ignored by the SQL and deleted by the daily job.
+model RateLimitCounter {
+  key       String   @id
+  count     Int
+  expiresAt DateTime
+
+  @@index([expiresAt])
+  @@map("rate_limit_counter")
+}
+
+/// One row per message to send. `payload` holds the template parameters (a code or a link) and is CLEARED to `{}` as
+/// soon as the row is SENT, FAILED or EXPIRED. Rows are deleted after 7 days.
+model EmailOutbox {
+  id                String            @id @default(uuid(7)) @db.Uuid
+  template          String
+  locale            String
+  toEmail           String
+  payload           Json
+  status            EmailOutboxStatus @default(PENDING)
+  attempts          Int               @default(0)
+  nextAttemptAt     DateTime
+  /// A code or link is useless after this; the message is never sent late.
+  expiresAt         DateTime
+  /// Lease while a worker is sending; a crashed worker's lease simply runs out.
+  lockedUntil       DateTime?
+  providerMessageId String?
+  /// Short, sanitized reason of the last failure (never a secret).
+  lastError         String?
+  createdAt         DateTime
+  sentAt            DateTime?
+
+  @@index([status, nextAttemptAt])
+  @@index([createdAt])
+  @@map("email_outbox")
+}
+
+/// Anonymous view counts: one row per product and UTC day. No visitor identifier is stored.
+model ProductViewDaily {
+  productId String   @db.Uuid
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  day       DateTime @db.Date
+  count     Int      @default(1)
+
+  @@id([productId, day])
+  @@index([day])
+  @@map("product_view_daily")
+}

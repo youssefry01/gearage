@@ -1,6 +1,8 @@
 import { z } from "zod";
 import { RECENT_MAX } from "@/domain/recently-viewed";
+import { policies } from "@/domain/rate-limit";
 import { handle, ok } from "@/lib/api-response";
+import { limitRequest } from "@/server/security/rate-limit/http";
 import { getCardsBySlugs } from "@/server/services/cards.service";
 
 export const dynamic = "force-dynamic";
@@ -17,10 +19,12 @@ const querySchema = z.object({
 
 /**
  * Cards for product slugs, for the "recently viewed" shelf (the list itself lives on the shopper's device). Public,
- * read-only, bounded (at most RECENT_MAX slugs, one indexed statement), and cacheable per slug list. No per-IP rate
- * limit until M5a (HANDOFF issue 64, same as the suggestions endpoint).
+ * read-only, bounded (at most RECENT_MAX slugs, one indexed statement), and cacheable per slug list. Per-IP rate limited
+ * (fail open, ADR 0021).
  */
 export const GET = handle(async (request: Request) => {
+  const limited = await limitRequest(request, policies.productCards);
+  if (limited) return limited;
   const { slugs } = querySchema.parse({
     slugs: new URL(request.url).searchParams.get("slugs") ?? "",
   });

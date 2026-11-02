@@ -4,6 +4,13 @@ import { runJobs } from "@/server/jobs/registry";
 vi.mock("@/server/services/inventory.service", () => ({
   expireReservations: vi.fn().mockResolvedValue(0),
 }));
+vi.mock("@/server/services/email.service", () => ({
+  dispatchDueEmails: vi.fn().mockResolvedValue({}),
+  pruneEmailOutbox: vi.fn().mockResolvedValue(0),
+}));
+vi.mock("@/server/repositories/rate-limit.repository", () => ({
+  pruneCounters: vi.fn().mockResolvedValue(0),
+}));
 vi.mock("@/server/services/search.service", () => ({
   runSearchIndexRebuild: vi.fn().mockResolvedValue(undefined),
   pruneOldZeroResults: vi.fn().mockResolvedValue(0),
@@ -15,7 +22,12 @@ describe("runJobs", () => {
     expect(tick.length).toBeGreaterThan(0);
     expect(tick.every((r) => r.ok)).toBe(true);
     const daily = await runJobs("daily");
-    expect(daily.map((r) => r.name)).toEqual(["rebuild-search-index", "prune-search-zero-results"]);
+    expect(daily.map((r) => r.name)).toEqual([
+      "rebuild-search-index",
+      "prune-search-zero-results",
+      "prune-rate-limit-counters",
+      "prune-email-outbox",
+    ]);
     expect(daily.every((r) => r.ok)).toBe(true);
   });
 

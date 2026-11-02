@@ -81,7 +81,7 @@ export function CompareTray() {
                   type="button"
                   onClick={() => useCompareStore.getState().dismissNotice()}
                   aria-label={t("trayDismiss")}
-                  className="rounded-control grid size-11 shrink-0 place-items-center"
+                  className="rounded-control hover:bg-accent grid size-11 shrink-0 place-items-center transition-colors"
                 >
                   <X aria-hidden="true" className="size-4" />
                 </button>
@@ -96,7 +96,7 @@ export function CompareTray() {
                       onClick={() => useCompareStore.getState().remove(item.slug)}
                       aria-label={t("trayRemove", { title: item.title[locale] })}
                       data-testid="compare-tray-remove"
-                      className="rounded-control border-border bg-muted relative size-11 border"
+                      className="rounded-control border-border bg-muted hover:border-input relative size-11 border transition-colors"
                     >
                       {item.image ? (
                         <Image

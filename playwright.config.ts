@@ -47,6 +47,21 @@ export default defineConfig({
     reuseExistingServer: process.env.E2E_REUSE_SERVER === "1",
     timeout: 120_000,
     // The style guide is a dev tool; e2e on a production build opts in explicitly.
-    env: { ENABLE_STYLEGUIDE: "1" },
+    env: {
+      ENABLE_STYLEGUIDE: "1",
+      // A test run can never send real email or touch Upstash, whatever .env contains (TEST_MODE is enforced in code;
+      // the blanks also stop Next from loading the real values from .env, which never overrides a variable that is set).
+      TEST_MODE: "1",
+      EMAIL_PROVIDER: "log",
+      EMAIL_LOG_DIR: "tests/.emails",
+      BREVO_API_KEY: "",
+      UPSTASH_REDIS_REST_URL: "",
+      UPSTASH_REDIS_REST_TOKEN: "",
+      // Parallel workers share one IP, so scale every rate limit up (the real values are covered by DB tests).
+      RATE_LIMIT_SCALE: "50",
+      // Throw-away secrets: e2e must not depend on, or use, the developer's real ones.
+      AUTH_SECRET: "e2e-only-auth-secret-e2e-only-auth-secret-0001",
+      PASSWORD_PEPPER: "e2e-only-pepper-e2e-only-pepper-000000000001",
+    },
   },
 });

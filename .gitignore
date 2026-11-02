@@ -17,3 +17,7 @@ desktop.ini
 # locally uploaded images (development)
 /public/uploads/*
 !/public/uploads/.gitkeep
+
+# Emails written by the "log" provider (local dev / tests)
+/.emails/
+/tests/.emails/

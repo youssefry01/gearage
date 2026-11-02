@@ -357,7 +357,7 @@
     "emptyTitle": "Nothing to compare yet",
     "emptyBody": "Tick “Compare” on up to {max} products from the same category, then come back here.",
     "emptyCta": "Browse products",
-    "loading": "Loading your compare list",
+    "loading": "Loading your compare list…",
     "headingParts": "Comparing {category}",
     "headingBundles": "Comparing PC bundles",
     "needMore": "Add another product from this category to compare it side by side.",
@@ -399,12 +399,40 @@
     "compatOk": "Compatible",
     "compatNotes": "Compatible, with notes",
     "compatProblem": "Compatibility problem",
-    "legend": "Rows marked with a dot differ between the products."
+    "legend": "Rows marked with a dot differ between the products.",
+    "attributeColumn": "Specification"
   },
   "RecentlyViewed": {
     "title": "Recently viewed",
     "lead": "Products you looked at on this device.",
     "clear": "Clear history",
     "clearLabel": "Clear recently viewed products"
+  },
+  "Email": {
+    "common": {
+      "footer": "You received this email because this address was used at {brand}. If that wasn't you, you can ignore it.",
+      "automatic": "This is an automatic message. Please don't reply to it with sensitive information."
+    },
+    "verifyCode": {
+      "subject": "Your {brand} verification code",
+      "heading": "Verify your email",
+      "intro": "Enter this code to verify your email address at {brand}.",
+      "expires": "The code expires in {minutes} minutes.",
+      "ignore": "If you didn't create an account, you can safely ignore this email."
+    },
+    "resetPassword": {
+      "subject": "Reset your {brand} password",
+      "heading": "Reset your password",
+      "intro": "We received a request to reset the password of your {brand} account.",
+      "button": "Reset password",
+      "fallback": "If the button doesn't work, copy this link into your browser:",
+      "expires": "The link expires in {minutes} minutes and can be used once.",
+      "ignore": "If you didn't ask for this, ignore this email. Your password stays the same."
+    },
+    "test": {
+      "subject": "{brand} test email",
+      "heading": "Test email",
+      "body": "If you can read this, your email setup works."
+    }
   }
 }

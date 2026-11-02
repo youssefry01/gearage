@@ -45,6 +45,8 @@ jobs:
     env:
       DATABASE_URL: postgresql://gearage:gearage@localhost:5432/gearage
       CRON_SECRET: ci-only-secret-ci-only-secret-ci-only-secret
+      AUTH_SECRET: ci-only-auth-secret-ci-only-auth-secret-0001
+      PASSWORD_PEPPER: ci-only-pepper-ci-only-pepper-0000000001
       CI: "true"
       ENABLE_STYLEGUIDE: "1"
     services:

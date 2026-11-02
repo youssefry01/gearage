@@ -1,6 +1,6 @@
 # Arabic copy that needs native review
 
-816 Arabic strings were written by the assistant, not a native copywriter. Review tone, terminology (Egyptian retail wording, for
+834 Arabic strings were written by the assistant, not a native copywriter. Review tone, terminology (Egyptian retail wording, for
 example the category names) and plural forms. Brand and model names left in Latin (AMD Ryzen, DDR5, ...) are not listed.
 The owner plans one native-review pass once more copy exists.
 
@@ -330,7 +330,7 @@ run `npm run i18n:review` after adding strings (CI runs `npm run i18n:review:che
 | messages: Compare.emptyTitle | Nothing to compare yet | لا شيء للمقارنة بعد |
 | messages: Compare.emptyBody | Tick “Compare” on up to {max} products from the same category, then come back here. | حدّد «قارن» على {max} منتجات كحد أقصى من الفئة نفسها، ثم عد إلى هنا. |
 | messages: Compare.emptyCta | Browse products | تصفّح المنتجات |
-| messages: Compare.loading | Loading your compare list | جارٍ تحميل قائمة المقارنة |
+| messages: Compare.loading | Loading your compare list… | جارٍ تحميل قائمة المقارنة… |
 | messages: Compare.headingParts | Comparing {category} | مقارنة {category} |
 | messages: Compare.headingBundles | Comparing PC bundles | مقارنة تجميعات الكمبيوتر |
 | messages: Compare.needMore | Add another product from this category to compare it side by side. | أضف منتجًا آخر من هذه الفئة لمقارنته جنبًا إلى جنب. |
@@ -373,10 +373,28 @@ run `npm run i18n:review` after adding strings (CI runs `npm run i18n:review:che
 | messages: Compare.compatNotes | Compatible, with notes | متوافق مع ملاحظات |
 | messages: Compare.compatProblem | Compatibility problem | مشكلة في التوافق |
 | messages: Compare.legend | Rows marked with a dot differ between the products. | الصفوف المعلّمة بنقطة تختلف بين المنتجات. |
+| messages: Compare.attributeColumn | Specification | المواصفة |
 | messages: RecentlyViewed.title | Recently viewed | شاهدتَها مؤخرًا |
 | messages: RecentlyViewed.lead | Products you looked at on this device. | المنتجات التي تصفّحتها على هذا الجهاز. |
 | messages: RecentlyViewed.clear | Clear history | مسح السجل |
 | messages: RecentlyViewed.clearLabel | Clear recently viewed products | مسح المنتجات التي شوهدت مؤخرًا |
+| messages: Email.common.footer | You received this email because this address was used at {brand}. If that wasn't you, you can ignore it. | وصلتك هذه الرسالة لأن هذا البريد استُخدم في {brand}. إن لم تكن أنت، يمكنك تجاهلها. |
+| messages: Email.common.automatic | This is an automatic message. Please don't reply to it with sensitive information. | هذه رسالة تلقائية. من فضلك لا ترد عليها بمعلومات حساسة. |
+| messages: Email.verifyCode.subject | Your {brand} verification code | رمز التحقق الخاص بك في {brand} |
+| messages: Email.verifyCode.heading | Verify your email | تحقق من بريدك الإلكتروني |
+| messages: Email.verifyCode.intro | Enter this code to verify your email address at {brand}. | أدخل هذا الرمز للتحقق من بريدك الإلكتروني في {brand}. |
+| messages: Email.verifyCode.expires | The code expires in {minutes} minutes. | تنتهي صلاحية الرمز خلال {minutes} دقيقة. |
+| messages: Email.verifyCode.ignore | If you didn't create an account, you can safely ignore this email. | إن لم تنشئ حسابًا، يمكنك تجاهل هذه الرسالة بأمان. |
+| messages: Email.resetPassword.subject | Reset your {brand} password | إعادة تعيين كلمة المرور في {brand} |
+| messages: Email.resetPassword.heading | Reset your password | إعادة تعيين كلمة المرور |
+| messages: Email.resetPassword.intro | We received a request to reset the password of your {brand} account. | وصلنا طلب لإعادة تعيين كلمة مرور حسابك في {brand}. |
+| messages: Email.resetPassword.button | Reset password | إعادة تعيين كلمة المرور |
+| messages: Email.resetPassword.fallback | If the button doesn't work, copy this link into your browser: | إن لم يعمل الزر، انسخ هذا الرابط والصقه في المتصفح: |
+| messages: Email.resetPassword.expires | The link expires in {minutes} minutes and can be used once. | ينتهي الرابط خلال {minutes} دقيقة ويُستخدم مرة واحدة فقط. |
+| messages: Email.resetPassword.ignore | If you didn't ask for this, ignore this email. Your password stays the same. | إن لم تطلب ذلك، تجاهل هذه الرسالة وستبقى كلمة مرورك كما هي. |
+| messages: Email.test.subject | {brand} test email | رسالة اختبار من {brand} |
+| messages: Email.test.heading | Test email | رسالة اختبار |
+| messages: Email.test.body | If you can read this, your email setup works. | إن كنت تقرأ هذه الرسالة فإعداد البريد يعمل. |
 
 ## Brand copy
 

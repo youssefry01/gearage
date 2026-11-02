@@ -35,16 +35,21 @@
     "test:db": "vitest run --config vitest.db.config.mts",
     "seed:docs": "tsx scripts/seed-docs.ts",
     "seed:docs:check": "tsx scripts/seed-docs.ts --check",
-    "search:try": "tsx scripts/search-try.ts"
+    "search:try": "tsx scripts/search-try.ts",
+    "auth:bench": "tsx scripts/argon2-bench.ts",
+    "email:test": "tsx scripts/email-test.ts"
   },
   "dependencies": {
     "@fontsource/ibm-plex-sans": "5.3.0",
     "@fontsource/ibm-plex-sans-arabic": "5.3.0",
+    "@node-rs/argon2": "2.2.2",
     "@prisma/adapter-pg": "7.10.1",
     "@prisma/client": "7.10.1",
+    "@upstash/redis": "1.40.0",
     "lucide-react": "1.61.0",
     "next": "16.4.2",
     "next-intl": "4.14.9",
+    "next-safe-action": "8.7.3",
     "pg": "8.23.1",
     "radix-ui": "1.8.1",
     "react": "19.3.1",

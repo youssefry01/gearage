@@ -192,6 +192,8 @@ model Product {
   searchDocument ProductSearch?
   reservations   StockReservation[]
   adjustments    InventoryAdjustment[]
+  /// Anonymous per-day view counts (M5a-1, ADR 0023).
+  dailyViews     ProductViewDaily[]
 
   @@index([categoryId, status])
   @@index([brandId])
