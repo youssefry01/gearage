@@ -1,4 +1,6 @@
 import { logger } from "@/lib/logger";
+import { UNVERIFIED_ACCOUNT_DAYS } from "@/domain/auth";
+import { pruneAuthData } from "@/server/repositories/auth.repository";
 import { pruneCounters } from "@/server/repositories/rate-limit.repository";
 import { dispatchDueEmails, pruneEmailOutbox } from "@/server/services/email.service";
 import { expireReservations } from "@/server/services/inventory.service";
@@ -54,6 +56,20 @@ const jobs: Job[] = [
     cadence: "daily",
     run: async () => {
       await pruneEmailOutbox();
+    },
+  },
+  {
+    // Deletes accounts never verified within a week (so a squatted address is freed), expired codes and reset tokens,
+    // expired sessions and old lockout rows (M5a-2, ADR 0024). Safe to run twice.
+    name: "prune-auth-data",
+    cadence: "daily",
+    run: async () => {
+      const now = new Date();
+      const result = await pruneAuthData(
+        now,
+        new Date(now.getTime() - UNVERIFIED_ACCOUNT_DAYS * 86_400_000),
+      );
+      logger.info("auth_pruned", result);
     },
   },
   {

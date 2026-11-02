@@ -95,7 +95,12 @@
     "privacy": "Privacy policy",
     "cookies": "Cookie policy",
     "branches": "Branches",
-    "status": "System status"
+    "status": "System status",
+    "login": "Sign in",
+    "register": "Create account",
+    "verifyEmail": "Verify email",
+    "forgotPassword": "Forgot password",
+    "resetPassword": "Reset password"
   },
   "ComingSoon": {
     "body": "This page is coming soon. We’re still getting it ready.",
@@ -433,6 +438,131 @@
       "subject": "{brand} test email",
       "heading": "Test email",
       "body": "If you can read this, your email setup works."
+    },
+    "accountExists": {
+      "subject": "Someone tried to register with your {brand} email",
+      "heading": "You already have an account",
+      "intro": "Someone just tried to create a {brand} account with this email address, and an account already exists.",
+      "action": "If it was you, sign in instead, or use \"Forgot password\" on the sign-in page if you don't remember your password.",
+      "ignore": "If it wasn't you, you can ignore this email. Nothing was changed."
+    }
+  },
+  "Auth": {
+    "login": {
+      "title": "Sign in",
+      "metaDescription": "Sign in to your {brand} account.",
+      "intro": "Welcome back. Sign in to see your orders and saved items.",
+      "submit": "Sign in",
+      "submitting": "Signing in…",
+      "forgot": "Forgot your password?",
+      "noAccount": "New here?",
+      "registerLink": "Create an account",
+      "resetDone": "Your password was changed. Sign in with your new password."
+    },
+    "register": {
+      "title": "Create your account",
+      "metaDescription": "Create a {brand} account to order, track deliveries and save items.",
+      "intro": "It takes a minute. We'll email you a 6-digit code to confirm your address.",
+      "submit": "Create account",
+      "submitting": "Creating account…",
+      "haveAccount": "Already have an account?",
+      "loginLink": "Sign in",
+      "termsPrefix": "I have read and accept the",
+      "termsLink": "Terms & Conditions",
+      "and": "and the",
+      "privacyLink": "Privacy Policy",
+      "marketing": "Send me news and offers by email (optional)",
+      "optional": "optional"
+    },
+    "verify": {
+      "title": "Check your email",
+      "metaDescription": "Enter the 6-digit code we emailed you.",
+      "intro": "If {email} can receive a code, we've sent a 6-digit code to it. It is valid for {minutes} minutes.",
+      "codeLabel": "6-digit code",
+      "submit": "Verify email",
+      "submitting": "Verifying…",
+      "resend": "Send a new code",
+      "resent": "If that address needs a code, a new one is on its way.",
+      "wrongEmail": "Use a different email",
+      "needEmail": "Enter your email address to continue."
+    },
+    "account": {
+      "title": "My account",
+      "metaDescription": "Your account.",
+      "hello": "Hello, {name}",
+      "email": "Email",
+      "phone": "Mobile",
+      "signedInNote": "You are signed in. Orders, addresses and wishlist arrive in later updates.",
+      "logout": "Sign out",
+      "loggingOut": "Signing out…"
+    },
+    "fields": {
+      "firstName": "First name",
+      "lastName": "Last name",
+      "email": "Email",
+      "phone": "Mobile number",
+      "phoneHint": "Egyptian mobile, e.g. 010 1234 5678",
+      "password": "Password",
+      "passwordHint": "At least 12 characters. A few random words work well.",
+      "dateOfBirth": "Date of birth (optional)",
+      "dateOfBirthHint": "Format YYYY-MM-DD. You must be at least 16.",
+      "gender": "Gender (optional)",
+      "genderNone": "Prefer not to say",
+      "genderMale": "Male",
+      "genderFemale": "Female",
+      "showPassword": "Show password",
+      "hidePassword": "Hide password"
+    },
+    "strength": {
+      "label": "Strength",
+      "score0": "Very weak",
+      "score1": "Weak",
+      "score2": "Fair",
+      "score3": "Good",
+      "score4": "Strong"
+    },
+    "errors": {
+      "generic": "Something went wrong. Please try again.",
+      "required": "This field is required.",
+      "invalid_email": "Enter a valid email address.",
+      "invalid_phone": "Enter a valid Egyptian mobile number.",
+      "invalid_name": "Use letters only (spaces, hyphens and apostrophes are fine).",
+      "too_long": "This is too long.",
+      "invalid_dob": "Enter a valid date in the format YYYY-MM-DD.",
+      "too_young": "You must be at least 16 to create an account.",
+      "invalid_gender": "Choose one of the options.",
+      "must_accept": "You need to accept to continue.",
+      "too_short": "Use at least 12 characters.",
+      "contains_null": "This password contains characters that are not allowed.",
+      "breached": "This password appears in known data breaches. Choose a different one.",
+      "invalid_credentials": "Incorrect email or password.",
+      "locked": "Too many failed attempts. Try again in {minutes} min.",
+      "rate_limited": "Too many attempts. Try again in {minutes} min.",
+      "unavailable": "The service is temporarily unavailable. Try again shortly.",
+      "invalid_code": "That code isn't right. Check it and try again.",
+      "expired_code": "That code has expired. Request a new one.",
+      "too_many_attempts": "Too many wrong codes. Request a new one.",
+      "invalid_token": "This link is invalid or has expired. Request a new one."
+    },
+    "forgot": {
+      "title": "Reset your password",
+      "metaDescription": "Request a link to reset your password.",
+      "intro": "Enter your email and we'll send a link to choose a new password, if an account exists.",
+      "submit": "Send reset link",
+      "submitting": "Sending…",
+      "sent": "If an account exists for that address, a reset link is on its way. It is valid for {minutes} minutes.",
+      "back": "Back to sign in"
+    },
+    "reset": {
+      "title": "Choose a new password",
+      "metaDescription": "Choose a new password for your account.",
+      "intro": "Pick a new password. Signing in elsewhere will be ended for your safety.",
+      "newPassword": "New password",
+      "submit": "Save new password",
+      "submitting": "Saving…",
+      "missingToken": "This reset link is incomplete. Open the link from your email again, or request a new one.",
+      "requestNew": "Request a new link",
+      "done": "Your password was changed. Sign in with your new password."
     }
   }
 }

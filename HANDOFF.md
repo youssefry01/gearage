@@ -2,7 +2,9 @@
 
 > Resume rule: a new chat must be able to continue from this file alone. Update it every milestone.
 
-## 1. Status (2026-10-31)
+## 1. Status (2026-11-02)
+
+- **M5a-2 (auth flows) is DELIVERED, awaiting owner verification; see section 11b and [ADR 0024](docs/adr/0024-auth-flows-and-lockout.md).** Better Auth 1.7.15 behind our own rate-limited Server Actions (its HTTP handler is NOT mounted), register with consent recorded, 6-digit email verification, login, logout, forgot/reset (token in the URL fragment, consumed on POST), progressive lockout, no account enumeration, zxcvbn-ts strength meter, minimal signed-in account page, daily `prune-auth-data` job, `docs/SECURITY.md` threat-model table, `docs/AUTH_MANUAL_TESTS.md`. New dependencies (exact pins): better-auth 1.7.15, @zxcvbn-ts/core 4.2.0, language-common 4.1.3, language-en 4.1.1, react-hook-form 7.91.0. The owner's M5a-1 pins (next and eslint-config-next 16.4.3, lucide-react 1.64.0, the Dependabot patches) are untouched. `@hookform/resolvers` was deliberately NOT added (it hoists a second `effect` major and moves Prisma's); `src/features/auth/zod-resolver.ts` is a 20-line replacement.
 
 - **M5a-1 (auth infrastructure, no sign-in UI yet) is DELIVERED; see section 11 and ADRs 0003, 0021, 0022, 0023. M5a was split: M5a-1 (rate limiter with Postgres fallback, `publicAction`, email outbox + Brevo + log transport + bilingual templates, Argon2id hasher with pepper versions, HIBP, password policy, view tracking, the four issue 71 fixes) and M5a-2 (Better Auth wiring and migration, register, 6-digit email verification, login, forgot/reset by emailed link consumed on POST, progressive lockout, a minimal signed-in account page, e2e reading `.emails/`, strength meter). Next: M5a-2, ask the owner before starting it.** M4b was verified by the owner on 2026-10-30. Proposal **approved**. **M0**..**M4b** delivered.
   M3a-1 was verified by the owner (373 unit, 143 DB, full e2e on a production build, CI green); the Dependabot minor-and-patch group (PR #7, 21 updates) is merged and included; `next`/`eslint-config-next` stay pinned at 16.4.2.
@@ -95,7 +97,7 @@ Rule: every milestone is runnable, tested, ends with the web-design-guidelines a
 | M4a     | Search                                        | **DELIVERED.** Weighted FTS + trigram typo tolerance, Arabic normalization, synonyms, suggestions, results page (also all-products/deals/best sellers/new arrivals), category facet, rail "view all", zero-result analytics (ADR 0019)                                    |
 | M4b     | Discovery                                     | **DELIVERED.** Compare (up to 4, same spec family, bundles with bundles; URL-driven page, tray, difference marking), recently viewed (device-only list, fresh cards), `/api/products/cards` (ADR 0020). **View tracking moved to M5a** (needs the rate limiter)           |
 | M5a-1   | Auth infrastructure                           | **DELIVERED.** Limiter (Upstash + Postgres, fail modes per endpoint), `publicAction`, email outbox + Brevo (fetch) + log transport + EN/AR templates, Argon2id + pepper versions, HIBP, password policy, view tracking, `auth:bench`, `email:test` (ADRs 0003, 0021-0023) |
-| M5a-2   | Auth flows                                    | Better Auth + migration, register, 6-digit verification code, login, forgot/reset by link (consumed on POST), progressive lockout, no enumeration, account stub, e2e via `.emails/`, strength meter (zxcvbn-ts, lazy)                                                     |
+| M5a-2   | Auth flows                                    | **DELIVERED (owner to verify).** Better Auth (handler not mounted), register + consent, 6-digit verification, login, logout, forgot/reset by link (consumed on POST), progressive lockout, no enumeration, strength meter, account page, prune job                        |
 | M5b     | Account security                              | Sessions list, email change, profile, addresses, audit log, admin TOTP                                                                                                                                                                                                    |
 | M6a     | Cart, promo, shipping                         | Cart merge, promo engine, shipping zones/fees                                                                                                                                                                                                                             |
 | M6b     | COD checkout and orders                       | Atomic order creation, state machine, confirmation email, order history                                                                                                                                                                                                   |
@@ -254,6 +256,14 @@ component-level returns refund allocated price; seed bundles use fixed price.
 78. View counts are approximate (shared networks merge visitors; a changed IP or browser counts again after 30 minutes); seeded `viewCount` values stay illustrative.
 79. `TEST_MODE` and `RATE_LIMIT_SCALE` exist only for tests (set by vitest and Playwright) and are refused on `VERCEL_ENV=production`.
 
+80. **Egyptian mobile prefixes** (010, 011, 012, 015) in `parseEgyptianMobile` come from the author's knowledge of the numbering plan; verify before launch. Nothing is sent to the number and it is not verified by SMS.
+81. **Pre-registration squatting** (ADR 0024): someone can register another person's address with their own password; if the victim types the unsolicited code, the attacker holds a verified account. Mitigations shipped: the email says to ignore it, unverified accounts are deleted after 7 days (`prune-auth-data`), a reset replaces the password and revokes sessions. Not eliminated.
+82. **Minimum age 16** (`MIN_AGE_YEARS`) and the optional date of birth are a legal question (Personal Data Protection Law 151/2020): confirm in the legal review (launch blocker 4). `CONSENT_VERSIONS` are "draft-2026-11"; change them when the reviewed legal text ships so each account records which text it accepted.
+83. **Lockout can be used as a nuisance** against a known address (at most 15 minutes at a time; a reset by email unlocks). Accepted; revisit with real traffic.
+84. **The verify page carries the email in the query string** (`/verify-email?email=`) to stay stateless; the page sends `no-referrer`. A signed pending-registration cookie is the alternative if this is judged too leaky. Also: the page language is an input to the auth actions because `getLocale()` does not work in Server Actions.
+85. **Hand-written migration** `20261102000000_auth_tables` (the Prisma engine is blocked in the authoring sandbox). Run `npx prisma migrate dev` and the drift check (`npx prisma migrate diff --from-config-datasource --to-schema prisma/schema --exit-code`, expect 0).
+86. **Test timing**: several existing e2e tests click before React has hydrated and fail on a slow or heavily loaded machine (seen: language switcher, category tile, pagination). The language switcher test now uses `whenHydrated`; the others passed when run alone.
+
 ## 11. Verification record: M5a-1 (2026-10-31)
 
 Earlier records (M0 to M4b): [docs/MILESTONE_HISTORY.md](docs/MILESTONE_HISTORY.md). The owner verified M4b locally (Node 22.23.3) on 2026-10-30: test:db 312, 558 unit tests, all gates, `npm audit --omit=dev` 0 vulnerabilities, production build, e2e on a production build, compare and recently viewed by hand (EN/AR, both themes, phone width), CI green. Dependabot PR #9 (lucide-react 1.61.0, zustand 5.0.16) merged; versions and lockfile kept.
@@ -275,6 +285,25 @@ Earlier records (M0 to M4b): [docs/MILESTONE_HISTORY.md](docs/MILESTONE_HISTORY.
 - Client IP on a live Vercel deployment (issue 74), CI on GitHub.
 
 **Exact commands:** `npm ci`, `npx prisma migrate dev` (applies `20261030000000_auth_infrastructure`), `npm run db:seed`, `npm run dev`. Gates: `npm run lint && npm run typecheck && npm test && npm run test:db`; e2e: `npm run build && E2E_PROD=1 npm run test:e2e`. Copy the new variables from `.env.example` (README has the table). Your `.env` needs `AUTH_SECRET` and `PASSWORD_PEPPER` or the app will not start.
+
+## 11b. Verification record: M5a-2 (2026-11-02, sandbox; owner verification pending)
+
+**Verified in the sandbox (real execution; embedded PostgreSQL; real Chromium on a production build; 1 CPU, Node 22.22.2):**
+
+- Gates: typecheck, lint, format:check, tokens:check, contrast, brand:check, i18n:review:check, seed:docs:check, db:validate all pass; `npm audit --omit=dev` found 0 vulnerabilities.
+- Unit: 730 passed (74 files). DB (`test:db`): 376 passed (17 files), including `tests/db/auth.db.test.ts` (22: consent evidence, Argon2id hash format, duplicate registration, code attempts, resend, login, progressive lockout, decay, rehash, forgot/reset, prune) and `auth-cookies.db.test.ts` (https cookie attributes).
+- E2E (production build): `auth.spec.ts` 15/15; axe WCAG 2.2 AA 20/20 on the five new pages (en/ar x dark/light); responsive 100/100 (five pages x en/ar x 10 viewports); smoke, shell, console, i18n-theme (24/24 over two repeats), home, listing, product, search, compare, view-tracking all pass (a few failed once under 2 to 3 parallel workers and passed alone; see issue 86).
+- A cross-origin replay of a real Server Action request is refused ("Invalid Server Actions request") and sets no session.
+
+**NOT verified (please run locally):**
+
+- `npx prisma migrate dev` and the drift check (issue 85).
+- Real Brevo sends for the new templates (`account-exists`; the code and reset emails reuse M5a-1 templates) and Upstash behaviour under these flows.
+- The full responsive and axe matrix for the pre-existing pages (only the new pages and a subset were run), and the full e2e suite in one run on your machine (12 workers).
+- Windows, and `auth:bench` again after the first real deploy.
+- Cookie `Secure` over real https (the https attributes were verified from Better Auth's `Set-Cookie` header with an https `APP_URL`, not in a browser).
+
+**Manual test guide:** [docs/AUTH_MANUAL_TESTS.md](docs/AUTH_MANUAL_TESTS.md).
 
 ## 14. Environment strategy
 
@@ -318,7 +347,7 @@ Open for the owner:
 14. (Answered 2026-10-26) M4b: compare (up to 4) and recently viewed; view tracking stays out until M5a.
 15. **Open, M4b decisions to confirm** (Answered 2026-10-30: all four approved; both lists device-only, cookie-policy line is launch blocker 8.) (ADR 0020): (a) compare only within a spec family (all graphics cards together, whatever the brand), bundles with bundles; (b) no "best value" highlighting; (c) "Compare" is offered on listing, search, related and product pages but not on the home shelves; (d) recently viewed is device-only and shown on the product page and the home page; (e) the two device lists need a line in the cookie policy (issue 65).
 16. (Answered 2026-10-30) M5a approved and split into M5a-1 and M5a-2. Decisions: 6-digit emailed code for verification, emailed link for reset (consumed only on POST, never GET); password 12 to 128, any breach hit rejected, HIBP fails open; progressive lockout; cookieless daily-salted view tracking with aggregates only; Brevo through plain `fetch`; fail-open/closed table (ADR 0021). Additions: pepper version stored with every hash (ADR 0003), no account enumeration, NFKC with spaces and non-ASCII allowed and no composition rules, tests can never send real email.
-17. **Open for M5a-2:** none yet. Please report the `npm run auth:bench` and `email:test` results from section 11 when you run them.
+17. **Open after M5a-2:** please run the manual tests in docs/AUTH_MANUAL_TESTS.md, the drift check (issue 85), and confirm the choices in ADR 0024 (handler not mounted, reset token in the URL fragment, lockout schedule 30 s to 15 min, minimum age 16, verify page carries the email in the query string).
 
 ## 17. Needs native review: machine-written Arabic
 

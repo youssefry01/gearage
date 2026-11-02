@@ -11,6 +11,11 @@ vi.mock("@/server/services/email.service", () => ({
 vi.mock("@/server/repositories/rate-limit.repository", () => ({
   pruneCounters: vi.fn().mockResolvedValue(0),
 }));
+vi.mock("@/server/repositories/auth.repository", () => ({
+  pruneAuthData: vi
+    .fn()
+    .mockResolvedValue({ unverifiedUsers: 0, verifications: 0, sessions: 0, throttles: 0 }),
+}));
 vi.mock("@/server/services/search.service", () => ({
   runSearchIndexRebuild: vi.fn().mockResolvedValue(undefined),
   pruneOldZeroResults: vi.fn().mockResolvedValue(0),
@@ -27,6 +32,7 @@ describe("runJobs", () => {
       "prune-search-zero-results",
       "prune-rate-limit-counters",
       "prune-email-outbox",
+      "prune-auth-data",
     ]);
     expect(daily.every((r) => r.ok)).toBe(true);
   });

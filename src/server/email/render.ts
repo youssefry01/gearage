@@ -131,6 +131,17 @@ export async function renderEmail<T extends EmailTemplate>(
       ];
       break;
     }
+    case "account-exists": {
+      subject = m.accountExists.subject;
+      title = m.accountExists.heading;
+      blocks = [
+        heading(m.accountExists.heading),
+        paragraph(m.accountExists.intro),
+        paragraph(m.accountExists.action),
+        muted(m.accountExists.ignore),
+      ];
+      break;
+    }
     case "test": {
       subject = m.test.subject;
       title = m.test.heading;

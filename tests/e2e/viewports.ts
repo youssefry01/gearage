@@ -47,4 +47,10 @@ export const PAGES = [
   "/compare?p=asus-dual-geforce-rtx-4060-oc-edition-8gb,asus-prime-geforce-rtx-5070-oc-edition-12gb,gigabyte-geforce-rtx-5060-ti-windforce-oc-16gb",
   "/compare?p=budget-gaming-pc-ryzen-5-5600-rtx-4060,high-end-gaming-pc-ryzen-7-7800x3d-rtx-5080",
   "/compare",
+  // Authentication (M5a-2): every public form page, with a syntactically valid address on the verify page.
+  "/login",
+  "/register",
+  "/verify-email?email=shopper%40example.test",
+  "/forgot-password",
+  "/reset-password#token=abcdefghijklmnopqrstuvwx",
 ] as const;

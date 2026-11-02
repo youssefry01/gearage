@@ -36,6 +36,8 @@ export const policies = {
   codeVerifyEmail: policy("auth.code.verify.email", 10, 15 * 60, "closed"),
   resetRequestEmail: policy("auth.reset.request.email", 3, 60 * 60, "closed"),
   resetRequestIp: policy("auth.reset.request.ip", 10, 60 * 60, "closed"),
+  codeVerifyIp: policy("auth.code.verify.ip", 30, 15 * 60, "closed"),
+  authSession: policy("auth.session.ip", 60, 60, "closed"),
   resetConfirmIp: policy("auth.reset.confirm.ip", 10, 15 * 60, "closed"),
 } as const;
 

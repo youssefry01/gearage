@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 /** Email outbox rules (ADR 0022): templates, payload shapes, expiry and the retry schedule. Pure. */
-export const EMAIL_TEMPLATES = ["verify-code", "reset-password", "test"] as const;
+export const EMAIL_TEMPLATES = ["verify-code", "reset-password", "account-exists", "test"] as const;
 export type EmailTemplate = (typeof EMAIL_TEMPLATES)[number];
 
 export const emailPayloads = {
@@ -17,6 +17,7 @@ export const emailPayloads = {
       .min(1)
       .max(24 * 60),
   }),
+  "account-exists": z.object({}),
   test: z.object({}),
 } as const satisfies Record<EmailTemplate, z.ZodType>;
 
@@ -25,7 +26,9 @@ export type EmailPayload<T extends EmailTemplate> = z.infer<(typeof emailPayload
 /** A code or link is useless after it expires, so the outbox never sends it late. */
 export function outboxExpiry(template: EmailTemplate, payload: unknown, now: Date): Date {
   const minutes =
-    template === "test" ? 60 : ((payload as { expiresMinutes?: number }).expiresMinutes ?? 15);
+    template === "test" || template === "account-exists"
+      ? 60
+      : ((payload as { expiresMinutes?: number }).expiresMinutes ?? 15);
   return new Date(now.getTime() + minutes * 60_000);
 }
 

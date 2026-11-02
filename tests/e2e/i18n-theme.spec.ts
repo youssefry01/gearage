@@ -29,11 +29,16 @@ test.describe("locale routing (ADR 0006)", () => {
 
   test("language switcher navigates and remembers the choice", async ({ page, context }) => {
     await page.goto("/en");
-    await page.getByRole("link", { name: "العربية" }).click();
+    // The switcher navigates through a client handler, so a click before hydration is lost (see helpers.ts).
+    const arabic = page.getByRole("link", { name: "العربية" });
+    await whenHydrated(arabic);
+    await arabic.click();
     await expect(page).toHaveURL(/\/ar$/);
     await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
     expect((await context.cookies()).find((c) => c.name === "NEXT_LOCALE")?.value).toBe("ar");
-    await page.getByRole("link", { name: "English" }).click();
+    const english = page.getByRole("link", { name: "English" });
+    await whenHydrated(english);
+    await english.click();
     await expect(page).toHaveURL(/\/en$/);
   });
 });

@@ -1,6 +1,6 @@
 # Arabic copy that needs native review
 
-834 Arabic strings were written by the assistant, not a native copywriter. Review tone, terminology (Egyptian retail wording, for
+942 Arabic strings were written by the assistant, not a native copywriter. Review tone, terminology (Egyptian retail wording, for
 example the category names) and plural forms. Brand and model names left in Latin (AMD Ryzen, DDR5, ...) are not listed.
 The owner plans one native-review pass once more copy exists.
 
@@ -97,6 +97,11 @@ run `npm run i18n:review` after adding strings (CI runs `npm run i18n:review:che
 | messages: Routes.cookies | Cookie policy | سياسة ملفات الارتباط |
 | messages: Routes.branches | Branches | الفروع |
 | messages: Routes.status | System status | حالة النظام |
+| messages: Routes.login | Sign in | تسجيل الدخول |
+| messages: Routes.register | Create account | إنشاء حساب |
+| messages: Routes.verifyEmail | Verify email | تأكيد البريد |
+| messages: Routes.forgotPassword | Forgot password | نسيت كلمة المرور |
+| messages: Routes.resetPassword | Reset password | إعادة تعيين كلمة المرور |
 | messages: ComingSoon.body | This page is coming soon. We’re still getting it ready. | هذه الصفحة قادمة قريبًا. ما زلنا نجهزها. |
 | messages: ComingSoon.categoryBody | We’re stocking this category. Check back soon. | نجهز منتجات هذه الفئة. عد قريبًا. |
 | messages: Breadcrumb.label | Breadcrumb | مسار التنقل |
@@ -395,6 +400,109 @@ run `npm run i18n:review` after adding strings (CI runs `npm run i18n:review:che
 | messages: Email.test.subject | {brand} test email | رسالة اختبار من {brand} |
 | messages: Email.test.heading | Test email | رسالة اختبار |
 | messages: Email.test.body | If you can read this, your email setup works. | إن كنت تقرأ هذه الرسالة فإعداد البريد يعمل. |
+| messages: Email.accountExists.subject | Someone tried to register with your {brand} email | حاول شخص ما التسجيل ببريدك في {brand} |
+| messages: Email.accountExists.heading | You already have an account | لديك حساب بالفعل |
+| messages: Email.accountExists.intro | Someone just tried to create a {brand} account with this email address, and an account already exists. | حاول شخص ما إنشاء حساب في {brand} بهذا البريد الإلكتروني، ولكن يوجد حساب بالفعل. |
+| messages: Email.accountExists.action | If it was you, sign in instead, or use "Forgot password" on the sign-in page if you don't remember your password. | إذا كنت أنت، سجّل الدخول بدلاً من ذلك، أو استخدم «نسيت كلمة المرور» في صفحة تسجيل الدخول إذا لم تتذكرها. |
+| messages: Email.accountExists.ignore | If it wasn't you, you can ignore this email. Nothing was changed. | إذا لم تكن أنت، يمكنك تجاهل هذه الرسالة. لم يتغير أي شيء. |
+| messages: Auth.login.title | Sign in | تسجيل الدخول |
+| messages: Auth.login.metaDescription | Sign in to your {brand} account. | سجّل الدخول إلى حسابك في {brand}. |
+| messages: Auth.login.intro | Welcome back. Sign in to see your orders and saved items. | مرحبًا بعودتك. سجّل الدخول لمتابعة طلباتك وعناصرك المحفوظة. |
+| messages: Auth.login.submit | Sign in | تسجيل الدخول |
+| messages: Auth.login.submitting | Signing in… | جارٍ تسجيل الدخول… |
+| messages: Auth.login.forgot | Forgot your password? | نسيت كلمة المرور؟ |
+| messages: Auth.login.noAccount | New here? | جديد هنا؟ |
+| messages: Auth.login.registerLink | Create an account | أنشئ حسابًا |
+| messages: Auth.login.resetDone | Your password was changed. Sign in with your new password. | تم تغيير كلمة المرور. سجّل الدخول بكلمة المرور الجديدة. |
+| messages: Auth.register.title | Create your account | أنشئ حسابك |
+| messages: Auth.register.metaDescription | Create a {brand} account to order, track deliveries and save items. | أنشئ حسابًا في {brand} لتطلب وتتابع الشحنات وتحفظ المنتجات. |
+| messages: Auth.register.intro | It takes a minute. We'll email you a 6-digit code to confirm your address. | يستغرق دقيقة. سنرسل إليك رمزًا من 6 أرقام لتأكيد بريدك. |
+| messages: Auth.register.submit | Create account | إنشاء الحساب |
+| messages: Auth.register.submitting | Creating account… | جارٍ إنشاء الحساب… |
+| messages: Auth.register.haveAccount | Already have an account? | لديك حساب بالفعل؟ |
+| messages: Auth.register.loginLink | Sign in | تسجيل الدخول |
+| messages: Auth.register.termsPrefix | I have read and accept the | قرأت وأوافق على |
+| messages: Auth.register.termsLink | Terms & Conditions | الشروط والأحكام |
+| messages: Auth.register.and | and the | و |
+| messages: Auth.register.privacyLink | Privacy Policy | سياسة الخصوصية |
+| messages: Auth.register.marketing | Send me news and offers by email (optional) | أرسلوا لي الأخبار والعروض بالبريد (اختياري) |
+| messages: Auth.register.optional | optional | اختياري |
+| messages: Auth.verify.title | Check your email | تحقق من بريدك الإلكتروني |
+| messages: Auth.verify.metaDescription | Enter the 6-digit code we emailed you. | أدخل الرمز المكوّن من 6 أرقام الذي أرسلناه إليك. |
+| messages: Auth.verify.intro | If {email} can receive a code, we've sent a 6-digit code to it. It is valid for {minutes} minutes. | إذا كان بإمكان {email} استلام رمز، فقد أرسلنا إليه رمزًا من 6 أرقام. صالح لمدة {minutes} دقائق. |
+| messages: Auth.verify.codeLabel | 6-digit code | الرمز المكوّن من 6 أرقام |
+| messages: Auth.verify.submit | Verify email | تأكيد البريد |
+| messages: Auth.verify.submitting | Verifying… | جارٍ التحقق… |
+| messages: Auth.verify.resend | Send a new code | أرسل رمزًا جديدًا |
+| messages: Auth.verify.resent | If that address needs a code, a new one is on its way. | إذا كان هذا البريد يحتاج إلى رمز، فسيصله رمز جديد. |
+| messages: Auth.verify.wrongEmail | Use a different email | استخدم بريدًا آخر |
+| messages: Auth.verify.needEmail | Enter your email address to continue. | أدخل بريدك الإلكتروني للمتابعة. |
+| messages: Auth.account.title | My account | حسابي |
+| messages: Auth.account.metaDescription | Your account. | حسابك. |
+| messages: Auth.account.hello | Hello, {name} | مرحبًا، {name} |
+| messages: Auth.account.email | Email | البريد الإلكتروني |
+| messages: Auth.account.phone | Mobile | الموبايل |
+| messages: Auth.account.signedInNote | You are signed in. Orders, addresses and wishlist arrive in later updates. | تم تسجيل دخولك. ستتوفر الطلبات والعناوين وقائمة الأمنيات في تحديثات لاحقة. |
+| messages: Auth.account.logout | Sign out | تسجيل الخروج |
+| messages: Auth.account.loggingOut | Signing out… | جارٍ تسجيل الخروج… |
+| messages: Auth.fields.firstName | First name | الاسم الأول |
+| messages: Auth.fields.lastName | Last name | اسم العائلة |
+| messages: Auth.fields.email | Email | البريد الإلكتروني |
+| messages: Auth.fields.phone | Mobile number | رقم الموبايل |
+| messages: Auth.fields.phoneHint | Egyptian mobile, e.g. 010 1234 5678 | رقم موبايل مصري، مثل 010 1234 5678 |
+| messages: Auth.fields.password | Password | كلمة المرور |
+| messages: Auth.fields.passwordHint | At least 12 characters. A few random words work well. | 12 حرفًا على الأقل. عدة كلمات عشوائية خيار جيد. |
+| messages: Auth.fields.dateOfBirth | Date of birth (optional) | تاريخ الميلاد (اختياري) |
+| messages: Auth.fields.dateOfBirthHint | Format YYYY-MM-DD. You must be at least 16. | الصيغة YYYY-MM-DD. يجب ألا يقل عمرك عن 16 عامًا. |
+| messages: Auth.fields.gender | Gender (optional) | النوع (اختياري) |
+| messages: Auth.fields.genderNone | Prefer not to say | أفضّل عدم الذكر |
+| messages: Auth.fields.genderMale | Male | ذكر |
+| messages: Auth.fields.genderFemale | Female | أنثى |
+| messages: Auth.fields.showPassword | Show password | إظهار كلمة المرور |
+| messages: Auth.fields.hidePassword | Hide password | إخفاء كلمة المرور |
+| messages: Auth.strength.label | Strength | القوة |
+| messages: Auth.strength.score0 | Very weak | ضعيفة جدًا |
+| messages: Auth.strength.score1 | Weak | ضعيفة |
+| messages: Auth.strength.score2 | Fair | متوسطة |
+| messages: Auth.strength.score3 | Good | جيدة |
+| messages: Auth.strength.score4 | Strong | قوية |
+| messages: Auth.errors.generic | Something went wrong. Please try again. | حدث خطأ ما. حاول مرة أخرى. |
+| messages: Auth.errors.required | This field is required. | هذا الحقل مطلوب. |
+| messages: Auth.errors.invalid_email | Enter a valid email address. | أدخل بريدًا إلكترونيًا صحيحًا. |
+| messages: Auth.errors.invalid_phone | Enter a valid Egyptian mobile number. | أدخل رقم موبايل مصريًا صحيحًا. |
+| messages: Auth.errors.invalid_name | Use letters only (spaces, hyphens and apostrophes are fine). | استخدم الحروف فقط (المسافات والشرطات والفواصل العليا مقبولة). |
+| messages: Auth.errors.too_long | This is too long. | النص طويل جدًا. |
+| messages: Auth.errors.invalid_dob | Enter a valid date in the format YYYY-MM-DD. | أدخل تاريخًا صحيحًا بصيغة YYYY-MM-DD. |
+| messages: Auth.errors.too_young | You must be at least 16 to create an account. | يجب ألا يقل عمرك عن 16 عامًا لإنشاء حساب. |
+| messages: Auth.errors.invalid_gender | Choose one of the options. | اختر أحد الخيارات. |
+| messages: Auth.errors.must_accept | You need to accept to continue. | يجب الموافقة للمتابعة. |
+| messages: Auth.errors.too_short | Use at least 12 characters. | استخدم 12 حرفًا على الأقل. |
+| messages: Auth.errors.contains_null | This password contains characters that are not allowed. | تحتوي كلمة المرور هذه على أحرف غير مسموح بها. |
+| messages: Auth.errors.breached | This password appears in known data breaches. Choose a different one. | ظهرت كلمة المرور هذه في تسريبات بيانات معروفة. اختر كلمة أخرى. |
+| messages: Auth.errors.invalid_credentials | Incorrect email or password. | البريد الإلكتروني أو كلمة المرور غير صحيحة. |
+| messages: Auth.errors.locked | Too many failed attempts. Try again in {minutes} min. | محاولات فاشلة كثيرة. حاول مرة أخرى بعد {minutes} دقيقة. |
+| messages: Auth.errors.rate_limited | Too many attempts. Try again in {minutes} min. | محاولات كثيرة. حاول مرة أخرى بعد {minutes} دقيقة. |
+| messages: Auth.errors.unavailable | The service is temporarily unavailable. Try again shortly. | الخدمة غير متاحة مؤقتًا. حاول بعد قليل. |
+| messages: Auth.errors.invalid_code | That code isn't right. Check it and try again. | هذا الرمز غير صحيح. تحقق منه وحاول مرة أخرى. |
+| messages: Auth.errors.expired_code | That code has expired. Request a new one. | انتهت صلاحية هذا الرمز. اطلب رمزًا جديدًا. |
+| messages: Auth.errors.too_many_attempts | Too many wrong codes. Request a new one. | رموز خاطئة كثيرة. اطلب رمزًا جديدًا. |
+| messages: Auth.errors.invalid_token | This link is invalid or has expired. Request a new one. | هذا الرابط غير صالح أو منتهي. اطلب رابطًا جديدًا. |
+| messages: Auth.forgot.title | Reset your password | إعادة تعيين كلمة المرور |
+| messages: Auth.forgot.metaDescription | Request a link to reset your password. | اطلب رابطًا لإعادة تعيين كلمة المرور. |
+| messages: Auth.forgot.intro | Enter your email and we'll send a link to choose a new password, if an account exists. | أدخل بريدك الإلكتروني وسنرسل رابطًا لاختيار كلمة مرور جديدة، إذا كان الحساب موجودًا. |
+| messages: Auth.forgot.submit | Send reset link | إرسال رابط إعادة التعيين |
+| messages: Auth.forgot.submitting | Sending… | جارٍ الإرسال… |
+| messages: Auth.forgot.sent | If an account exists for that address, a reset link is on its way. It is valid for {minutes} minutes. | إذا كان هناك حساب بهذا البريد، فالرابط في طريقه إليك. صالح لمدة {minutes} دقيقة. |
+| messages: Auth.forgot.back | Back to sign in | العودة إلى تسجيل الدخول |
+| messages: Auth.reset.title | Choose a new password | اختر كلمة مرور جديدة |
+| messages: Auth.reset.metaDescription | Choose a new password for your account. | اختر كلمة مرور جديدة لحسابك. |
+| messages: Auth.reset.intro | Pick a new password. Signing in elsewhere will be ended for your safety. | اختر كلمة مرور جديدة. سيتم إنهاء الجلسات الأخرى حفاظًا على أمانك. |
+| messages: Auth.reset.newPassword | New password | كلمة المرور الجديدة |
+| messages: Auth.reset.submit | Save new password | حفظ كلمة المرور |
+| messages: Auth.reset.submitting | Saving… | جارٍ الحفظ… |
+| messages: Auth.reset.missingToken | This reset link is incomplete. Open the link from your email again, or request a new one. | رابط إعادة التعيين غير مكتمل. افتح الرابط من بريدك مرة أخرى، أو اطلب رابطًا جديدًا. |
+| messages: Auth.reset.requestNew | Request a new link | اطلب رابطًا جديدًا |
+| messages: Auth.reset.done | Your password was changed. Sign in with your new password. | تم تغيير كلمة المرور. سجّل الدخول بكلمة المرور الجديدة. |
 
 ## Brand copy
 

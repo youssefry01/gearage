@@ -29,7 +29,7 @@ export function findBrandViolations(
 
 /** Scope: code, tests, scripts, seeds and public assets. Infra identifiers (package name, DB credentials) are out of scope. */
 export const SCAN_DIRS = ["src", "tests", "scripts", "prisma", "public"] as const;
-export const SKIP_DIRS = new Set(["node_modules", ".next", "generated", "migrations"]);
+export const SKIP_DIRS = new Set(["node_modules", ".next", "generated", "migrations", ".emails"]);
 export const BINARY_EXT = /\.(png|jpe?g|webp|avif|gif|ico|woff2?|ttf|otf|psd|pdf|mp4|webm)$/i;
 
 export const isAllowedPath = (path: string): boolean => {

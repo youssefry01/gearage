@@ -6,9 +6,20 @@ import { logger } from "@/lib/logger";
 import { clientSubject } from "@/server/security/rate-limit/http";
 import { getLimiter } from "@/server/security/rate-limit/limiter";
 import { headers } from "next/headers";
+import { getSession } from "@/server/auth/session";
 
 /** What an action returns to the client when it fails on purpose. The UI maps `code` to translated text. */
-export type ActionError = { code: string; message: string; retryAfterSec?: number };
+/**
+ * `field` and `issue` carry a SAFE, machine-readable reason (for example field "password", issue "breached", or
+ * issue "locked") that the form turns into translated text. They never carry anything about other people's accounts.
+ */
+export type ActionError = {
+  code: string;
+  message: string;
+  retryAfterSec?: number;
+  field?: string;
+  issue?: string;
+};
 
 const policyNames = Object.values(policies).map((p) => p.name) as [string, ...string[]];
 
@@ -16,17 +27,21 @@ const policyNames = Object.values(policies).map((p) => p.name) as [string, ...st
  * The ONLY way to define a Server Action (ADR 0013). Every action declares its rate-limit policy in `.metadata()`;
  * the middleware enforces it per client IP BEFORE the input is validated or any work is done, so a refused request
  * costs one counter hit. Unexpected errors are logged and reach the client as a generic INTERNAL error (no stack, no
- * message); deliberate AppErrors keep their code. Session-checking `authedAction` joins in M5a-2.
+ * message); deliberate AppErrors keep their code.
  */
 export const publicAction = createSafeActionClient({
   defineMetadataSchema: () => z.object({ policy: z.enum(policyNames) }),
   handleServerError(error): ActionError {
     if (isAppError(error)) {
-      const retry = (error.details as { retryAfterSec?: number } | undefined)?.retryAfterSec;
+      const d = error.details as
+        { retryAfterSec?: number; field?: string; issue?: string; reason?: string } | undefined;
+      const issue = d?.issue ?? d?.reason;
       return {
         code: error.code,
         message: error.message,
-        ...(retry ? { retryAfterSec: retry } : {}),
+        ...(d?.retryAfterSec ? { retryAfterSec: d.retryAfterSec } : {}),
+        ...(d?.field ? { field: d.field } : {}),
+        ...(issue ? { issue } : {}),
       };
     }
     logger.error("server_action_error", { err: error });
@@ -46,4 +61,15 @@ export const publicAction = createSafeActionClient({
         });
   }
   return next();
+});
+
+/**
+ * Like `publicAction`, but the caller must hold a valid session: the session is looked up from the cookie BEFORE any
+ * work runs, and an anonymous call fails with UNAUTHENTICATED. The session is passed to the action as `ctx.session`.
+ * Every mutation that belongs to a signed-in person uses this (HANDOFF conventions: authorization in every mutation).
+ */
+export const authedAction = publicAction.use(async ({ next }) => {
+  const session = await getSession();
+  if (!session) throw new AppError("UNAUTHENTICATED", "Please sign in.");
+  return next({ ctx: { session } });
 });

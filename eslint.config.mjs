@@ -14,6 +14,11 @@ const sdkBans = [
     message: "Hash and verify passwords only through @/server/security/password (ADR 0003).",
   },
   {
+    group: ["better-auth", "better-auth/*", "@better-auth/*"],
+    message:
+      "Better Auth is configured in src/server/auth/auth.ts only; use @/server/auth/session (ADR 0002).",
+  },
+  {
     group: ["@upstash/redis"],
     message: "Rate limiting goes through @/server/security/rate-limit (ADR 0021).",
   },
@@ -95,6 +100,7 @@ export default defineConfig([
       "src/**/*.actions.ts",
       "src/server/security/password.ts",
       "src/server/security/rate-limit/stores.ts",
+      "src/server/auth/auth.ts",
     ],
     rules: { "no-restricted-imports": "off" },
   },
