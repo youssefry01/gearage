@@ -8,7 +8,8 @@ export function CookieSettingsButton({ className }: { className?: string }) {
   return (
     <button
       type="button"
-      className={className}
+      // The component owns its hover state; the caller only adds layout and colour.
+      className={`hover:text-foreground ${className ?? ""}`}
       onClick={() => window.dispatchEvent(new Event(COOKIE_SETTINGS_EVENT))}
     >
       {t("cookieSettings")}

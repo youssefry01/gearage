@@ -1,6 +1,6 @@
 # Arabic copy that needs native review
 
-942 Arabic strings were written by the assistant, not a native copywriter. Review tone, terminology (Egyptian retail wording, for
+948 Arabic strings were written by the assistant, not a native copywriter. Review tone, terminology (Egyptian retail wording, for
 example the category names) and plural forms. Brand and model names left in Latin (AMD Ryzen, DDR5, ...) are not listed.
 The owner plans one native-review pass once more copy exists.
 
@@ -429,7 +429,7 @@ run `npm run i18n:review` after adding strings (CI runs `npm run i18n:review:che
 | messages: Auth.register.optional | optional | اختياري |
 | messages: Auth.verify.title | Check your email | تحقق من بريدك الإلكتروني |
 | messages: Auth.verify.metaDescription | Enter the 6-digit code we emailed you. | أدخل الرمز المكوّن من 6 أرقام الذي أرسلناه إليك. |
-| messages: Auth.verify.intro | If {email} can receive a code, we've sent a 6-digit code to it. It is valid for {minutes} minutes. | إذا كان بإمكان {email} استلام رمز، فقد أرسلنا إليه رمزًا من 6 أرقام. صالح لمدة {minutes} دقائق. |
+| messages: Auth.verify.intro | If {email} is new here, we've sent it a 6-digit code. It is valid for {minutes} minutes. If you already have an account with this address, we've emailed you instead. | إذا كان {email} جديدًا لدينا، فقد أرسلنا إليه رمزًا من 6 أرقام. صالح لمدة {minutes} دقائق. وإذا كان لديك حساب بهذا البريد بالفعل، فقد راسلناك بدلًا من ذلك. |
 | messages: Auth.verify.codeLabel | 6-digit code | الرمز المكوّن من 6 أرقام |
 | messages: Auth.verify.submit | Verify email | تأكيد البريد |
 | messages: Auth.verify.submitting | Verifying… | جارٍ التحقق… |
@@ -437,6 +437,10 @@ run `npm run i18n:review` after adding strings (CI runs `npm run i18n:review:che
 | messages: Auth.verify.resent | If that address needs a code, a new one is on its way. | إذا كان هذا البريد يحتاج إلى رمز، فسيصله رمز جديد. |
 | messages: Auth.verify.wrongEmail | Use a different email | استخدم بريدًا آخر |
 | messages: Auth.verify.needEmail | Enter your email address to continue. | أدخل بريدك الإلكتروني للمتابعة. |
+| messages: Auth.verify.signIn | Already have an account? Sign in | لديك حساب بالفعل؟ سجّل الدخول |
+| messages: Auth.verify.forgot | Forgot your password? | نسيت كلمة المرور؟ |
+| messages: Auth.verify.expired | This verification has expired. Sign in to get a new code, or create your account again. | انتهت صلاحية هذا التحقق. سجّل الدخول للحصول على رمز جديد، أو أنشئ حسابك من جديد. |
+| messages: Auth.verify.codeHint | Digits only. You can paste the code from your email. | أرقام فقط. يمكنك لصق الرمز من بريدك. |
 | messages: Auth.account.title | My account | حسابي |
 | messages: Auth.account.metaDescription | Your account. | حسابك. |
 | messages: Auth.account.hello | Hello, {name} | مرحبًا، {name} |
@@ -460,6 +464,7 @@ run `npm run i18n:review` after adding strings (CI runs `npm run i18n:review:che
 | messages: Auth.fields.genderFemale | Female | أنثى |
 | messages: Auth.fields.showPassword | Show password | إظهار كلمة المرور |
 | messages: Auth.fields.hidePassword | Hide password | إخفاء كلمة المرور |
+| messages: Auth.fields.phonePlaceholder | 01012345678 | 01012345678 |
 | messages: Auth.strength.label | Strength | القوة |
 | messages: Auth.strength.score0 | Very weak | ضعيفة جدًا |
 | messages: Auth.strength.score1 | Weak | ضعيفة |
@@ -487,6 +492,7 @@ run `npm run i18n:review` after adding strings (CI runs `npm run i18n:review:che
 | messages: Auth.errors.expired_code | That code has expired. Request a new one. | انتهت صلاحية هذا الرمز. اطلب رمزًا جديدًا. |
 | messages: Auth.errors.too_many_attempts | Too many wrong codes. Request a new one. | رموز خاطئة كثيرة. اطلب رمزًا جديدًا. |
 | messages: Auth.errors.invalid_token | This link is invalid or has expired. Request a new one. | هذا الرابط غير صالح أو منتهي. اطلب رابطًا جديدًا. |
+| messages: Auth.errors.verification_expired | This verification has expired. Sign in to get a new code, or register again. | انتهت صلاحية هذا التحقق. سجّل الدخول للحصول على رمز جديد، أو سجّل من جديد. |
 | messages: Auth.forgot.title | Reset your password | إعادة تعيين كلمة المرور |
 | messages: Auth.forgot.metaDescription | Request a link to reset your password. | اطلب رابطًا لإعادة تعيين كلمة المرور. |
 | messages: Auth.forgot.intro | Enter your email and we'll send a link to choose a new password, if an account exists. | أدخل بريدك الإلكتروني وسنرسل رابطًا لاختيار كلمة مرور جديدة، إذا كان الحساب موجودًا. |

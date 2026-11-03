@@ -157,7 +157,7 @@ export function SiteFooter({
               </li>
             ))}
             <li>
-              <CookieSettingsButton className={`${link} cursor-pointer`} />
+              <CookieSettingsButton className={link} />
             </li>
           </ul>
         </nav>

@@ -21,3 +21,4 @@ desktop.ini
 # Emails written by the "log" provider (local dev / tests)
 /.emails/
 /tests/.emails/
+/tests/.auth/

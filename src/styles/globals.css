@@ -143,6 +143,42 @@
     touch-action: manipulation;
   }
 
+  /*
+   * Tailwind v4's preflight resets buttons to the default arrow cursor. Anything a shopper can press shows the
+   * pointer; anything disabled shows not-allowed. Utilities (a component's own cursor-*) still win: they live in a
+   * later layer. A disabled control must NOT also carry pointer-events-none, or the cursor can never show (a test in
+   * src/styles/interaction.test.ts checks this).
+   */
+  button:not(:disabled),
+  summary,
+  [role="button"]:not([aria-disabled="true"]),
+  [role="tab"]:not([aria-disabled="true"]),
+  [role="menuitem"]:not([aria-disabled="true"]),
+  [role="option"]:not([aria-disabled="true"]),
+  input:is(
+      [type="checkbox"],
+      [type="radio"],
+      [type="submit"],
+      [type="button"],
+      [type="reset"],
+      [type="range"],
+      [type="file"]
+    ):not(:disabled),
+  label:has(input:is([type="checkbox"], [type="radio"]):not(:disabled)),
+  select:not(:disabled) {
+    cursor: pointer;
+  }
+
+  label:has(input:disabled),
+  button:disabled,
+  input:disabled,
+  select:disabled,
+  textarea:disabled,
+  [role="button"][aria-disabled="true"],
+  [aria-disabled="true"] {
+    cursor: not-allowed;
+  }
+
   ::selection {
     background-color: var(--primary);
     color: var(--primary-foreground);

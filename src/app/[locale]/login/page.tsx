@@ -11,6 +11,9 @@ import { Link, redirect } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
 import { getSession } from "@/server/auth/session";
 
+/** Per-visitor page: it reads the session cookie, so it is never prerendered or cached (ADR 0024). */
+export const dynamic = "force-dynamic";
+
 type Props = {
   params: Promise<{ locale: string }>;
   searchParams: Promise<Record<string, string | string[] | undefined>>;

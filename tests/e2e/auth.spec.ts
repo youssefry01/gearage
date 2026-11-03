@@ -22,10 +22,10 @@ async function fillRegistration(page: Page, email: string, password = PASSWORD) 
 async function registerAndVerify(page: Page, email: string) {
   await fillRegistration(page, email);
   await page.getByRole("button", { name: "Create account" }).click();
-  await expect(page).toHaveURL(/\/en\/verify-email\?email=/);
+  await expect(page).toHaveURL(/\/en\/verify-email$/); // the address is in a signed cookie, never in the URL
   const code = codeFrom(await waitForEmail(email));
-  await page.getByLabel("6-digit code").fill(code);
-  await page.getByRole("button", { name: "Verify email" }).click();
+  await whenHydrated(page.getByRole("button", { name: "Verify email" }));
+  await page.getByLabel("6-digit code").fill(code); // six digits submit themselves
   await expect(page).toHaveURL(/\/en\/account$/);
 }
 
@@ -93,7 +93,7 @@ test.describe("authentication", () => {
 
     await fillRegistration(page, email, "another-long-passphrase-777");
     await page.getByRole("button", { name: "Create account" }).click();
-    await expect(page).toHaveURL(/\/en\/verify-email\?email=/); // same destination as a new account
+    await expect(page).toHaveURL(/\/en\/verify-email$/); // same destination as a new account
     await expect
       .poll(async () =>
         (await emailsFor(email)).some((m) => /already have an account/i.test(m.text)),
@@ -111,11 +111,9 @@ test.describe("authentication", () => {
     const code = codeFrom(await waitForEmail(email));
     const wrong = code === "000000" ? "111111" : "000000";
     await whenHydrated(page.getByRole("button", { name: "Verify email" }));
-    await page.getByLabel("6-digit code").fill(wrong);
-    await page.getByRole("button", { name: "Verify email" }).click();
+    await page.getByLabel("6-digit code").fill(wrong); // six digits submit themselves
     await expect(page.locator("form [role=alert]").first()).toContainText("isn't right");
     await page.getByLabel("6-digit code").fill(code);
-    await page.getByRole("button", { name: "Verify email" }).click();
     await expect(page).toHaveURL(/\/en\/account$/);
   });
 
@@ -321,5 +319,179 @@ test.describe("authentication", () => {
       await page.goto("/en/reset-password");
       await expect(page.locator("[role=alert]").filter({ hasText: "incomplete" })).toBeVisible();
     });
+  });
+});
+
+test.describe("verification page and form fields", () => {
+  test("the address lives in a signed HttpOnly cookie, not in the URL, and a forged cookie is refused", async ({
+    page,
+    context,
+    baseURL,
+  }) => {
+    const email = unique("pending");
+    await fillRegistration(page, email);
+    await page.getByRole("button", { name: "Create account" }).click();
+    await expect(page).toHaveURL(/\/en\/verify-email$/);
+    expect(page.url()).not.toContain("example.test");
+    await expect(page.getByText(email)).toBeVisible();
+
+    const cookie = (await context.cookies()).find((c) => c.name === "auth.pending");
+    expect(cookie, "pending cookie").toBeDefined();
+    expect(cookie!.httpOnly).toBe(true);
+    expect(cookie!.sameSite).toBe("Lax");
+    expect(cookie!.secure).toBe(false); // http://localhost; Secure is on over https
+    expect(await page.evaluate(() => document.cookie)).not.toContain("auth.pending");
+
+    // A different address, signed with the wrong key, must not open the page.
+    await context.clearCookies({ name: "auth.pending" });
+    await context.addCookies([
+      {
+        name: "auth.pending",
+        value: `${Buffer.from(JSON.stringify({ e: "victim@example.test", x: Date.now() + 60_000 })).toString("base64url")}.AAAA`,
+        url: baseURL!,
+      },
+    ]);
+    await page.goto("/en/verify-email");
+    await expect(page).toHaveURL(/\/en\/login/);
+  });
+
+  test("without a pending verification the page sends you to sign in", async ({ page }) => {
+    await page.goto("/en/verify-email");
+    await expect(page).toHaveURL(/\/en\/login/);
+  });
+
+  test("the page explains both outcomes without revealing which one happened, and offers the way out", async ({
+    page,
+  }) => {
+    await fillRegistration(page, unique("copy"));
+    await page.getByRole("button", { name: "Create account" }).click();
+    await expect(page).toHaveURL(/\/en\/verify-email$/);
+    await expect(page.getByText(/is new here, we've sent it a 6-digit code/)).toBeVisible();
+    await expect(page.getByText(/already have an account with this address/)).toBeVisible();
+    const main = page.getByRole("main");
+    await expect(main.getByRole("link", { name: /Sign in/ })).toHaveAttribute("href", "/en/login");
+    await expect(main.getByRole("link", { name: "Forgot your password?" })).toHaveAttribute(
+      "href",
+      "/en/forgot-password",
+    );
+  });
+
+  test("the code field: numeric keyboard, one-time-code, six digits, paste is cleaned and submits itself", async ({
+    page,
+  }) => {
+    const email = unique("otp");
+    await fillRegistration(page, email);
+    await page.getByRole("button", { name: "Create account" }).click();
+    await expect(page).toHaveURL(/\/en\/verify-email$/);
+    const code = codeFrom(await waitForEmail(email));
+    const field = page.getByLabel("6-digit code");
+    await whenHydrated(page.getByRole("button", { name: "Verify email" }));
+    await expect(field).toHaveAttribute("inputmode", "numeric");
+    await expect(field).toHaveAttribute("autocomplete", "one-time-code");
+    await expect(field).toHaveAttribute("maxlength", "6");
+
+    // Typing letters and symbols leaves nothing; fewer than six digits does not submit.
+    await field.pressSequentially("ab-12");
+    await expect(field).toHaveValue("12");
+
+    // A wrong code pasted with spaces and a dash is cleaned to digits and submits by itself.
+    await field.fill("");
+    const wrong = code === "123456" ? "654321" : "123456";
+    await field.evaluate(
+      (el, text) => {
+        const data = new DataTransfer();
+        data.setData("text", text);
+        el.dispatchEvent(
+          new ClipboardEvent("paste", { clipboardData: data, bubbles: true, cancelable: true }),
+        );
+      },
+      `${wrong.slice(0, 3)} - ${wrong.slice(3)}`,
+    );
+    await expect(field).toHaveValue(wrong);
+    await expect(page.locator("form [role=alert]").first()).toContainText("isn't right");
+
+    // The real code, pasted the same way, signs in.
+    await field.evaluate(
+      (el, text) => {
+        const data = new DataTransfer();
+        data.setData("text", text);
+        el.dispatchEvent(
+          new ClipboardEvent("paste", { clipboardData: data, bubbles: true, cancelable: true }),
+        );
+      },
+      ` ${code.slice(0, 3)} ${code.slice(3)} `,
+    );
+    await expect(page).toHaveURL(/\/en\/account$/);
+  });
+
+  test("the phone field: telephone keyboard, length limit, Arabic digits are converted as you type", async ({
+    page,
+  }) => {
+    await page.goto("/en/register");
+    await whenHydrated(page.getByRole("button", { name: "Create account" }));
+    const phone = page.getByLabel("Mobile number");
+    await expect(phone).toHaveAttribute("type", "tel");
+    await expect(phone).toHaveAttribute("inputmode", "tel");
+    await expect(phone).toHaveAttribute("autocomplete", "tel");
+    await expect(phone).toHaveAttribute("maxlength", "20");
+    await expect(phone).toHaveAttribute("placeholder", "01012345678");
+    await phone.pressSequentially("٠١٠١٢٣٤٥٦٧٨x");
+    await expect(phone).toHaveValue("01012345678");
+  });
+
+  for (const [label, typed] of [
+    ["01xxxxxxxxx", "01012345678"],
+    ["201xxxxxxxxx", "201012345678"],
+    ["+201xxxxxxxxx", "+201012345678"],
+  ] as const) {
+    test(`the phone field accepts ${label}`, async ({ page }) => {
+      const email = unique("phone");
+      await fillRegistration(page, email);
+      await page.getByLabel("Mobile number").fill(typed);
+      await page.getByRole("button", { name: "Create account" }).click();
+      await expect(page).toHaveURL(/\/en\/verify-email$/);
+    });
+  }
+
+  test("pressable things show the pointer cursor and disabled ones show not-allowed", async ({
+    page,
+  }) => {
+    await page.goto("/en/register");
+    await whenHydrated(page.getByRole("button", { name: "Create account" }));
+    const cursors = await page.evaluate(() => {
+      const cursor = (el: Element) => getComputedStyle(el).cursor;
+      const probe = document.createElement("div");
+      probe.innerHTML =
+        '<button id="p-enabled">x</button><button id="p-disabled" disabled>x</button>' +
+        '<details><summary id="p-summary">x</summary></details>' +
+        '<label id="p-label"><input type="checkbox">x</label><label id="p-label-off"><input type="checkbox" disabled>x</label>' +
+        '<div role="button" id="p-role">x</div><div role="button" aria-disabled="true" id="p-role-off">x</div>';
+      document.body.append(probe);
+      const get = (id: string) => cursor(probe.querySelector(`#${id}`)!);
+      const real = [...document.querySelectorAll("button")]
+        .filter((b) => !b.disabled)
+        .map((b) => `${b.textContent?.trim()}: ${cursor(b)}`);
+      return {
+        enabled: get("p-enabled"),
+        disabled: get("p-disabled"),
+        summary: get("p-summary"),
+        label: get("p-label"),
+        labelOff: get("p-label-off"),
+        role: get("p-role"),
+        roleOff: get("p-role-off"),
+        real,
+      };
+    });
+    expect(cursors).toMatchObject({
+      enabled: "pointer",
+      disabled: "not-allowed",
+      summary: "pointer",
+      label: "pointer",
+      labelOff: "not-allowed",
+      role: "pointer",
+      roleOff: "not-allowed",
+    });
+    expect(cursors.real.length).toBeGreaterThan(0);
+    for (const entry of cursors.real) expect(entry).toMatch(/: pointer$/);
   });
 });

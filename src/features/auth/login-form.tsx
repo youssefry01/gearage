@@ -41,8 +41,7 @@ export function LoginForm({ next }: { next: string }) {
       return;
     }
     if (res.data?.status === "unverified") {
-      const email = values.email.trim().toLowerCase();
-      router.push(`${routes.verifyEmail}?email=${encodeURIComponent(email)}`);
+      router.push(routes.verifyEmail); // the address travels in a signed cookie, not in the URL (ADR 0024)
       return;
     }
     setFormError(actionErrorText(res.serverError));

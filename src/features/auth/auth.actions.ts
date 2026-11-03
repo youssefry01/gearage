@@ -5,13 +5,14 @@ import {
   forgotPasswordSchema,
   loginSchema,
   registerSchema,
-  resendCodeSchema,
   resetPasswordSchema,
-  verifyEmailSchema,
+  verifyCodeSchema,
 } from "@/domain/auth";
 import { policies } from "@/domain/rate-limit";
 import { locales } from "@/i18n/locales";
 import { authedAction, publicAction } from "@/server/actions/client";
+import { clearPendingEmail, getPendingEmail, setPendingEmail } from "@/server/auth/pending";
+import { AppError } from "@/lib/errors";
 import * as auth from "@/server/services/auth.service";
 import { z } from "zod";
 
@@ -24,24 +25,49 @@ const localeSchema = z.enum(locales);
 export const registerAction = publicAction
   .metadata({ policy: policies.registerIp.name })
   .inputSchema(registerSchema.extend({ locale: localeSchema }))
-  .action(async ({ parsedInput }) => auth.register(parsedInput, parsedInput.locale));
+  .action(async ({ parsedInput }) => {
+    const result = await auth.register(parsedInput, parsedInput.locale);
+    // Same cookie whether or not the address already has an account (no enumeration); see server/auth/pending.ts.
+    await setPendingEmail(parsedInput.email);
+    return result;
+  });
+
+/** The address comes from the signed pending-verification cookie, never from the client (ADR 0024). */
+async function pendingEmailOrFail(): Promise<string> {
+  const email = await getPendingEmail();
+  if (!email) {
+    throw new AppError("BAD_REQUEST", "No verification in progress", {
+      details: { issue: "verification_expired" },
+    });
+  }
+  return email;
+}
 
 export const verifyEmailAction = publicAction
   .metadata({ policy: policies.codeVerifyIp.name })
-  .inputSchema(verifyEmailSchema)
-  .action(async ({ parsedInput }) => auth.verifyEmail(parsedInput.email, parsedInput.code));
+  .inputSchema(verifyCodeSchema)
+  .action(async ({ parsedInput }) => {
+    const result = await auth.verifyEmail(await pendingEmailOrFail(), parsedInput.code);
+    await clearPendingEmail();
+    return result;
+  });
 
 export const resendCodeAction = publicAction
   .metadata({ policy: policies.codeSendIp.name })
-  .inputSchema(resendCodeSchema.extend({ locale: localeSchema }))
-  .action(async ({ parsedInput }) => auth.resendCode(parsedInput.email, parsedInput.locale));
+  .inputSchema(z.object({ locale: localeSchema }))
+  .action(async ({ parsedInput }) =>
+    auth.resendCode(await pendingEmailOrFail(), parsedInput.locale),
+  );
 
 export const loginAction = publicAction
   .metadata({ policy: policies.loginIp.name })
   .inputSchema(loginSchema.extend({ locale: localeSchema }))
-  .action(async ({ parsedInput }) =>
-    auth.login(parsedInput.email, parsedInput.password, parsedInput.locale),
-  );
+  .action(async ({ parsedInput }) => {
+    const result = await auth.login(parsedInput.email, parsedInput.password, parsedInput.locale);
+    // A correct password on an unverified account sends the person to the verify page, which needs the address.
+    if (result.status === "unverified") await setPendingEmail(parsedInput.email);
+    return result;
+  });
 
 export const logoutAction = authedAction
   .metadata({ policy: policies.authSession.name })

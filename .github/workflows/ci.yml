@@ -15,8 +15,8 @@ jobs:
   verify:
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    env:
-      SKIP_ENV_VALIDATION: "1"
+    # Deliberately NO environment variables: the build and the unit tests must work with none at all (a missing
+    # DATABASE_URL means "no database", and per-user pages are dynamic, so nothing reads a secret while prerendering).
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
@@ -33,11 +33,34 @@ jobs:
       - run: npm run format:check
       - run: npm run lint
       - run: npm run typecheck
-      # The no-database `npm run build` is paused until getSession() stops validating env at prerender (see HANDOFF).
-      # The e2e job below still builds the whole app, with a database and the full env.
+      # The build with no environment at all: proves nothing reads a secret or the database while prerendering
+      # (M5a-3: getSession() calls headers() first, per-user pages are `dynamic = "force-dynamic"`).
+      - run: npm run build
       - run: npm test
       - name: Dependency audit
         run: npm audit --omit=dev --audit-level=high
+
+  # The owner develops on Windows: run the unit tests and the file-reading checks there too (path separators, line
+  # endings). `.gitattributes` pins LF; autocrlf is switched off before checkout so nothing rewrites line endings.
+  unit-windows:
+    runs-on: windows-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - run: git config --global core.autocrlf false
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm run tokens:check
+      - run: npm run brand:check
+      - run: npm run i18n:review:check
+      - run: npm run seed:docs:check
+      - run: npm test
 
   e2e:
     runs-on: ubuntu-latest

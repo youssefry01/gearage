@@ -6,7 +6,12 @@ import { useForm, useWatch } from "react-hook-form";
 import type { Locale } from "@/i18n/locales";
 import { Button } from "@/components/ui/button";
 import { routes } from "@/config/routes";
-import { registerSchema, type RegisterInput } from "@/domain/auth";
+import {
+  PHONE_INPUT_MAX_LENGTH,
+  registerSchema,
+  sanitizePhoneInput,
+  type RegisterInput,
+} from "@/domain/auth";
 import { Link, useRouter } from "@/i18n/navigation";
 import { registerAction } from "./auth.actions";
 import {
@@ -51,8 +56,7 @@ export function RegisterForm() {
     setFormError(undefined);
     const res = await registerAction({ ...values, locale });
     if (res.data) {
-      const email = values.email.trim().toLowerCase();
-      router.push(`${routes.verifyEmail}?email=${encodeURIComponent(email)}`);
+      router.push(routes.verifyEmail); // the address travels in a signed cookie, not in the URL (ADR 0024)
       return;
     }
     if (res.serverError?.field && res.serverError.issue) {
@@ -96,9 +100,17 @@ export function RegisterForm() {
         autoComplete="tel"
         inputMode="tel"
         dir="ltr"
+        maxLength={PHONE_INPUT_MAX_LENGTH}
+        placeholder={t("fields.phonePlaceholder")}
         hint={t("fields.phoneHint")}
         error={err("phone")}
-        {...register("phone")}
+        {...register("phone", {
+          // Arabic-Indic digits become 0-9 as they are typed; letters and symbols never get in.
+          onChange: (e: { target: HTMLInputElement }) => {
+            const clean = sanitizePhoneInput(e.target.value);
+            if (clean !== e.target.value) e.target.value = clean;
+          },
+        })}
       />
       <PasswordField
         label={t("fields.password")}

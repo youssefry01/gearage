@@ -13,6 +13,8 @@ export const CODE_EXPIRES_MINUTES = 10;
 /** Wrong guesses allowed per issued code; after that the code is destroyed and a new one must be requested. */
 export const CODE_MAX_ATTEMPTS = 5;
 export const RESET_EXPIRES_MINUTES = 60;
+/** How long the verify page remembers which address it is waiting for (signed cookie, ADR 0024). */
+export const PENDING_VERIFICATION_MINUTES = 30;
 /** An account whose email is still unverified after this many days is deleted by the daily prune job. */
 export const UNVERIFIED_ACCOUNT_DAYS = 7;
 /** A session lasts 7 days and is extended (at most once a day) while it is used. */
@@ -166,6 +168,32 @@ export const codeSchema = z
 
 export const verifyEmailSchema = z.object({ email: emailSchema, code: codeSchema });
 export type VerifyEmailInput = z.input<typeof verifyEmailSchema>;
+
+/** What the verify FORM sends: only the code. The address comes from the signed pending-verification cookie (ADR 0024). */
+export const verifyCodeSchema = z.object({ code: codeSchema });
+export type VerifyCodeInput = z.input<typeof verifyCodeSchema>;
+
+/**
+ * The verification code field. Strips everything that is not a digit (spaces and dashes from a pasted "123 456",
+ * letters, Arabic-Indic digits are converted first) and keeps at most CODE_LENGTH digits. Used on every keystroke
+ * and paste, so the field can never hold more than the code.
+ */
+export function sanitizeCodeInput(raw: string): string {
+  return toWesternDigits(raw).replace(/\D/g, "").slice(0, CODE_LENGTH);
+}
+
+/** The phone field never needs more: `+20 101 234 5678` is 16 characters; 20 leaves room for separators. */
+export const PHONE_INPUT_MAX_LENGTH = 20;
+
+/**
+ * Cleans a phone number as it is typed: Arabic-Indic digits become 0-9 and anything that cannot belong to a phone
+ * number is dropped, so the field holds only digits, one leading `+`, and common separators. Length-limited.
+ */
+export function sanitizePhoneInput(raw: string): string {
+  const western = toWesternDigits(raw).replace(/[^\d+\s\-().]/g, "");
+  const plus = western.trimStart().startsWith("+") ? "+" : "";
+  return (plus + western.replace(/\+/g, "")).slice(0, PHONE_INPUT_MAX_LENGTH);
+}
 
 export const resendCodeSchema = z.object({ email: emailSchema });
 export const forgotPasswordSchema = z.object({ email: emailSchema });

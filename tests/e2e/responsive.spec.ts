@@ -1,4 +1,5 @@
 import { expect, test } from "./fixtures";
+import { preparePage } from "./page-setup";
 import { LOCALES, PAGES, VIEWPORTS } from "./viewports";
 
 for (const locale of LOCALES) {
@@ -14,7 +15,10 @@ for (const locale of LOCALES) {
 
           test(`(${vp.width}x${vp.height}${vp.touch ? ", touch" : ""}): no horizontal scroll, target sizes, direction`, async ({
             page,
+            context,
+            baseURL,
           }) => {
+            await preparePage(context, baseURL!, path);
             const response = await page.goto(`/${locale}${path}`);
             expect(response?.status()).toBe(200);
             await page.evaluate(() => document.fonts.ready);

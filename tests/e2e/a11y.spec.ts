@@ -2,6 +2,7 @@ import AxeBuilder from "@axe-core/playwright";
 import type { Page } from "@playwright/test";
 import { expect, test } from "./fixtures";
 import { openDrawer, openMegaMenu } from "./helpers";
+import { preparePage } from "./page-setup";
 import { LOCALES, PAGES, THEMES } from "./viewports";
 
 const TAGS = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"];
@@ -22,7 +23,8 @@ for (const locale of LOCALES) {
       });
 
       for (const path of PAGES) {
-        test(`axe WCAG 2.2 AA: ${path || "/"}`, async ({ page }) => {
+        test(`axe WCAG 2.2 AA: ${path || "/"}`, async ({ page, context, baseURL }) => {
+          await preparePage(context, baseURL!, path);
           await page.goto(`/${locale}${path}`);
           await page.evaluate(() => document.fonts.ready);
           await expect(page.locator("html")).toHaveAttribute("data-theme", theme);

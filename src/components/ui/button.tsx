@@ -6,7 +6,9 @@ export type ButtonSize = "md" | "icon";
 const base =
   "inline-flex items-center justify-center gap-2 rounded-control font-semibold select-none " +
   "transition-[background-color,color,border-color] duration-fast ease-standard " +
-  "disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50";
+  // No pointer-events-none on :disabled, so the global not-allowed cursor shows; a disabled <button> receives no click.
+  // aria-disabled (a link styled as a button) is still not clickable: the component that renders it removes href.
+  "disabled:opacity-50 aria-disabled:opacity-50";
 
 const variants: Record<ButtonVariant, string> = {
   primary: "bg-primary text-primary-foreground hover:bg-primary-hover",

@@ -477,14 +477,18 @@
     "verify": {
       "title": "Check your email",
       "metaDescription": "Enter the 6-digit code we emailed you.",
-      "intro": "If {email} can receive a code, we've sent a 6-digit code to it. It is valid for {minutes} minutes.",
+      "intro": "If {email} is new here, we've sent it a 6-digit code. It is valid for {minutes} minutes. If you already have an account with this address, we've emailed you instead.",
       "codeLabel": "6-digit code",
       "submit": "Verify email",
       "submitting": "Verifying…",
       "resend": "Send a new code",
       "resent": "If that address needs a code, a new one is on its way.",
       "wrongEmail": "Use a different email",
-      "needEmail": "Enter your email address to continue."
+      "needEmail": "Enter your email address to continue.",
+      "signIn": "Already have an account? Sign in",
+      "forgot": "Forgot your password?",
+      "expired": "This verification has expired. Sign in to get a new code, or create your account again.",
+      "codeHint": "Digits only. You can paste the code from your email."
     },
     "account": {
       "title": "My account",
@@ -511,7 +515,8 @@
       "genderMale": "Male",
       "genderFemale": "Female",
       "showPassword": "Show password",
-      "hidePassword": "Hide password"
+      "hidePassword": "Hide password",
+      "phonePlaceholder": "01012345678"
     },
     "strength": {
       "label": "Strength",
@@ -542,7 +547,8 @@
       "invalid_code": "That code isn't right. Check it and try again.",
       "expired_code": "That code has expired. Request a new one.",
       "too_many_attempts": "Too many wrong codes. Request a new one.",
-      "invalid_token": "This link is invalid or has expired. Request a new one."
+      "invalid_token": "This link is invalid or has expired. Request a new one.",
+      "verification_expired": "This verification has expired. Sign in to get a new code, or register again."
     },
     "forgot": {
       "title": "Reset your password",

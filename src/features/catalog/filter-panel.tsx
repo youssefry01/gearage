@@ -59,7 +59,7 @@ function Group({
 }) {
   return (
     <details open={defaultOpen} className="group border-border border-b py-1">
-      <summary className="rounded-control flex min-h-11 cursor-pointer list-none items-center justify-between gap-2 font-semibold [&::-webkit-details-marker]:hidden">
+      <summary className="rounded-control hover:bg-accent flex min-h-11 cursor-pointer list-none items-center justify-between gap-2 font-semibold [&::-webkit-details-marker]:hidden">
         {title}
         <ChevronDown
           aria-hidden="true"

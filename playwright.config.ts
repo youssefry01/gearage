@@ -1,4 +1,5 @@
 import { defineConfig, devices } from "@playwright/test";
+import { E2E_AUTH_SECRET, E2E_PASSWORD_PEPPER } from "./tests/e2e/e2e-env";
 
 const port = Number(process.env.PORT ?? 3000);
 // Optional: run against a specific Chromium binary (used in restricted sandboxes where `playwright install` is blocked).
@@ -13,6 +14,8 @@ const strict = !!process.env.CI || !!process.env.E2E_PROD;
 
 export default defineConfig({
   testDir: "./tests/e2e",
+  // Warms the cold server and saves one signed-in session for the page matrices (tests/e2e/global-setup.ts).
+  globalSetup: "./tests/e2e/global-setup.ts",
   timeout: strict ? 30_000 : 90_000,
   expect: { timeout: strict ? 5_000 : 20_000 },
   fullyParallel: true,
@@ -60,8 +63,8 @@ export default defineConfig({
       // Parallel workers share one IP, so scale every rate limit up (the real values are covered by DB tests).
       RATE_LIMIT_SCALE: "50",
       // Throw-away secrets: e2e must not depend on, or use, the developer's real ones.
-      AUTH_SECRET: "e2e-only-auth-secret-e2e-only-auth-secret-0001",
-      PASSWORD_PEPPER: "e2e-only-pepper-e2e-only-pepper-000000000001",
+      AUTH_SECRET: E2E_AUTH_SECRET,
+      PASSWORD_PEPPER: E2E_PASSWORD_PEPPER,
     },
   },
 });

@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
   LOCKOUT_MAX_SECONDS,
+  sanitizeCodeInput,
+  sanitizePhoneInput,
   ageOn,
   codeSchema,
   emailSchema,
@@ -206,5 +208,20 @@ describe("lockoutDelaySeconds", () => {
       expect(d).toBeGreaterThanOrEqual(prev);
       prev = d;
     }
+  });
+});
+
+describe("input sanitizers (M5a-3)", () => {
+  it("sanitizeCodeInput keeps six digits and converts Arabic-Indic digits", () => {
+    expect(sanitizeCodeInput("123 456")).toBe("123456");
+    expect(sanitizeCodeInput(" 12-34ab56 78")).toBe("123456");
+    expect(sanitizeCodeInput("١٢٣٤٥٦")).toBe("123456");
+    expect(sanitizeCodeInput("abc")).toBe("");
+  });
+  it("sanitizePhoneInput converts digits, drops junk, keeps one leading plus and the length limit", () => {
+    expect(sanitizePhoneInput("٠١٠١٢٣٤٥٦٧٨")).toBe("01012345678");
+    expect(sanitizePhoneInput("+20 101-234 5678x")).toBe("+20 101-234 5678");
+    expect(sanitizePhoneInput("0+10+1")).toBe("0101");
+    expect(sanitizePhoneInput("1".repeat(40)).length).toBe(20);
   });
 });

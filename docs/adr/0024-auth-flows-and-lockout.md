@@ -31,6 +31,33 @@ Status: accepted (M5a-2). Builds on [0002](0002-auth-better-auth.md), [0003](000
 10. **The page language is an action input**, validated against the supported locales (`getLocale()` does not work in
     Server Actions). It only chooses the language of emails.
 
+11. **The pending address lives in a signed cookie, not in the URL** (M5a-3). The verify page used to carry
+    `?email=`, which reaches browser history, server logs and screenshots. Register and login (unverified account) now set
+    `auth.pending`: HttpOnly, SameSite=Lax, Secure over https, 30 minutes, signed (HMAC-SHA256, key derived from
+    `AUTH_SECRET`), holding only the address and an expiry. The verify and resend actions take the address from the
+    cookie, never from the client, so nobody can aim the form at someone else's address. The cookie is set identically
+    whether or not the address has an account (no enumeration) and proves nothing by itself: a code is still required.
+    Code: `src/server/auth/pending-token.ts` (pure) and `pending.ts` (cookie I/O).
+12. **The verify page copy keeps the no-enumeration rule** and tells the truth about both outcomes: "If {email} is new here,
+    we've sent it a 6-digit code ... If you already have an account with this address, we've emailed you instead", with
+    Sign in, Forgot your password? and Use a different email links.
+13. **The phone number is not unique, on purpose.** A unique phone would give a second way to probe whether a person has
+    an account (register with their number, see "already used"). The phone is a Cash on Delivery risk signal (the courier
+    calls it, repeat no-shows can be spotted), not an identity. Accounts are identified by the verified email only.
+    Accepted inputs: `01xxxxxxxxx`, `201xxxxxxxxx`, `+201xxxxxxxxx` (Arabic-Indic digits too); stored as `+20...`.
+14. **Per-visitor pages are explicitly dynamic and `getSession()` calls `headers()` first**, before anything reads secrets.
+    A build with no environment must pass: a missing `DATABASE_URL` means "no database", not "unreachable database", and
+    nothing may validate secrets while prerendering. A unit test pins the order (`session.test.ts`); CI builds with no
+    environment variables at all.
+15. **Verification code UX**: numeric keyboard, `autocomplete="one-time-code"`, `maxLength` 6, paste is stripped to digits
+    (done in `onPaste`, because `maxLength` would cut "123 456" before the spaces are removed), and six digits submit
+    themselves.
+
+## Launch list additions (legal review)
+
+The minimum registration age (16) and the versions of the consent texts (`termsVersion`, `privacyVersion`) are legal
+decisions: they go on the legal-review launch list (HANDOFF section 10, launch blocker 9).
+
 ## Known limits
 
 - **Pre-registration squatting**: an attacker can register a victim's address with a password they chose. If the victim

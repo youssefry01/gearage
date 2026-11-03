@@ -20,7 +20,12 @@ export type AppSession = { user: SessionUser; sessionId: string; expiresAt: Date
  * extended in the database and the cookie is renewed the next time an action runs.
  */
 export const getSession = cache(async (): Promise<AppSession | null> => {
-  const result = await getAuth().api.getSession({ headers: await headers() });
+  // headers() FIRST, before anything reads configuration. During `next build` it throws Next's "dynamic usage"
+  // signal, which opts the page out of static generation; only then is it safe for getAuth() to validate the
+  // environment (secrets, database). Calling getAuth() first made every per-user page fail to prerender in a build
+  // that has no environment (CI). A test pins this order.
+  const requestHeaders = await headers();
+  const result = await getAuth().api.getSession({ headers: requestHeaders });
   if (!result) return null;
   const user = result.user as typeof result.user & {
     firstName?: string;

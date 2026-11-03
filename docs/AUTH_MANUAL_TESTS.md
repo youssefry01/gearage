@@ -9,12 +9,20 @@ Brevo, check the inbox and Brevo's Transactional log. Use `+` addresses (`you+t1
 1. `/en/register`: submit empty: every required field shows an error under it and focus moves to the first.
 2. Fill in, password `password1234`: the strength meter says Very weak or Weak. Type `tuba-mango-zephyr-quartz-81`: Good or Strong.
 3. Untick the terms box and submit: "You need to accept to continue." Tick it and submit.
-4. You land on `/en/verify-email?email=...`. **Check the email**: one message, a 6-digit code, "valid for 10 minutes", your language, brand name from the config, no password in it.
+4. You land on `/en/verify-email` (the address is NOT in the URL; DevTools, Application, Cookies shows `auth.pending`: HttpOnly, SameSite Lax, about 30 minutes). The page says "If <your address> is new here, we've sent it a 6-digit code... If you already have an account with this address, we've emailed you instead" and has Sign in, Forgot your password? and Use a different email links. **Check the email**: one message, a 6-digit code, "valid for 10 minutes", your language, brand name from the config, no password in it.
 5. Database check (psql): `select "emailVerified","termsAcceptedAt","termsVersion","privacyAcceptedAt","marketingConsent","marketingConsentAt","phone" from "user" order by "createdAt" desc limit 1;` shows `false`, both timestamps set, `+20...` phone; `marketingConsentAt` is null unless you ticked marketing.
 6. `select left(password,40) from account order by "createdAt" desc limit 1;` starts with `pv1:$argon2id$v=19$m=65536,t=3,p=1$`.
 
+## 1b. Form fields (M5a-3)
+
+1. Phone field on `/en/register` (try it on a phone too): the telephone keypad opens, the placeholder is `01012345678`, you cannot type more than 20 characters or any letters, and Arabic digits (`٠١٠١٢٣٤٥٦٧٨`) turn into `01012345678` as you type. `01012345678`, `201012345678` and `+201012345678` all register; `select phone from "user" order by "createdAt" desc limit 1;` shows `+201012345678` for all three.
+2. Cursor (desktop): hover "Create account", the theme and language switches, the footer links, the checkbox and its label: all show the hand. Hover a disabled button (for example "Create account" while it is sending): not-allowed.
+3. Keyboard: Tab through the register form, the verify page and the account page: every control shows a visible focus ring.
+
 ## 2. Verify
 
+0. Code field: the numeric keypad opens on a phone, the field takes digits only, the email's code pastes cleanly even as "123 456" or with spaces around it, and six digits submit themselves (no button press needed). On iOS and Android the keyboard offers the code from the email (one-time-code).
+   0b. Open `/en/verify-email` in a private window (no cookie): you are sent to sign in. Wait 30 minutes on the page (or delete the `auth.pending` cookie) and try to submit: "This verification has expired. Sign in to get a new code, or register again."
 1. Wrong code: "That code isn't right." Right code: you land on `/en/account` signed in ("Hello, <first name>").
 2. Request a new code with "Send a new code": the message is the same whether or not the address exists. A second email arrives for a real unverified address.
 3. Five wrong codes in a row, then the right one: refused (the code is used up); request a new code.
