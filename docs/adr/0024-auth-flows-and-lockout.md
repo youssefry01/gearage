@@ -52,6 +52,12 @@ Status: accepted (M5a-2). Builds on [0002](0002-auth-better-auth.md), [0003](000
 15. **Verification code UX**: numeric keyboard, `autocomplete="one-time-code"`, `maxLength` 6, paste is stripped to digits
     (done in `onPaste`, because `maxLength` would cut "123 456" before the spaces are removed), and six digits submit
     themselves.
+16. **Passwords are unrestricted in content** (decided 2026-11-04, M5b-1). Any language, spaces and any characters are
+    allowed; there are no composition rules; the only rules are length (12 to 128 characters after NFKC), "not in a known
+    breach" and, when changing a password, "different from the current one". The forms say so: "You can use any
+    language." The same hint is shown on registration, reset and change-password.
+17. **Phone field** (M5b-1): the typing limit is 17 characters (the longest ordinary form is `0020 10 1234 5678`), and an
+    invalid number shows "Enter an Egyptian mobile number like 01012345678".
 
 ## Launch list additions (legal review)
 

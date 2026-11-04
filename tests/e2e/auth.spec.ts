@@ -433,7 +433,7 @@ test.describe("verification page and form fields", () => {
     await expect(phone).toHaveAttribute("type", "tel");
     await expect(phone).toHaveAttribute("inputmode", "tel");
     await expect(phone).toHaveAttribute("autocomplete", "tel");
-    await expect(phone).toHaveAttribute("maxlength", "20");
+    await expect(phone).toHaveAttribute("maxlength", "17");
     await expect(phone).toHaveAttribute("placeholder", "01012345678");
     await phone.pressSequentially("٠١٠١٢٣٤٥٦٧٨x");
     await expect(phone).toHaveValue("01012345678");

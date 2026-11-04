@@ -1,4 +1,4 @@
-# Manual test guide: authentication (M5a-2)
+# Manual test guide: authentication and account (M5a-2, M5b-1)
 
 Use a **private window** per scenario. Run `npm run dev` (or a production build with `npm run build && npm start`).
 Emails: with `EMAIL_PROVIDER=log` they are files in the folder named by `EMAIL_LOG_DIR` (default `.emails/`); with
@@ -76,3 +76,43 @@ In the Console, `document.cookie` must **not** contain the session token. After 
 ## 9. Housekeeping job
 
 `curl -H "Authorization: Bearer $CRON_SECRET" http://localhost:3000/api/cron/daily` then check the log line `auth_pruned`. To see it delete something, set an unverified user's `createdAt` to 8 days ago first.
+
+## 10. Profile (M5b-1)
+
+1. Sign in, open `/en/account`: your name, email and mobile (as `01012345678`) are shown, with links to Profile and Security.
+2. Open Profile. Change the first name and the mobile number, set a date of birth and a gender, **Save changes**. "Your details were saved." appears; reload and the values are still there; `/en/account` greets you by the new name.
+3. In the mobile field type `12345`, save: "Enter an Egyptian mobile number like 01012345678". Paste 40 digits: the field stops at 17 characters. Type Arabic digits: they turn into 0-9.
+4. Set a date of birth less than 16 years ago: a clear message. Clear the date and the gender, save, reload: both are empty.
+5. Edit a field and try to close or reload the tab: the browser asks first. After saving it does not.
+6. The email field is read-only.
+
+## 11. Change password (M5b-1)
+
+Use **two browsers** (A and B, for example Chrome and Firefox) signed in to the same account.
+
+1. In A open `/en/account/security`. The hint under the new password says "You can use any language."
+2. Wrong current password: "That isn't your current password." Nothing changes (B is still signed in: reload it).
+3. New password equal to the current one: "Choose a password that is different from your current one."
+4. A new password such as `a completely different passphrase 2026` (spaces, or Arabic words) is accepted: "Your password was changed. Your other devices were signed out and we sent you a confirmation email."
+5. A stays signed in. Reload B: it goes to the sign-in page. The old password no longer signs in; the new one does.
+6. The email "Your ... password was changed" arrives (Brevo inbox, or `.emails/`): it names the device ("Chrome on Windows") and has a **Reset password** button to the forgot-password page. Check it in Arabic too (`/ar/account/security`).
+7. Rate limit: five or six wrong attempts in a row end with "Too many attempts" (the limit is 6 per 15 minutes per account).
+
+## 12. Signed-in devices (M5b-1)
+
+1. With A and B signed in, A's Security page lists two devices: this one marked "This device" (no button) and the other, such as "Firefox on macOS", with a **Sign out** button, the sign-in time and the last-active date. Times are in Cairo time.
+2. **Sign out** the other device in A. The list updates; reload B: it is signed out.
+3. Sign in on B again, and on a third browser C. In A press **Sign out of other devices**: both go; A stays; the button is replaced by "You're not signed in anywhere else."
+4. The normal **Sign out** (account page) ends only the device you press it on.
+5. Everything above in Arabic (`/ar/account/security`): right-to-left, "Chrome على Windows" style labels.
+
+## 13. Security activity (M5b-1)
+
+At the bottom of the Security page, newest first: "Signed in on Chrome on Windows" for sign-ins, "Password changed", "Password reset by email", "One device was signed out", "Other devices were signed out". No IP addresses appear anywhere. In the database check that sessions have no raw User-Agent or IP:
+
+```sql
+SELECT device, "userAgent", "ipAddress" FROM session;   -- userAgent and ipAddress are NULL for new sessions
+SELECT type, device, "createdAt" FROM security_event ORDER BY "createdAt" DESC LIMIT 10;
+```
+
+To see the 12-month cleanup: set an event's `createdAt` to 400 days ago, then run the housekeeping job (section 9); the log line `auth_pruned` includes `securityEvents`.

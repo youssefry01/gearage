@@ -29,7 +29,7 @@ export const THEMES = ["dark", "light"] as const;
 /** The verify page needs the signed pending-verification cookie (see page-setup.ts). */
 export const VERIFY_PAGE = "/verify-email";
 /** Pages that need a signed-in session (global setup saves one; page-setup.ts loads it). */
-export const SIGNED_IN_PAGES = ["/account"] as const;
+export const SIGNED_IN_PAGES = ["/account", "/account/profile", "/account/security"] as const;
 /** Pages covered by the responsive/a11y specs ("" = home). The style guide is enabled by ENABLE_STYLEGUIDE=1. */
 export const PAGES = [
   "",
@@ -57,6 +57,8 @@ export const PAGES = [
   VERIFY_PAGE,
   "/forgot-password",
   "/reset-password#token=abcdefghijklmnopqrstuvwx",
-  // Account (M5a-2): needs the signed-in session.
+  // Account (M5a-2, M5b-1): need the signed-in session.
   "/account",
+  "/account/profile",
+  "/account/security",
 ] as const;

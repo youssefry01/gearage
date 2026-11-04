@@ -8,6 +8,7 @@ import {
   resetPasswordSchema,
   verifyCodeSchema,
 } from "@/domain/auth";
+import { deviceFromUserAgent } from "@/domain/device";
 import { policies } from "@/domain/rate-limit";
 import { locales } from "@/i18n/locales";
 import { authedAction, publicAction } from "@/server/actions/client";
@@ -21,6 +22,14 @@ import { z } from "zod";
  * route params, which a Server Action does not have. It only picks the language of the emails.
  */
 const localeSchema = z.enum(locales);
+
+/**
+ * The coarse device label of this request ("chrome/windows"), derived here so the raw User-Agent never reaches the
+ * service layer or Better Auth, let alone the database (ADR 0025).
+ */
+async function requestDevice(): Promise<string | null> {
+  return deviceFromUserAgent((await headers()).get("user-agent"));
+}
 
 export const registerAction = publicAction
   .metadata({ policy: policies.registerIp.name })
@@ -47,7 +56,9 @@ export const verifyEmailAction = publicAction
   .metadata({ policy: policies.codeVerifyIp.name })
   .inputSchema(verifyCodeSchema)
   .action(async ({ parsedInput }) => {
-    const result = await auth.verifyEmail(await pendingEmailOrFail(), parsedInput.code);
+    const result = await auth.verifyEmail(await pendingEmailOrFail(), parsedInput.code, {
+      device: await requestDevice(),
+    });
     await clearPendingEmail();
     return result;
   });
@@ -63,7 +74,9 @@ export const loginAction = publicAction
   .metadata({ policy: policies.loginIp.name })
   .inputSchema(loginSchema.extend({ locale: localeSchema }))
   .action(async ({ parsedInput }) => {
-    const result = await auth.login(parsedInput.email, parsedInput.password, parsedInput.locale);
+    const result = await auth.login(parsedInput.email, parsedInput.password, parsedInput.locale, {
+      device: await requestDevice(),
+    });
     // A correct password on an unverified account sends the person to the verify page, which needs the address.
     if (result.status === "unverified") await setPendingEmail(parsedInput.email);
     return result;

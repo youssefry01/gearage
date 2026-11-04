@@ -14,6 +14,7 @@ import { defaultLocale, locales, type Locale } from "@/i18n/locales";
 import { getEnv } from "@/lib/env";
 import { logger } from "@/lib/logger";
 import { getDb } from "@/server/db";
+import { insertSecurityEvent } from "@/server/repositories/account.repository";
 import { enqueueEmail } from "@/server/services/email.service";
 import { hashPassword, verifyPassword } from "@/server/security/password";
 import { currentAuthContext } from "./context";
@@ -30,6 +31,10 @@ import { currentAuthContext } from "./context";
  *  - Sessions are database rows addressed by an opaque token in an HttpOnly, SameSite=Lax cookie (Secure over https);
  *    the session is looked up on every request (no cookie cache), so revoking it takes effect at once.
  *  - Better Auth's own rate limiter is off (it only guards the handler we do not mount); ours applies.
+ *  - Data minimization on sessions (M5b-1, ADR 0025): Better Auth never sees the request's User-Agent or IP (we call it
+ *    without request headers). The only thing recorded about the device is the coarse label the calling service derived
+ *    (`chrome/windows`), handed over through the per-call context. The create hooks below store that label on the
+ *    session, force the raw `userAgent` and `ipAddress` columns to NULL, and write the SIGN_IN security event.
  */
 
 function localeFromContext(fallback?: string | null): Locale {
@@ -129,13 +134,45 @@ function createAuth() {
         marketingConsentAt: { type: "date", required: false, input: true },
       },
     },
-    session: { expiresIn: SESSION_DAYS * 86_400, updateAge: 86_400 },
+    session: {
+      expiresIn: SESSION_DAYS * 86_400,
+      updateAge: 86_400,
+      additionalFields: { device: { type: "string", required: false, input: false } },
+    },
+    databaseHooks: {
+      session: {
+        create: {
+          // Every session, whichever flow creates it (password sign-in, or the automatic sign-in after verifying an
+          // email), gets the label of the call that created it and nothing else about the client.
+          before: async () => ({
+            data: {
+              userAgent: null,
+              ipAddress: null,
+              device: currentAuthContext()?.device ?? null,
+            },
+          }),
+          // One SIGN_IN event per session created. A logging failure must never fail a sign-in; it is logged instead.
+          after: async (session) => {
+            try {
+              await insertSecurityEvent({
+                userId: session.userId,
+                type: "SIGN_IN",
+                device: typeof session.device === "string" ? session.device : null,
+                createdAt: new Date(),
+              });
+            } catch (err) {
+              logger.error("security_event_failed", { type: "SIGN_IN", err });
+            }
+          },
+        },
+      },
+    },
     advanced: {
       cookiePrefix: "auth",
       useSecureCookies: secureCookies,
       defaultCookieAttributes: { httpOnly: true, sameSite: "lax", path: "/" },
       database: { generateId: false },
-      // Data minimization: no IP address is stored on sessions. The M5b sessions list can revisit this.
+      // Data minimization: no IP address is stored on sessions (decided 2026-11-04 for the sessions list as well).
       ipAddress: { disableIpTracking: true },
     },
     plugins: [

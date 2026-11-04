@@ -39,6 +39,10 @@ export const policies = {
   codeVerifyIp: policy("auth.code.verify.ip", 30, 15 * 60, "closed"),
   authSession: policy("auth.session.ip", 60, 60, "closed"),
   resetConfirmIp: policy("auth.reset.confirm.ip", 10, 15 * 60, "closed"),
+  // Changing the password asks for the current one, so it is a password-guessing oracle for anyone holding a stolen
+  // session: few tries per account (counted on every attempt, right or wrong) and per IP (M5b-1, ADR 0025).
+  passwordChangeUser: policy("auth.password.change.user", 6, 15 * 60, "closed"),
+  passwordChangeIp: policy("auth.password.change.ip", 20, 15 * 60, "closed"),
 } as const;
 
 export type LimitResult = {

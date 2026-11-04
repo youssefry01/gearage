@@ -4,6 +4,7 @@ import { storeName } from "@/config/brand";
 import { locales } from "@/i18n/locales";
 import { renderEmail } from "./render";
 
+const changed = { device: "chrome/windows", resetUrl: "https://shop.example/en/forgot-password" };
 const reset = { url: "https://shop.example/en/reset-password?token=abc123", expiresMinutes: 60 };
 
 describe("email templates", () => {
@@ -13,6 +14,7 @@ describe("email templates", () => {
       for (const [template, payload] of [
         ["verify-code", { code: "493021", expiresMinutes: 10 }],
         ["reset-password", reset],
+        ["password-changed", changed],
         ["test", {}],
       ] as const) {
         const r = await renderEmail(template, locale, payload);
@@ -57,5 +59,21 @@ describe("email templates", () => {
   it("uses no hard-coded hex colours: they all come from the design tokens", async () => {
     const r = await renderEmail("test", "en", {});
     expect(r.html).toMatch(/#[0-9a-fA-F]{6}/); // inlined from tokens (email clients have no CSS variables)
+  });
+  it("password-changed names the device in the page language, links to the reset page, and copes with no device", async () => {
+    const en = await renderEmail("password-changed", "en", changed);
+    expect(en.text).toContain("Chrome on Windows");
+    expect(en.html).toContain('href="https://shop.example/en/forgot-password"');
+    expect(en.text).toContain("signed out");
+    const ar = await renderEmail("password-changed", "ar", changed);
+    expect(ar.text).toContain("Chrome على Windows");
+    expect(ar.html).toContain('dir="rtl"');
+    const none = await renderEmail("password-changed", "en", { ...changed, device: null });
+    expect(none.text).not.toContain("changed from");
+  });
+  it("password-changed refuses a payload that could carry anything but a device code", async () => {
+    await expect(
+      renderEmail("password-changed", "en", { ...changed, device: "Mozilla/5.0 (Windows)" }),
+    ).rejects.toThrow();
   });
 });

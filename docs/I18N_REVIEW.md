@@ -1,6 +1,6 @@
 # Arabic copy that needs native review
 
-948 Arabic strings were written by the assistant, not a native copywriter. Review tone, terminology (Egyptian retail wording, for
+1025 Arabic strings were written by the assistant, not a native copywriter. Review tone, terminology (Egyptian retail wording, for
 example the category names) and plural forms. Brand and model names left in Latin (AMD Ryzen, DDR5, ...) are not listed.
 The owner plans one native-review pass once more copy exists.
 
@@ -397,6 +397,15 @@ run `npm run i18n:review` after adding strings (CI runs `npm run i18n:review:che
 | messages: Email.resetPassword.fallback | If the button doesn't work, copy this link into your browser: | إن لم يعمل الزر، انسخ هذا الرابط والصقه في المتصفح: |
 | messages: Email.resetPassword.expires | The link expires in {minutes} minutes and can be used once. | ينتهي الرابط خلال {minutes} دقيقة ويُستخدم مرة واحدة فقط. |
 | messages: Email.resetPassword.ignore | If you didn't ask for this, ignore this email. Your password stays the same. | إن لم تطلب ذلك، تجاهل هذه الرسالة وستبقى كلمة مرورك كما هي. |
+| messages: Email.passwordChanged.subject | Your {brand} password was changed | تم تغيير كلمة مرور حسابك في {brand} |
+| messages: Email.passwordChanged.heading | Your password was changed | تم تغيير كلمة المرور |
+| messages: Email.passwordChanged.intro | The password of your {brand} account was just changed. | تم تغيير كلمة مرور حسابك في {brand} الآن. |
+| messages: Email.passwordChanged.device | It was changed from: {device}. | تم التغيير من: {device}. |
+| messages: Email.passwordChanged.othersSignedOut | Your other signed-in devices were signed out. This device stayed signed in. | تم تسجيل الخروج من أجهزتك الأخرى. بقي هذا الجهاز مسجّلًا للدخول. |
+| messages: Email.passwordChanged.wasntYou | If this wasn't you, reset your password now. Resetting it signs out every device. | إذا لم تكن أنت من قام بذلك، فأعد تعيين كلمة المرور الآن. إعادة التعيين تسجّل الخروج من جميع الأجهزة. |
+| messages: Email.passwordChanged.button | Reset password | إعادة تعيين كلمة المرور |
+| messages: Email.passwordChanged.fallback | If the button doesn't work, copy this link into your browser: | إذا لم يعمل الزر، انسخ هذا الرابط إلى متصفحك: |
+| messages: Email.passwordChanged.itWasYou | If it was you, no action is needed. | إذا كنت أنت من قام بذلك، فلا يلزم أي إجراء. |
 | messages: Email.test.subject | {brand} test email | رسالة اختبار من {brand} |
 | messages: Email.test.heading | Test email | رسالة اختبار |
 | messages: Email.test.body | If you can read this, your email setup works. | إن كنت تقرأ هذه الرسالة فإعداد البريد يعمل. |
@@ -405,6 +414,10 @@ run `npm run i18n:review` after adding strings (CI runs `npm run i18n:review:che
 | messages: Email.accountExists.intro | Someone just tried to create a {brand} account with this email address, and an account already exists. | حاول شخص ما إنشاء حساب في {brand} بهذا البريد الإلكتروني، ولكن يوجد حساب بالفعل. |
 | messages: Email.accountExists.action | If it was you, sign in instead, or use "Forgot password" on the sign-in page if you don't remember your password. | إذا كنت أنت، سجّل الدخول بدلاً من ذلك، أو استخدم «نسيت كلمة المرور» في صفحة تسجيل الدخول إذا لم تتذكرها. |
 | messages: Email.accountExists.ignore | If it wasn't you, you can ignore this email. Nothing was changed. | إذا لم تكن أنت، يمكنك تجاهل هذه الرسالة. لم يتغير أي شيء. |
+| messages: Email.devices.both | {browser} on {os} | {browser} على {os} |
+| messages: Email.devices.browserOnly | {browser} | {browser} |
+| messages: Email.devices.osOnly | {os} | {os} |
+| messages: Email.devices.unknown | an unknown device | جهاز غير معروف |
 | messages: Auth.login.title | Sign in | تسجيل الدخول |
 | messages: Auth.login.metaDescription | Sign in to your {brand} account. | سجّل الدخول إلى حسابك في {brand}. |
 | messages: Auth.login.intro | Welcome back. Sign in to see your orders and saved items. | مرحبًا بعودتك. سجّل الدخول لمتابعة طلباتك وعناصرك المحفوظة. |
@@ -455,7 +468,7 @@ run `npm run i18n:review` after adding strings (CI runs `npm run i18n:review:che
 | messages: Auth.fields.phone | Mobile number | رقم الموبايل |
 | messages: Auth.fields.phoneHint | Egyptian mobile, e.g. 010 1234 5678 | رقم موبايل مصري، مثل 010 1234 5678 |
 | messages: Auth.fields.password | Password | كلمة المرور |
-| messages: Auth.fields.passwordHint | At least 12 characters. A few random words work well. | 12 حرفًا على الأقل. عدة كلمات عشوائية خيار جيد. |
+| messages: Auth.fields.passwordHint | At least 12 characters. You can use any language. A few random words work well. | 12 حرفًا على الأقل. يمكنك استخدام أي لغة. عدة كلمات عشوائية خيار جيد. |
 | messages: Auth.fields.dateOfBirth | Date of birth (optional) | تاريخ الميلاد (اختياري) |
 | messages: Auth.fields.dateOfBirthHint | Format YYYY-MM-DD. You must be at least 16. | الصيغة YYYY-MM-DD. يجب ألا يقل عمرك عن 16 عامًا. |
 | messages: Auth.fields.gender | Gender (optional) | النوع (اختياري) |
@@ -474,7 +487,7 @@ run `npm run i18n:review` after adding strings (CI runs `npm run i18n:review:che
 | messages: Auth.errors.generic | Something went wrong. Please try again. | حدث خطأ ما. حاول مرة أخرى. |
 | messages: Auth.errors.required | This field is required. | هذا الحقل مطلوب. |
 | messages: Auth.errors.invalid_email | Enter a valid email address. | أدخل بريدًا إلكترونيًا صحيحًا. |
-| messages: Auth.errors.invalid_phone | Enter a valid Egyptian mobile number. | أدخل رقم موبايل مصريًا صحيحًا. |
+| messages: Auth.errors.invalid_phone | Enter an Egyptian mobile number like 01012345678 | أدخل رقم موبايل مصريًا مثل 01012345678 |
 | messages: Auth.errors.invalid_name | Use letters only (spaces, hyphens and apostrophes are fine). | استخدم الحروف فقط (المسافات والشرطات والفواصل العليا مقبولة). |
 | messages: Auth.errors.too_long | This is too long. | النص طويل جدًا. |
 | messages: Auth.errors.invalid_dob | Enter a valid date in the format YYYY-MM-DD. | أدخل تاريخًا صحيحًا بصيغة YYYY-MM-DD. |
@@ -493,6 +506,11 @@ run `npm run i18n:review` after adding strings (CI runs `npm run i18n:review:che
 | messages: Auth.errors.too_many_attempts | Too many wrong codes. Request a new one. | رموز خاطئة كثيرة. اطلب رمزًا جديدًا. |
 | messages: Auth.errors.invalid_token | This link is invalid or has expired. Request a new one. | هذا الرابط غير صالح أو منتهي. اطلب رابطًا جديدًا. |
 | messages: Auth.errors.verification_expired | This verification has expired. Sign in to get a new code, or register again. | انتهت صلاحية هذا التحقق. سجّل الدخول للحصول على رمز جديد، أو سجّل من جديد. |
+| messages: Auth.errors.wrong_current_password | That isn't your current password. | هذه ليست كلمة مرورك الحالية. |
+| messages: Auth.errors.same_password | Choose a password that is different from your current one. | اختر كلمة مرور مختلفة عن كلمة مرورك الحالية. |
+| messages: Auth.errors.invalid_session | That device could not be found. | تعذّر العثور على ذلك الجهاز. |
+| messages: Auth.errors.current_session | Use Sign out to sign out of this device. | استخدم «تسجيل الخروج» للخروج من هذا الجهاز. |
+| messages: Auth.errors.try_again | Your password changed while this was happening. Please try again. | تغيّرت كلمة المرور أثناء ذلك. حاول مرة أخرى. |
 | messages: Auth.forgot.title | Reset your password | إعادة تعيين كلمة المرور |
 | messages: Auth.forgot.metaDescription | Request a link to reset your password. | اطلب رابطًا لإعادة تعيين كلمة المرور. |
 | messages: Auth.forgot.intro | Enter your email and we'll send a link to choose a new password, if an account exists. | أدخل بريدك الإلكتروني وسنرسل رابطًا لاختيار كلمة مرور جديدة، إذا كان الحساب موجودًا. |
@@ -509,6 +527,65 @@ run `npm run i18n:review` after adding strings (CI runs `npm run i18n:review:che
 | messages: Auth.reset.missingToken | This reset link is incomplete. Open the link from your email again, or request a new one. | رابط إعادة التعيين غير مكتمل. افتح الرابط من بريدك مرة أخرى، أو اطلب رابطًا جديدًا. |
 | messages: Auth.reset.requestNew | Request a new link | اطلب رابطًا جديدًا |
 | messages: Auth.reset.done | Your password was changed. Sign in with your new password. | تم تغيير كلمة المرور. سجّل الدخول بكلمة المرور الجديدة. |
+| messages: Account.nav.label | Account sections | أقسام الحساب |
+| messages: Account.nav.overview | Overview | نظرة عامة |
+| messages: Account.nav.profile | Profile | الملف الشخصي |
+| messages: Account.nav.security | Security | الأمان |
+| messages: Account.overview.detailsHeading | Your details | بياناتك |
+| messages: Account.overview.name | Name | الاسم |
+| messages: Account.overview.email | Email | البريد الإلكتروني |
+| messages: Account.overview.phone | Mobile | الموبايل |
+| messages: Account.overview.profileTitle | Profile | الملف الشخصي |
+| messages: Account.overview.profileBody | Your name, mobile number, date of birth and gender. | اسمك ورقم موبايلك وتاريخ ميلادك ونوعك. |
+| messages: Account.overview.profileLink | Edit profile | تعديل الملف الشخصي |
+| messages: Account.overview.securityTitle | Security | الأمان |
+| messages: Account.overview.securityBody | Change your password, see where you're signed in and review recent security activity. | غيّر كلمة المرور، واطّلع على الأجهزة المسجّل دخولك منها وعلى آخر نشاط أمني. |
+| messages: Account.overview.securityLink | Open security | فتح الأمان |
+| messages: Account.profile.title | Profile | الملف الشخصي |
+| messages: Account.profile.metaDescription | Edit your profile details. | عدّل بيانات ملفك الشخصي. |
+| messages: Account.profile.intro | Update your name, mobile number and other details. Changing your email address isn't available yet. | حدّث اسمك ورقم موبايلك وبقية بياناتك. تغيير عنوان البريد الإلكتروني غير متاح بعد. |
+| messages: Account.profile.dateOfBirth | Date of birth (optional) | تاريخ الميلاد (اختياري) |
+| messages: Account.profile.submit | Save changes | حفظ التغييرات |
+| messages: Account.profile.submitting | Saving… | جارٍ الحفظ… |
+| messages: Account.profile.saved | Your details were saved. | تم حفظ بياناتك. |
+| messages: Account.security.title | Security | الأمان |
+| messages: Account.security.metaDescription | Change your password and manage where you're signed in. | غيّر كلمة المرور وأدر الأجهزة المسجّل دخولك منها. |
+| messages: Account.security.intro | Change your password, see where you're signed in and review recent activity. | غيّر كلمة المرور، واطّلع على الأجهزة المسجّل دخولك منها وعلى آخر نشاط. |
+| messages: Account.security.password.heading | Change password | تغيير كلمة المرور |
+| messages: Account.security.password.intro | Changing your password signs you out of your other devices. This device stays signed in, and we email you a confirmation. | تغيير كلمة المرور يسجّل خروجك من أجهزتك الأخرى. يبقى هذا الجهاز مسجّلًا للدخول، ونرسل لك رسالة تأكيد. |
+| messages: Account.security.password.current | Current password | كلمة المرور الحالية |
+| messages: Account.security.password.new | New password | كلمة المرور الجديدة |
+| messages: Account.security.password.submit | Change password | تغيير كلمة المرور |
+| messages: Account.security.password.submitting | Changing… | جارٍ التغيير… |
+| messages: Account.security.password.done | Your password was changed. Your other devices were signed out and we sent you a confirmation email. | تم تغيير كلمة المرور. تم تسجيل الخروج من أجهزتك الأخرى وأرسلنا لك رسالة تأكيد. |
+| messages: Account.security.sessions.heading | Where you're signed in | الأجهزة المسجّل دخولك منها |
+| messages: Account.security.sessions.intro | These devices are signed in to your account. If you don't recognise one, sign it out and change your password. | هذه الأجهزة مسجّلة الدخول إلى حسابك. إن لم تتعرّف على أحدها فسجّل خروجه وغيّر كلمة المرور. |
+| messages: Account.security.sessions.thisDevice | This device | هذا الجهاز |
+| messages: Account.security.sessions.signedIn | Signed in {when} | تسجيل الدخول: {when} |
+| messages: Account.security.sessions.lastActive | Last active {when} | آخر نشاط: {when} |
+| messages: Account.security.sessions.times | Times are shown in Cairo time. | الأوقات معروضة بتوقيت القاهرة. |
+| messages: Account.security.sessions.signOut | Sign out | تسجيل الخروج |
+| messages: Account.security.sessions.signOutDevice | Sign out {device} | تسجيل الخروج من {device} |
+| messages: Account.security.sessions.signingOut | Signing out… | جارٍ تسجيل الخروج… |
+| messages: Account.security.sessions.signOutOthers | Sign out of other devices | تسجيل الخروج من الأجهزة الأخرى |
+| messages: Account.security.sessions.noOthers | You're not signed in anywhere else. | لست مسجّل الدخول في أي مكان آخر. |
+| messages: Account.security.sessions.revoked | That device was signed out. | تم تسجيل الخروج من ذلك الجهاز. |
+| messages: Account.security.sessions.othersRevoked | Your other devices were signed out. | تم تسجيل الخروج من أجهزتك الأخرى. |
+| messages: Account.security.sessions.list | Signed-in devices | الأجهزة المسجّلة الدخول |
+| messages: Account.security.activity.heading | Recent security activity | آخر نشاط أمني |
+| messages: Account.security.activity.intro | The latest sign-ins and security changes on your account. We keep this list for about 12 months. It doesn't include IP addresses. | أحدث عمليات تسجيل الدخول والتغييرات الأمنية في حسابك. نحتفظ بهذه القائمة نحو 12 شهرًا، ولا تتضمن عناوين IP. |
+| messages: Account.security.activity.empty | No activity yet. | لا يوجد نشاط بعد. |
+| messages: Account.security.activity.list | Security activity | النشاط الأمني |
+| messages: Account.security.activity.events.SIGN_IN | Signed in | تسجيل دخول |
+| messages: Account.security.activity.events.SIGN_IN_ON | Signed in on {device} | تسجيل دخول من {device} |
+| messages: Account.security.activity.events.PASSWORD_CHANGED | Password changed | تم تغيير كلمة المرور |
+| messages: Account.security.activity.events.PASSWORD_RESET | Password reset by email | تمت إعادة تعيين كلمة المرور عبر البريد |
+| messages: Account.security.activity.events.SESSION_REVOKED | One device was signed out | تم تسجيل الخروج من جهاز واحد |
+| messages: Account.security.activity.events.OTHER_SESSIONS_REVOKED | Other devices were signed out | تم تسجيل الخروج من الأجهزة الأخرى |
+| messages: Account.devices.both | {browser} on {os} | {browser} على {os} |
+| messages: Account.devices.browserOnly | {browser} | {browser} |
+| messages: Account.devices.osOnly | {os} | {os} |
+| messages: Account.devices.unknown | Unknown device | جهاز غير معروف |
 
 ## Brand copy
 

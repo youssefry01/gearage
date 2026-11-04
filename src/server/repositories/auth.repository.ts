@@ -1,8 +1,8 @@
 import { Prisma } from "@/generated/prisma/client";
 import { getDb } from "@/server/db";
-import { utc } from "@/server/repositories/inventory.repository";
+import { utc, type Tx } from "@/server/repositories/inventory.repository";
 
-type Db = ReturnType<typeof getDb>;
+type Db = Tx | ReturnType<typeof getDb>;
 
 export type UserBrief = { id: string; emailVerified: boolean; locale: string; createdAt: Date };
 
@@ -89,15 +89,18 @@ export type AuthPruneResult = {
   verifications: number;
   sessions: number;
   throttles: number;
+  securityEvents: number;
 };
 
 /**
- * Deletes what is dead: accounts whose email was never verified, expired one-time values, expired sessions and old
- * throttle rows. Unverified accounts are removed so a squatted address cannot stay claimed (HANDOFF issue 81).
+ * Deletes what is dead: accounts whose email was never verified, expired one-time values, expired sessions, old
+ * throttle rows and security events past their retention (`eventsBefore`, about 12 months, ADR 0025). Unverified
+ * accounts are removed so a squatted address cannot stay claimed (HANDOFF issue 81).
  */
 export async function pruneAuthData(
   now: Date,
   unverifiedBefore: Date,
+  eventsBefore: Date,
   db: Db = getDb(),
 ): Promise<AuthPruneResult> {
   const unverifiedUsers = await db.user.deleteMany({
@@ -108,32 +111,35 @@ export async function pruneAuthData(
   const throttles = await db.loginThrottle.deleteMany({
     where: { lastFailureAt: { lt: new Date(now.getTime() - 24 * 3_600_000) } },
   });
+  const securityEvents = await db.securityEvent.deleteMany({
+    where: { createdAt: { lt: eventsBefore } },
+  });
   return {
     unverifiedUsers: unverifiedUsers.count,
     verifications: verifications.count,
     sessions: sessions.count,
     throttles: throttles.count,
+    securityEvents: securityEvents.count,
   };
 }
 
 // --- Password reset ------------------------------------------------------------------------------------------------
 
 /**
- * The address a still-valid reset token belongs to, or null. Read BEFORE the token is consumed so the lockout for that
- * address can be cleared by the reset. Better Auth stores the token as `reset-password:<token>` with the user id.
+ * The account a still-valid reset token belongs to, or null. Read BEFORE the token is consumed so the lockout for that
+ * address can be cleared and the reset logged. Better Auth stores the token as `reset-password:<token>` with the user id.
  */
-export async function findResetTokenEmail(
+export async function findResetTokenUser(
   token: string,
   now: Date,
   db: Db = getDb(),
-): Promise<string | null> {
+): Promise<{ id: string; email: string } | null> {
   const row = await db.verification.findFirst({
     where: { identifier: `reset-password:${token}`, expiresAt: { gt: now } },
     select: { value: true },
   });
   if (!row) return null;
-  const user = await db.user.findUnique({ where: { id: row.value }, select: { email: true } });
-  return user?.email ?? null;
+  return db.user.findUnique({ where: { id: row.value }, select: { id: true, email: true } });
 }
 
 /** Following an emailed link proves the person controls the inbox, so a reset also verifies the address. */

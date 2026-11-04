@@ -434,6 +434,17 @@
       "expires": "The link expires in {minutes} minutes and can be used once.",
       "ignore": "If you didn't ask for this, ignore this email. Your password stays the same."
     },
+    "passwordChanged": {
+      "subject": "Your {brand} password was changed",
+      "heading": "Your password was changed",
+      "intro": "The password of your {brand} account was just changed.",
+      "device": "It was changed from: {device}.",
+      "othersSignedOut": "Your other signed-in devices were signed out. This device stayed signed in.",
+      "wasntYou": "If this wasn't you, reset your password now. Resetting it signs out every device.",
+      "button": "Reset password",
+      "fallback": "If the button doesn't work, copy this link into your browser:",
+      "itWasYou": "If it was you, no action is needed."
+    },
     "test": {
       "subject": "{brand} test email",
       "heading": "Test email",
@@ -445,6 +456,12 @@
       "intro": "Someone just tried to create a {brand} account with this email address, and an account already exists.",
       "action": "If it was you, sign in instead, or use \"Forgot password\" on the sign-in page if you don't remember your password.",
       "ignore": "If it wasn't you, you can ignore this email. Nothing was changed."
+    },
+    "devices": {
+      "both": "{browser} on {os}",
+      "browserOnly": "{browser}",
+      "osOnly": "{os}",
+      "unknown": "an unknown device"
     }
   },
   "Auth": {
@@ -507,7 +524,7 @@
       "phone": "Mobile number",
       "phoneHint": "Egyptian mobile, e.g. 010 1234 5678",
       "password": "Password",
-      "passwordHint": "At least 12 characters. A few random words work well.",
+      "passwordHint": "At least 12 characters. You can use any language. A few random words work well.",
       "dateOfBirth": "Date of birth (optional)",
       "dateOfBirthHint": "Format YYYY-MM-DD. You must be at least 16.",
       "gender": "Gender (optional)",
@@ -530,7 +547,7 @@
       "generic": "Something went wrong. Please try again.",
       "required": "This field is required.",
       "invalid_email": "Enter a valid email address.",
-      "invalid_phone": "Enter a valid Egyptian mobile number.",
+      "invalid_phone": "Enter an Egyptian mobile number like 01012345678",
       "invalid_name": "Use letters only (spaces, hyphens and apostrophes are fine).",
       "too_long": "This is too long.",
       "invalid_dob": "Enter a valid date in the format YYYY-MM-DD.",
@@ -548,7 +565,12 @@
       "expired_code": "That code has expired. Request a new one.",
       "too_many_attempts": "Too many wrong codes. Request a new one.",
       "invalid_token": "This link is invalid or has expired. Request a new one.",
-      "verification_expired": "This verification has expired. Sign in to get a new code, or register again."
+      "verification_expired": "This verification has expired. Sign in to get a new code, or register again.",
+      "wrong_current_password": "That isn't your current password.",
+      "same_password": "Choose a password that is different from your current one.",
+      "invalid_session": "That device could not be found.",
+      "current_session": "Use Sign out to sign out of this device.",
+      "try_again": "Your password changed while this was happening. Please try again."
     },
     "forgot": {
       "title": "Reset your password",
@@ -569,6 +591,85 @@
       "missingToken": "This reset link is incomplete. Open the link from your email again, or request a new one.",
       "requestNew": "Request a new link",
       "done": "Your password was changed. Sign in with your new password."
+    }
+  },
+  "Account": {
+    "nav": {
+      "label": "Account sections",
+      "overview": "Overview",
+      "profile": "Profile",
+      "security": "Security"
+    },
+    "overview": {
+      "detailsHeading": "Your details",
+      "name": "Name",
+      "email": "Email",
+      "phone": "Mobile",
+      "profileTitle": "Profile",
+      "profileBody": "Your name, mobile number, date of birth and gender.",
+      "profileLink": "Edit profile",
+      "securityTitle": "Security",
+      "securityBody": "Change your password, see where you're signed in and review recent security activity.",
+      "securityLink": "Open security"
+    },
+    "profile": {
+      "title": "Profile",
+      "metaDescription": "Edit your profile details.",
+      "intro": "Update your name, mobile number and other details. Changing your email address isn't available yet.",
+      "dateOfBirth": "Date of birth (optional)",
+      "submit": "Save changes",
+      "submitting": "Saving…",
+      "saved": "Your details were saved."
+    },
+    "security": {
+      "title": "Security",
+      "metaDescription": "Change your password and manage where you're signed in.",
+      "intro": "Change your password, see where you're signed in and review recent activity.",
+      "password": {
+        "heading": "Change password",
+        "intro": "Changing your password signs you out of your other devices. This device stays signed in, and we email you a confirmation.",
+        "current": "Current password",
+        "new": "New password",
+        "submit": "Change password",
+        "submitting": "Changing…",
+        "done": "Your password was changed. Your other devices were signed out and we sent you a confirmation email."
+      },
+      "sessions": {
+        "heading": "Where you're signed in",
+        "intro": "These devices are signed in to your account. If you don't recognise one, sign it out and change your password.",
+        "thisDevice": "This device",
+        "signedIn": "Signed in {when}",
+        "lastActive": "Last active {when}",
+        "times": "Times are shown in Cairo time.",
+        "signOut": "Sign out",
+        "signOutDevice": "Sign out {device}",
+        "signingOut": "Signing out…",
+        "signOutOthers": "Sign out of other devices",
+        "noOthers": "You're not signed in anywhere else.",
+        "revoked": "That device was signed out.",
+        "othersRevoked": "Your other devices were signed out.",
+        "list": "Signed-in devices"
+      },
+      "activity": {
+        "heading": "Recent security activity",
+        "intro": "The latest sign-ins and security changes on your account. We keep this list for about 12 months. It doesn't include IP addresses.",
+        "empty": "No activity yet.",
+        "list": "Security activity",
+        "events": {
+          "SIGN_IN": "Signed in",
+          "SIGN_IN_ON": "Signed in on {device}",
+          "PASSWORD_CHANGED": "Password changed",
+          "PASSWORD_RESET": "Password reset by email",
+          "SESSION_REVOKED": "One device was signed out",
+          "OTHER_SESSIONS_REVOKED": "Other devices were signed out"
+        }
+      }
+    },
+    "devices": {
+      "both": "{browser} on {os}",
+      "browserOnly": "{browser}",
+      "osOnly": "{os}",
+      "unknown": "Unknown device"
     }
   }
 }

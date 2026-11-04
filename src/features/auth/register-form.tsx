@@ -6,21 +6,19 @@ import { useForm, useWatch } from "react-hook-form";
 import type { Locale } from "@/i18n/locales";
 import { Button } from "@/components/ui/button";
 import { routes } from "@/config/routes";
-import {
-  PHONE_INPUT_MAX_LENGTH,
-  registerSchema,
-  sanitizePhoneInput,
-  type RegisterInput,
-} from "@/domain/auth";
+import { registerSchema, type RegisterInput } from "@/domain/auth";
 import { Link, useRouter } from "@/i18n/navigation";
 import { registerAction } from "./auth.actions";
 import {
+  Checkbox,
   FormAlert,
+  GenderSelect,
   PasswordField,
+  PhoneField,
+  phoneRegisterOptions,
   TextField,
   useActionErrorText,
   useErrorText,
-  Checkbox,
 } from "./form-fields";
 import { StrengthMeter } from "./strength-meter";
 import { zodResolver } from "./zod-resolver";
@@ -94,24 +92,7 @@ export function RegisterForm() {
         error={err("email")}
         {...register("email")}
       />
-      <TextField
-        label={t("fields.phone")}
-        type="tel"
-        autoComplete="tel"
-        inputMode="tel"
-        dir="ltr"
-        maxLength={PHONE_INPUT_MAX_LENGTH}
-        placeholder={t("fields.phonePlaceholder")}
-        hint={t("fields.phoneHint")}
-        error={err("phone")}
-        {...register("phone", {
-          // Arabic-Indic digits become 0-9 as they are typed; letters and symbols never get in.
-          onChange: (e: { target: HTMLInputElement }) => {
-            const clean = sanitizePhoneInput(e.target.value);
-            if (clean !== e.target.value) e.target.value = clean;
-          },
-        })}
-      />
+      <PhoneField error={err("phone")} {...register("phone", phoneRegisterOptions)} />
       <PasswordField
         label={t("fields.password")}
         autoComplete="new-password"
@@ -128,20 +109,7 @@ export function RegisterForm() {
         error={err("dateOfBirth")}
         {...register("dateOfBirth")}
       />
-      <div className="flex flex-col gap-1.5">
-        <label htmlFor="gender" className="text-small font-semibold">
-          {t("fields.gender")}
-        </label>
-        <select
-          id="gender"
-          className="border-input bg-background rounded-control min-h-11 w-full border px-3 py-2"
-          {...register("gender")}
-        >
-          <option value="">{t("fields.genderNone")}</option>
-          <option value="male">{t("fields.genderMale")}</option>
-          <option value="female">{t("fields.genderFemale")}</option>
-        </select>
-      </div>
+      <GenderSelect {...register("gender")} />
 
       <div className="flex flex-col gap-1">
         <Checkbox

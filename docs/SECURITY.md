@@ -42,27 +42,37 @@ Added in M5a-2 (sign-in flows; [ADR 0024](adr/0024-auth-flows-and-lockout.md)):
 - Reset tokens live in the URL fragment and are consumed by a POST; a reset revokes all sessions.
 - Daily job deletes unverified accounts after 7 days and expired codes, tokens, sessions and lockout rows.
 
+Added in M5b-1 (account area; [ADR 0025](adr/0025-account-security-sessions-and-activity.md)):
+
+- Sessions record only a coarse device label (`chrome/windows`); the raw User-Agent and any IP are never stored, and the database refuses anything but that shape. A security activity log keeps event type and time (and the label on sign-ins) for about 12 months.
+- Changing a password needs the current one, is limited per account, keeps this session, signs out the rest in the same transaction and emails a notice. The sessions list can sign out one other device or all others; it only ever acts on the signed-in account's own sessions.
+
 ## Auth threat-model checklist
 
 Re-check this list whenever auth code changes. "Test" names the automated proof; "Manual" is in [AUTH_MANUAL_TESTS.md](AUTH_MANUAL_TESTS.md).
 
-| Threat                                | Control                                                                                        | Test                                                      |
-| ------------------------------------- | ---------------------------------------------------------------------------------------------- | --------------------------------------------------------- |
-| Password guessing (online)            | Per-IP and per-email limits (fail closed), progressive lockout, Argon2id 64 MiB                | auth.db "locks progressively", e2e lockout (real+unknown) |
-| Credential stuffing                   | Same limits; breached-password check at registration/reset                                     | password-policy tests                                     |
-| Account enumeration                   | Identical responses and 1.2 s floor; unknown address costs a dummy hash; lockout keyed by hash | auth.db "same answer", e2e "same message"                 |
-| Verification-code brute force         | 6 digits, 5 guesses per code, per-email and per-IP limits, 10 min expiry, hashed at rest       | auth.db "too many wrong guesses"                          |
-| Reset token theft or reuse            | 60 min, single use, in fragment (no log/Referer), consumed on POST, sessions revoked           | auth.db reset suite, e2e "single-use"                     |
-| Session theft by script (XSS)         | HttpOnly cookie, nothing readable from JS                                                      | e2e cookie flags                                          |
-| Session on plain http / sibling sites | Secure + `__Secure-` prefix over https, host-only (no Domain)                                  | auth-cookies.db (https)                                   |
-| CSRF                                  | Server Action Origin check, SameSite=Lax, no mounted handler                                   | e2e foreign-origin replay; structure test                 |
-| Open redirect after login             | `safeNextPath` allows same-site paths only                                                     | domain unit tests, e2e                                    |
-| Stolen database                       | Argon2id + pepper (env only), codes hashed, no raw IP/email in limiter keys, no IP on sessions | auth.db hash format                                       |
-| Weak hash left behind                 | Rehash on login when pepper version or parameters changed                                      | auth.db rehash                                            |
-| Logging secrets                       | No password, code, token or email in logs; codes cleared from the outbox after sending         | review + email.service tests                              |
-| Pre-registration squatting            | Residual (see ADR 0024); 7-day purge, reset replaces password                                  | auth.db purge, reset verifies address                     |
-| Forgotten authorization on mutations  | `authedAction` checks the session first; every action declares a policy                        | structure test                                            |
+| Threat                                | Control                                                                                            | Test                                                      |
+| ------------------------------------- | -------------------------------------------------------------------------------------------------- | --------------------------------------------------------- |
+| Password guessing (online)            | Per-IP and per-email limits (fail closed), progressive lockout, Argon2id 64 MiB                    | auth.db "locks progressively", e2e lockout (real+unknown) |
+| Credential stuffing                   | Same limits; breached-password check at registration/reset                                         | password-policy tests                                     |
+| Account enumeration                   | Identical responses and 1.2 s floor; unknown address costs a dummy hash; lockout keyed by hash     | auth.db "same answer", e2e "same message"                 |
+| Verification-code brute force         | 6 digits, 5 guesses per code, per-email and per-IP limits, 10 min expiry, hashed at rest           | auth.db "too many wrong guesses"                          |
+| Reset token theft or reuse            | 60 min, single use, in fragment (no log/Referer), consumed on POST, sessions revoked               | auth.db reset suite, e2e "single-use"                     |
+| Session theft by script (XSS)         | HttpOnly cookie, nothing readable from JS                                                          | e2e cookie flags                                          |
+| Session on plain http / sibling sites | Secure + `__Secure-` prefix over https, host-only (no Domain)                                      | auth-cookies.db (https)                                   |
+| CSRF                                  | Server Action Origin check, SameSite=Lax, no mounted handler                                       | e2e foreign-origin replay; structure test                 |
+| Open redirect after login             | `safeNextPath` allows same-site paths only                                                         | domain unit tests, e2e                                    |
+| Stolen database                       | Argon2id + pepper (env only), codes hashed, no raw IP/email in limiter keys, no IP on sessions     | auth.db hash format                                       |
+| Weak hash left behind                 | Rehash on login when pepper version or parameters changed                                          | auth.db rehash                                            |
+| Logging secrets                       | No password, code, token or email in logs; codes cleared from the outbox after sending             | review + email.service tests                              |
+| Pre-registration squatting            | Residual (see ADR 0024); 7-day purge, reset replaces password                                      | auth.db purge, reset verifies address                     |
+| Stolen session guessing the password  | Change-password limited to 6 per 15 min per account (every attempt counts), 20 per IP; fail closed | account.db "limited per account"                          |
+| Session id of another account (IDOR)  | Revocation is scoped by user id; same answer whether or not the id exists; token never selected    | account.db "no IDOR"; structure test (no token select)    |
+| Concurrent password change/reset      | Compare-and-set on the verified hash inside one transaction; everything rolls back                 | account.db "compare-and-set"                              |
+| Unnoticed account takeover            | Notice email on change, activity log, devices list with one-click sign-out of others               | account.db, e2e "changing the password"                   |
+| Over-collection of device data        | Label only (`browser/os`), CHECK constraint, no IP, no raw User-Agent, 12-month retention          | account.db "database refuses a raw User-Agent"            |
+| Forgotten authorization on mutations  | `authedAction` checks the session first; every action declares a policy                            | structure test                                            |
 
-Not yet covered (later milestones): security headers and CSP (M13a), audit log and sessions list (M5b), admin TOTP (M5b), webhook HMAC (M7).
+Not yet covered (later milestones): security headers and CSP (M13a), email change with re-verification (M5b-2), account deletion and data export (M8b), admin TOTP (M9), webhook HMAC (M7), an admin audit log (M9).
 
 Report vulnerabilities privately to the repository owner; do not open public issues for security problems.

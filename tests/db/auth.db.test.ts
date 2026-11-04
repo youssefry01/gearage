@@ -437,18 +437,26 @@ describe("pruneAuthData", () => {
       ],
     });
 
-    const result = await repo.pruneAuthData(now, new Date(now.getTime() - week));
+    const year = 365 * 86_400_000;
+    const result = await repo.pruneAuthData(
+      now,
+      new Date(now.getTime() - week),
+      new Date(now.getTime() - year),
+    );
     expect(result.unverifiedUsers).toBe(1);
     expect(result.throttles).toBe(1);
     const emails = (await db().user.findMany()).map((u) => u.email).sort();
     expect(emails).toEqual(["fresh-unverified@example.test", "verified@example.test"]);
     expect((await db().loginThrottle.findMany()).map((r) => r.key)).toEqual(["recent"]);
     // Running it again changes nothing (jobs must be idempotent).
-    expect(await repo.pruneAuthData(now, new Date(now.getTime() - week))).toEqual({
+    expect(
+      await repo.pruneAuthData(now, new Date(now.getTime() - week), new Date(now.getTime() - year)),
+    ).toEqual({
       unverifiedUsers: 0,
       verifications: 0,
       sessions: 0,
       throttles: 0,
+      securityEvents: 0,
     });
   });
 });

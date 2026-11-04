@@ -1,7 +1,13 @@
 import { z } from "zod";
 
 /** Email outbox rules (ADR 0022): templates, payload shapes, expiry and the retry schedule. Pure. */
-export const EMAIL_TEMPLATES = ["verify-code", "reset-password", "account-exists", "test"] as const;
+export const EMAIL_TEMPLATES = [
+  "verify-code",
+  "reset-password",
+  "account-exists",
+  "password-changed",
+  "test",
+] as const;
 export type EmailTemplate = (typeof EMAIL_TEMPLATES)[number];
 
 export const emailPayloads = {
@@ -18,6 +24,15 @@ export const emailPayloads = {
       .max(24 * 60),
   }),
   "account-exists": z.object({}),
+  // The coarse device label ("chrome/windows") of the session that changed the password, and where to reset it if that
+  // was not the owner. No address, no IP, no time (the email arrives within seconds of the change).
+  "password-changed": z.object({
+    device: z
+      .string()
+      .regex(/^[a-z0-9-]{1,24}\/[a-z0-9-]{1,24}$/)
+      .nullable(),
+    resetUrl: z.url({ protocol: /^https?$/ }),
+  }),
   test: z.object({}),
 } as const satisfies Record<EmailTemplate, z.ZodType>;
 
@@ -25,10 +40,14 @@ export type EmailPayload<T extends EmailTemplate> = z.infer<(typeof emailPayload
 
 /** A code or link is useless after it expires, so the outbox never sends it late. */
 export function outboxExpiry(template: EmailTemplate, payload: unknown, now: Date): Date {
+  // A security notice stays useful for a day (a delayed "your password was changed" is still worth reading); a code or
+  // link is useless after it expires.
   const minutes =
-    template === "test" || template === "account-exists"
-      ? 60
-      : ((payload as { expiresMinutes?: number }).expiresMinutes ?? 15);
+    template === "password-changed"
+      ? 24 * 60
+      : template === "test" || template === "account-exists"
+        ? 60
+        : ((payload as { expiresMinutes?: number }).expiresMinutes ?? 15);
   return new Date(now.getTime() + minutes * 60_000);
 }
 

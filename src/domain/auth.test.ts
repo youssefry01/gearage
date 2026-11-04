@@ -2,7 +2,9 @@ import { describe, expect, it } from "vitest";
 import {
   LOCKOUT_MAX_SECONDS,
   sanitizeCodeInput,
+  PHONE_INPUT_MAX_LENGTH,
   sanitizePhoneInput,
+  toLocalMobile,
   ageOn,
   codeSchema,
   emailSchema,
@@ -222,6 +224,18 @@ describe("input sanitizers (M5a-3)", () => {
     expect(sanitizePhoneInput("٠١٠١٢٣٤٥٦٧٨")).toBe("01012345678");
     expect(sanitizePhoneInput("+20 101-234 5678x")).toBe("+20 101-234 5678");
     expect(sanitizePhoneInput("0+10+1")).toBe("0101");
-    expect(sanitizePhoneInput("1".repeat(40)).length).toBe(20);
+    expect(PHONE_INPUT_MAX_LENGTH).toBe(17);
+    expect(sanitizePhoneInput("1".repeat(40)).length).toBe(17);
+    // The longest ordinary way to write a number still fits whole.
+    expect(sanitizePhoneInput("0020 10 1234 5678")).toBe("0020 10 1234 5678");
+    expect(sanitizePhoneInput("+20 101 234 5678")).toBe("+20 101 234 5678");
+  });
+});
+
+describe("toLocalMobile (M5b-1)", () => {
+  it("shows a stored +20 number the way people write it, and round-trips through the parser", () => {
+    expect(toLocalMobile("+201012345678")).toBe("01012345678");
+    expect(parseEgyptianMobile(toLocalMobile("+201512345678"))).toBe("+201512345678");
+    expect(toLocalMobile("whatever")).toBe("whatever");
   });
 });

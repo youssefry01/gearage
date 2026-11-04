@@ -7,15 +7,21 @@ import type { Locale } from "@/i18n/locales";
  * Better Auth wraps the call in `runWithAuthContext`; the callbacks read the locale from here and report each queued
  * email id back, so the service can dispatch them after the response (ADR 0022) instead of inside the request.
  */
-export type AuthCallContext = { locale: Locale; queuedEmailIds: string[] };
+export type AuthCallContext = {
+  locale: Locale;
+  /** Coarse device label (`chrome/windows`) of the request that may create a session, or null. Never a raw User-Agent. */
+  device: string | null;
+  queuedEmailIds: string[];
+};
 
 const storage = new AsyncLocalStorage<AuthCallContext>();
 
 export function runWithAuthContext<T>(
   locale: Locale,
   fn: () => Promise<T>,
+  device: string | null = null,
 ): Promise<{ value: T; queuedEmailIds: string[] }> {
-  const ctx: AuthCallContext = { locale, queuedEmailIds: [] };
+  const ctx: AuthCallContext = { locale, device, queuedEmailIds: [] };
   return storage.run(ctx, async () => {
     const value = await fn();
     return { value, queuedEmailIds: ctx.queuedEmailIds };

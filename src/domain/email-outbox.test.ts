@@ -39,6 +39,17 @@ describe("email outbox rules", () => {
       "2026-10-30T13:00:00.000Z",
     );
   });
+  it("keeps a password-changed notice for a day and accepts only a device code in its payload", () => {
+    expect(outboxExpiry("password-changed", {}, now).toISOString()).toBe(
+      "2026-10-31T12:00:00.000Z",
+    );
+    const ok = { device: "chrome/windows", resetUrl: "https://shop.example/en/forgot-password" };
+    expect(emailPayloads["password-changed"].safeParse(ok).success).toBe(true);
+    expect(emailPayloads["password-changed"].safeParse({ ...ok, device: null }).success).toBe(true);
+    expect(
+      emailPayloads["password-changed"].safeParse({ ...ok, device: "Mozilla/5.0 (X11)" }).success,
+    ).toBe(false);
+  });
   it("backs off 1 min, 5 min, 30 min, 2 h and gives up after five attempts", () => {
     const delays = [1, 2, 3, 4].map(
       (n) => (nextAttemptAt(n, now).getTime() - now.getTime()) / 60_000,

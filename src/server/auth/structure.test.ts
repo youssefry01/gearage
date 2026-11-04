@@ -30,11 +30,30 @@ describe("auth structure (ADR 0002)", () => {
     expect(offenders).toEqual(["src/server/auth/auth.ts"]);
   });
 
-  it("every auth Server Action declares a rate-limit policy", () => {
-    const src = readFileSync(join(root, "src/features/auth/auth.actions.ts"), "utf8");
-    const actions = src.match(/export const \w+Action = /g) ?? [];
-    const policies = src.match(/\.metadata\(\{ policy: /g) ?? [];
-    expect(actions.length).toBeGreaterThanOrEqual(5);
-    expect(policies).toHaveLength(actions.length);
+  it("every Server Action in the auth and account features declares a rate-limit policy", () => {
+    for (const file of [
+      "src/features/auth/auth.actions.ts",
+      "src/features/account/account.actions.ts",
+    ]) {
+      const src = readFileSync(join(root, file), "utf8");
+      const actions = src.match(/export const \w+Action = /g) ?? [];
+      const policies = src.match(/\.metadata\(\{ policy: /g) ?? [];
+      expect(actions.length, file).toBeGreaterThanOrEqual(4);
+      expect(policies, file).toHaveLength(actions.length);
+    }
+  });
+
+  it("every account action is an authedAction: the session is proved before any work runs", () => {
+    const src = readFileSync(join(root, "src/features/account/account.actions.ts"), "utf8");
+    const actions = src.match(/export const \w+Action = (\w+)/g) ?? [];
+    expect(actions.length).toBeGreaterThanOrEqual(4);
+    for (const a of actions) expect(a, a).toMatch(/= authedAction$/);
+  });
+
+  it("the session token (the cookie secret) is never selected by the account repository", () => {
+    const src = readFileSync(join(root, "src/server/repositories/account.repository.ts"), "utf8");
+    expect(src).not.toMatch(/token\s*:\s*true/);
+    expect(src).not.toMatch(/userAgent\s*:\s*true/);
+    expect(src).not.toMatch(/ipAddress\s*:\s*true/);
   });
 });

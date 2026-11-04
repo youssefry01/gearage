@@ -2,7 +2,15 @@
 
 import { Check, Eye, EyeOff } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useId, useState, type InputHTMLAttributes, type ReactNode, type Ref } from "react";
+import {
+  useId,
+  useState,
+  type InputHTMLAttributes,
+  type ReactNode,
+  type Ref,
+  type SelectHTMLAttributes,
+} from "react";
+import { PHONE_INPUT_MAX_LENGTH, sanitizePhoneInput } from "@/domain/auth";
 import type { ActionError } from "@/server/actions/client";
 
 const inputClass =
@@ -183,6 +191,65 @@ export function Checkbox({
       <label className="text-small flex min-h-11 flex-1 items-center py-2" htmlFor={props.id}>
         {children}
       </label>
+    </div>
+  );
+}
+
+/**
+ * Registration options for the mobile-number field (react-hook-form `register(name, phoneRegisterOptions)`): Arabic-Indic
+ * digits become 0-9 as they are typed and letters and symbols never get in.
+ */
+export const phoneRegisterOptions = {
+  onChange: (e: { target: HTMLInputElement }) => {
+    const clean = sanitizePhoneInput(e.target.value);
+    if (clean !== e.target.value) e.target.value = clean;
+  },
+};
+
+/** The Egyptian mobile field shared by registration and the profile: numeric keyboard, 17-character limit, left-to-right. */
+export function PhoneField({
+  error,
+  ...props
+}: Omit<FieldProps, "label" | "type" | "dir" | "maxLength" | "inputMode" | "hint">) {
+  const t = useTranslations("Auth.fields");
+  return (
+    <TextField
+      label={t("phone")}
+      type="tel"
+      autoComplete="tel"
+      inputMode="tel"
+      dir="ltr"
+      maxLength={PHONE_INPUT_MAX_LENGTH}
+      placeholder={t("phonePlaceholder")}
+      hint={t("phoneHint")}
+      error={error}
+      {...props}
+    />
+  );
+}
+
+/** The optional gender select shared by registration and the profile. */
+export function GenderSelect({
+  ref,
+  ...props
+}: SelectHTMLAttributes<HTMLSelectElement> & { ref?: Ref<HTMLSelectElement> }) {
+  const t = useTranslations("Auth.fields");
+  const id = useId();
+  return (
+    <div className="flex flex-col gap-1.5">
+      <label htmlFor={id} className="text-small font-semibold">
+        {t("gender")}
+      </label>
+      <select
+        id={id}
+        ref={ref}
+        className="border-input bg-background rounded-control min-h-11 w-full border px-3 py-2"
+        {...props}
+      >
+        <option value="">{t("genderNone")}</option>
+        <option value="male">{t("genderMale")}</option>
+        <option value="female">{t("genderFemale")}</option>
+      </select>
     </div>
   );
 }

@@ -1,4 +1,5 @@
 import { logger } from "@/lib/logger";
+import { SECURITY_EVENT_RETENTION_DAYS } from "@/domain/account";
 import { UNVERIFIED_ACCOUNT_DAYS } from "@/domain/auth";
 import { pruneAuthData } from "@/server/repositories/auth.repository";
 import { pruneCounters } from "@/server/repositories/rate-limit.repository";
@@ -60,7 +61,8 @@ const jobs: Job[] = [
   },
   {
     // Deletes accounts never verified within a week (so a squatted address is freed), expired codes and reset tokens,
-    // expired sessions and old lockout rows (M5a-2, ADR 0024). Safe to run twice.
+    // expired sessions, old lockout rows (M5a-2, ADR 0024) and security events older than about 12 months (M5b-1,
+    // ADR 0025). Safe to run twice.
     name: "prune-auth-data",
     cadence: "daily",
     run: async () => {
@@ -68,6 +70,7 @@ const jobs: Job[] = [
       const result = await pruneAuthData(
         now,
         new Date(now.getTime() - UNVERIFIED_ACCOUNT_DAYS * 86_400_000),
+        new Date(now.getTime() - SECURITY_EVENT_RETENTION_DAYS * 86_400_000),
       );
       logger.info("auth_pruned", result);
     },

@@ -74,6 +74,11 @@ export function parseEgyptianMobile(input: string): string | null {
   return /^1[0125]\d{8}$/.test(digits) ? `+20${digits}` : null;
 }
 
+/** `+201012345678` to the way people write it, `01012345678` (for showing a stored number in an edit form). */
+export function toLocalMobile(e164: string): string {
+  return e164.startsWith("+20") ? `0${e164.slice(3)}` : e164;
+}
+
 export const phoneSchema = z
   .string({ error: "required" })
   .trim()
@@ -119,7 +124,7 @@ export function ageOn(birth: Date, now: Date): number {
 }
 
 // --- Forms ---------------------------------------------------------------------------------------------------------
-const personName = z
+export const personName = z
   .string({ error: "required" })
   .trim()
   .min(1, { error: "required" })
@@ -128,7 +133,7 @@ const personName = z
   .regex(/^[\p{L}\p{M}][\p{L}\p{M}\s'’.\-]*$/u, { error: "invalid_name" });
 
 /** An empty optional field arrives as "" from a form; treat it as absent. */
-const blankToUndefined = (v: unknown): unknown =>
+export const blankToUndefined = (v: unknown): unknown =>
   typeof v === "string" && v.trim() === "" ? undefined : v;
 
 export const registerSchema = z.object({
@@ -182,8 +187,11 @@ export function sanitizeCodeInput(raw: string): string {
   return toWesternDigits(raw).replace(/\D/g, "").slice(0, CODE_LENGTH);
 }
 
-/** The phone field never needs more: `+20 101 234 5678` is 16 characters; 20 leaves room for separators. */
-export const PHONE_INPUT_MAX_LENGTH = 20;
+/**
+ * The phone field never needs more: `+20 101 234 5678` is 16 characters and `0020 10 1234 5678` is 17, the longest
+ * ordinary way to write a number with spaces. (It was 20 until M5b-1; the extra room only invited long junk.)
+ */
+export const PHONE_INPUT_MAX_LENGTH = 17;
 
 /**
  * Cleans a phone number as it is typed: Arabic-Indic digits become 0-9 and anything that cannot belong to a phone

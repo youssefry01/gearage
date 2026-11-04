@@ -29,6 +29,15 @@ export const routes = {
   status: "/status",
 } as const;
 
+/**
+ * Pages inside the account area (M5b-1). They are real pages from the start, so they are not in `routes` (that registry
+ * also drives the "coming soon" placeholders and requires a `Routes.*` title for every key).
+ */
+export const accountRoutes = {
+  profile: "/account/profile",
+  security: "/account/security",
+} as const;
+
 export type RouteKey = keyof typeof routes;
 /** Routes that have a title message (`Routes.*`): everything except home. */
 export type PlaceholderRouteKey = Exclude<RouteKey, "home">;

@@ -1,4 +1,5 @@
 import { brandVars } from "@/config/brand";
+import { describeDevice } from "@/domain/device";
 import { emailPayloads, type EmailPayload, type EmailTemplate } from "@/domain/email-outbox";
 import type { Locale } from "@/i18n/locales";
 import { colorTokens } from "@/design/tokens";
@@ -139,6 +140,29 @@ export async function renderEmail<T extends EmailTemplate>(
         paragraph(m.accountExists.intro),
         paragraph(m.accountExists.action),
         muted(m.accountExists.ignore),
+      ];
+      break;
+    }
+    case "password-changed": {
+      const p = payload as EmailPayload<"password-changed">;
+      subject = m.passwordChanged.subject;
+      title = m.passwordChanged.heading;
+      blocks = [
+        heading(m.passwordChanged.heading),
+        paragraph(m.passwordChanged.intro),
+        ...(p.device
+          ? [
+              paragraph(
+                fill(m.passwordChanged.device, { device: describeDevice(p.device, m.devices) }),
+              ),
+            ]
+          : []),
+        paragraph(m.passwordChanged.othersSignedOut),
+        paragraph(m.passwordChanged.wasntYou),
+        button(m.passwordChanged.button, p.resetUrl),
+        muted(m.passwordChanged.fallback),
+        linkLine(p.resetUrl),
+        muted(m.passwordChanged.itWasYou),
       ];
       break;
     }

@@ -1,4 +1,3 @@
-import { after } from "next/server";
 import {
   CODE_EXPIRES_MINUTES,
   CONSENT_VERSIONS,
@@ -9,19 +8,20 @@ import {
   type RegisterData,
 } from "@/domain/auth";
 import { needsRehash, parseStoredHash } from "@/domain/password-hash";
-import { policies, type RateLimitPolicy } from "@/domain/rate-limit";
-import type { Locale } from "@/i18n/locales";
+import { policies } from "@/domain/rate-limit";
+import { defaultLocale, type Locale } from "@/i18n/locales";
 import { AppError } from "@/lib/errors";
 import { logger } from "@/lib/logger";
 import { getAuth, resetRedirectUrl } from "@/server/auth/auth";
 import { runWithAuthContext } from "@/server/auth/context";
 import { authErrorCode } from "@/server/auth/errors";
 import * as repo from "@/server/repositories/auth.repository";
+import { recordSecurityEvent } from "@/server/services/account.service";
 import { hashPassword, passwordConfigFromEnv } from "@/server/security/password";
 import { hmacHex } from "@/server/security/keys";
-import { getLimiter } from "@/server/security/rate-limit/limiter";
 import { withMinimumDuration } from "@/server/security/timing";
-import { dispatchEmail } from "@/server/services/email.service";
+import { dispatchAfterResponse } from "@/server/services/after-response";
+import { enforceLimit } from "@/server/services/enforce-limit";
 import { assessPassword } from "@/server/services/password-policy.service";
 
 /**
@@ -33,30 +33,13 @@ import { assessPassword } from "@/server/services/password-policy.service";
  *  - Nothing here logs an email address, a code or a password.
  */
 
-type Deps = { now?: () => Date };
+/**
+ * `device` is the coarse label (`chrome/windows`) the calling action derived from the request's User-Agent; the raw
+ * User-Agent never gets this far. It is stored on a session this call creates (ADR 0025).
+ */
+type Deps = { now?: () => Date; device?: string | null };
 
-/** Sends queued emails after the response (best effort; the outbox job retries anything this misses). */
-function dispatchAfterResponse(ids: string[]): void {
-  if (ids.length === 0) return;
-  const run = async () => {
-    for (const id of ids) await dispatchEmail(id).catch(() => undefined);
-  };
-  try {
-    after(run);
-  } catch {
-    void run(); // outside a request (tests, scripts)
-  }
-}
-
-async function limit(policy: RateLimitPolicy, subject: string): Promise<void> {
-  const result = await getLimiter().hit(policy, subject);
-  if (result.allowed) return;
-  if (result.unavailable)
-    throw new AppError("UNAVAILABLE", "Temporarily unavailable. Try again shortly.");
-  throw new AppError("RATE_LIMITED", "Too many attempts. Try again later.", {
-    details: { retryAfterSec: result.retryAfterSec },
-  });
-}
+const limit = enforceLimit;
 
 const throttleKey = (email: string) => hmacHex("login-throttle", email);
 
@@ -122,10 +105,19 @@ export async function register(
 export type CodeFailure = "invalid_code" | "expired_code" | "too_many_attempts";
 
 /** Checks a 6-digit code. On success the account is verified and the person is signed in (cookie set). */
-export async function verifyEmail(email: string, code: string): Promise<{ status: "verified" }> {
+export async function verifyEmail(
+  email: string,
+  code: string,
+  deps: Deps = {},
+): Promise<{ status: "verified" }> {
   await limit(policies.codeVerifyEmail, email);
   try {
-    await getAuth().api.verifyEmailOTP({ body: { email, otp: code } });
+    // The sign-in that follows a successful verification creates a session: give it this request's device label.
+    await runWithAuthContext(
+      defaultLocale,
+      () => getAuth().api.verifyEmailOTP({ body: { email, otp: code } }),
+      deps.device ?? null,
+    );
   } catch (err) {
     const known = authErrorCode(err);
     const failure: CodeFailure =
@@ -186,7 +178,12 @@ export async function login(
 
   let userId: string;
   try {
-    const result = await getAuth().api.signInEmail({ body: { email, password } });
+    const { value: result, queuedEmailIds } = await runWithAuthContext(
+      locale,
+      () => getAuth().api.signInEmail({ body: { email, password } }),
+      deps.device ?? null,
+    );
+    dispatchAfterResponse(queuedEmailIds);
     userId = result.user.id;
   } catch (err) {
     const code = authErrorCode(err);
@@ -263,7 +260,7 @@ export async function resetPassword(
       details: { field: "password", issue: assessment.issue },
     });
   }
-  const email = await repo.findResetTokenEmail(token, now);
+  const resetUser = await repo.findResetTokenUser(token, now);
   try {
     await getAuth().api.resetPassword({ body: { newPassword, token } });
   } catch (err) {
@@ -275,9 +272,10 @@ export async function resetPassword(
     logger.error("auth_reset_failed", { err });
     throw err;
   }
-  if (email) {
-    await repo.clearThrottle(throttleKey(email));
-    await repo.markEmailVerified(email, now);
+  if (resetUser) {
+    await repo.clearThrottle(throttleKey(resetUser.email));
+    await repo.markEmailVerified(resetUser.email, now);
+    await recordSecurityEvent({ userId: resetUser.id, type: "PASSWORD_RESET", createdAt: now });
   }
   return { status: "reset" };
 }
