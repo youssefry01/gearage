@@ -3,11 +3,13 @@
 import { headers } from "next/headers";
 import { z } from "zod";
 import { changePasswordSchema, profileSchema, sessionIdSchema } from "@/domain/account";
+import { confirmEmailChangeSchema, requestEmailChangeSchema } from "@/domain/email-change";
 import { deviceFromUserAgent } from "@/domain/device";
 import { policies } from "@/domain/rate-limit";
 import { locales } from "@/i18n/locales";
 import { authedAction } from "@/server/actions/client";
 import * as account from "@/server/services/account.service";
+import * as emailChange from "@/server/services/email-change.service";
 
 /**
  * Account-area Server Actions (M5b-1, ADR 0025). Every one is an `authedAction`: the session is proved BEFORE any work
@@ -48,3 +50,44 @@ export const revokeOtherSessionsAction = authedAction
   .action(async ({ ctx }) =>
     account.revokeOtherSessions(ctx.session.user.id, ctx.session.sessionId),
   );
+
+// --- Email change (M5b-2a, ADR 0026) -------------------------------------------------------------------------------
+
+export const requestEmailChangeAction = authedAction
+  .metadata({ policy: policies.emailChangeIp.name })
+  .inputSchema(requestEmailChangeSchema.extend({ locale: z.enum(locales) }))
+  .action(async ({ parsedInput, ctx }) =>
+    emailChange.requestEmailChange({
+      userId: ctx.session.user.id,
+      currentEmail: ctx.session.user.email,
+      newEmail: parsedInput.newEmail,
+      currentPassword: parsedInput.currentPassword,
+      locale: parsedInput.locale,
+      device: deviceFromUserAgent((await headers()).get("user-agent")),
+    }),
+  );
+
+export const resendEmailChangeCodeAction = authedAction
+  .metadata({ policy: policies.emailChangeIp.name })
+  .inputSchema(z.object({ locale: z.enum(locales) }))
+  .action(async ({ parsedInput, ctx }) =>
+    emailChange.resendEmailChangeCode({ userId: ctx.session.user.id, locale: parsedInput.locale }),
+  );
+
+export const confirmEmailChangeAction = authedAction
+  .metadata({ policy: policies.emailChangeIp.name })
+  .inputSchema(confirmEmailChangeSchema.extend({ locale: z.enum(locales) }))
+  .action(async ({ parsedInput, ctx }) =>
+    emailChange.confirmEmailChange({
+      userId: ctx.session.user.id,
+      sessionId: ctx.session.sessionId,
+      currentEmail: ctx.session.user.email,
+      code: parsedInput.code,
+      locale: parsedInput.locale,
+    }),
+  );
+
+export const discardEmailChangeAction = authedAction
+  .metadata({ policy: policies.authSession.name })
+  .inputSchema(z.object({}))
+  .action(async ({ ctx }) => emailChange.discardEmailChange(ctx.session.user.id));

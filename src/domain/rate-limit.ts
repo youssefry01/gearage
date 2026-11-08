@@ -43,6 +43,16 @@ export const policies = {
   // session: few tries per account (counted on every attempt, right or wrong) and per IP (M5b-1, ADR 0025).
   passwordChangeUser: policy("auth.password.change.user", 6, 15 * 60, "closed"),
   passwordChangeIp: policy("auth.password.change.ip", 20, 15 * 60, "closed"),
+  // Email change (M5b-2a, ADR 0026). Starting one asks for the current password, so, like a password change, it is a
+  // guessing oracle for a stolen session: few tries per account (counted on every attempt, right or wrong).
+  emailChangeUser: policy("auth.email.change.user", 6, 15 * 60, "closed"),
+  emailChangeIp: policy("auth.email.change.ip", 20, 15 * 60, "closed"),
+  // Every request and every resend emails a stranger (the new address) and the owner (the current one): cap them per
+  // account and per TARGET address, and count the target whether or not it has an account (no enumeration).
+  emailChangeSendUser: policy("auth.email.change.send.user", 5, 60 * 60, "closed"),
+  emailChangeSendTarget: policy("auth.email.change.send.target", 3, 60 * 60, "closed"),
+  emailChangeVerifyUser: policy("auth.email.change.verify.user", 10, 15 * 60, "closed"),
+  emailChangeCancelIp: policy("auth.email.change.cancel.ip", 10, 15 * 60, "closed"),
 } as const;
 
 export type LimitResult = {

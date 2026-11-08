@@ -29,7 +29,7 @@ export type ProfileFormValues = {
   email: string;
 };
 
-/** Edits name, mobile, date of birth and gender. The email is shown, read-only: changing it needs re-verification (M5b-2). */
+/** Edits name, mobile, date of birth and gender. The email is shown, read-only: changing it has its own page (/account/email) and needs re-verification (M5b-2a). */
 export function ProfileForm({ initial }: { initial: ProfileFormValues }) {
   const t = useTranslations("Account.profile");
   const tf = useTranslations("Auth.fields");

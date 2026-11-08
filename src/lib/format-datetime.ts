@@ -22,3 +22,11 @@ export function formatDate(date: Date, locale: Locale): string {
     timeZone: DISPLAY_TIME_ZONE,
   }).format(date);
 }
+
+/** Clock time only (for "valid until 14:35"), in the same zone and digits. */
+export function formatTime(date: Date, locale: Locale): string {
+  return new Intl.DateTimeFormat(`${locale}-u-nu-latn`, {
+    timeStyle: "short",
+    timeZone: DISPLAY_TIME_ZONE,
+  }).format(date);
+}

@@ -368,12 +368,17 @@ describe("sessions list and sign-out", () => {
       details: { issue: "current_session" },
     });
     // Aiming at someone else's session answers like success but removes nothing.
+    // (count 0: the same answer as for an id that never existed, so it says nothing about other accounts)
     expect(await account.revokeSession(mona.id, second!.id, victim!.id)).toEqual({
       status: "revoked",
+      count: 0,
     });
     expect(await sessionsOf(other.id)).toHaveLength(1);
 
-    await account.revokeSession(mona.id, second!.id, first!.id);
+    expect(await account.revokeSession(mona.id, second!.id, first!.id)).toEqual({
+      status: "revoked",
+      count: 1,
+    });
     expect((await sessionsOf(mona.id)).map((s) => s.id)).toEqual([second!.id]);
     expect(
       await db().securityEvent.count({ where: { userId: mona.id, type: "SESSION_REVOKED" } }),

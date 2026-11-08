@@ -7,16 +7,19 @@ import {
   parseDateOfBirth,
   type RegisterData,
 } from "@/domain/auth";
+import { routes } from "@/config/routes";
 import { needsRehash, parseStoredHash } from "@/domain/password-hash";
 import { policies } from "@/domain/rate-limit";
-import { defaultLocale, type Locale } from "@/i18n/locales";
+import { defaultLocale, locales, type Locale } from "@/i18n/locales";
 import { AppError } from "@/lib/errors";
+import { getEnv } from "@/lib/env";
 import { logger } from "@/lib/logger";
 import { getAuth, resetRedirectUrl } from "@/server/auth/auth";
 import { runWithAuthContext } from "@/server/auth/context";
 import { authErrorCode } from "@/server/auth/errors";
 import * as repo from "@/server/repositories/auth.repository";
 import { recordSecurityEvent } from "@/server/services/account.service";
+import { enqueueEmail } from "@/server/services/email.service";
 import { hashPassword, passwordConfigFromEnv } from "@/server/security/password";
 import { hmacHex } from "@/server/security/keys";
 import { withMinimumDuration } from "@/server/security/timing";
@@ -251,7 +254,7 @@ export async function requestPasswordReset(
 export async function resetPassword(
   token: string,
   newPassword: string,
-  deps: Deps = {},
+  deps: Deps & { locale?: Locale } = {},
 ): Promise<{ status: "reset" }> {
   const now = (deps.now ?? (() => new Date()))();
   const assessment = await assessPassword(newPassword);
@@ -276,8 +279,44 @@ export async function resetPassword(
     await repo.clearThrottle(throttleKey(resetUser.email));
     await repo.markEmailVerified(resetUser.email, now);
     await recordSecurityEvent({ userId: resetUser.id, type: "PASSWORD_RESET", createdAt: now });
+    await sendResetNotice(resetUser, deps, now);
   }
   return { status: "reset" };
+}
+
+/**
+ * The same "your password was changed" notice a signed-in change sends (decided 2026-11-05), worded for a reset: every
+ * device was signed out. Best effort and after the fact: the reset has already succeeded and must not fail because a
+ * notice could not be queued. The language is the one the person was using on the reset page.
+ */
+async function sendResetNotice(
+  user: { id: string; email: string; locale: string },
+  deps: Deps & { locale?: Locale },
+  now: Date,
+): Promise<void> {
+  try {
+    const locale: Locale =
+      deps.locale ??
+      ((locales as readonly string[]).includes(user.locale)
+        ? (user.locale as Locale)
+        : defaultLocale);
+    const id = await enqueueEmail(
+      {
+        template: "password-changed",
+        to: user.email,
+        locale,
+        payload: {
+          device: deps.device ?? null,
+          resetUrl: `${getEnv().APP_URL.replace(/\/+$/, "")}/${locale}${routes.forgotPassword}`,
+          method: "reset",
+        },
+      },
+      { now },
+    );
+    dispatchAfterResponse([id]);
+  } catch (err) {
+    logger.error("auth_reset_notice_failed", { err });
+  }
 }
 
 // --- Logout --------------------------------------------------------------------------------------------------------

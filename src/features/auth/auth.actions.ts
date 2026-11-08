@@ -9,12 +9,14 @@ import {
   verifyCodeSchema,
 } from "@/domain/auth";
 import { deviceFromUserAgent } from "@/domain/device";
+import { cancelTokenSchema } from "@/domain/email-change";
 import { policies } from "@/domain/rate-limit";
 import { locales } from "@/i18n/locales";
 import { authedAction, publicAction } from "@/server/actions/client";
 import { clearPendingEmail, getPendingEmail, setPendingEmail } from "@/server/auth/pending";
 import { AppError } from "@/lib/errors";
 import * as auth from "@/server/services/auth.service";
+import * as emailChange from "@/server/services/email-change.service";
 import { z } from "zod";
 
 /**
@@ -99,5 +101,19 @@ export const forgotPasswordAction = publicAction
 
 export const resetPasswordAction = publicAction
   .metadata({ policy: policies.resetConfirmIp.name })
-  .inputSchema(resetPasswordSchema)
-  .action(async ({ parsedInput }) => auth.resetPassword(parsedInput.token, parsedInput.password));
+  .inputSchema(resetPasswordSchema.extend({ locale: localeSchema }))
+  .action(async ({ parsedInput }) =>
+    auth.resetPassword(parsedInput.token, parsedInput.password, {
+      locale: parsedInput.locale,
+      device: await requestDevice(),
+    }),
+  );
+
+/**
+ * The "cancel" button on the page the notice to the CURRENT address links to. Public on purpose (the mailbox owner may
+ * be on another device); the 256-bit token is the credential, and the per-IP policy bounds guessing (ADR 0026).
+ */
+export const cancelEmailChangeAction = publicAction
+  .metadata({ policy: policies.emailChangeCancelIp.name })
+  .inputSchema(z.object({ token: cancelTokenSchema }))
+  .action(async ({ parsedInput }) => emailChange.cancelEmailChangeByToken(parsedInput.token));

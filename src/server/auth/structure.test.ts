@@ -50,6 +50,25 @@ describe("auth structure (ADR 0002)", () => {
     for (const a of actions) expect(a, a).toMatch(/= authedAction$/);
   });
 
+  it("the only public email-change action is the cancel link, and it has its own per-IP policy", () => {
+    const src = readFileSync(join(root, "src/features/auth/auth.actions.ts"), "utf8");
+    expect(src).toMatch(
+      /export const cancelEmailChangeAction = publicAction\s*\.metadata\(\{ policy: policies\.emailChangeCancelIp\.name/,
+    );
+    const account = readFileSync(join(root, "src/features/account/account.actions.ts"), "utf8");
+    expect(account).not.toMatch(/publicAction/);
+  });
+
+  it("email-change secrets are never selected or logged outside the service", () => {
+    const repoSrc = readFileSync(
+      join(root, "src/server/repositories/email-change.repository.ts"),
+      "utf8",
+    );
+    expect(repoSrc).not.toMatch(/cancelHash\s*:\s*true/);
+    const svc = readFileSync(join(root, "src/server/services/email-change.service.ts"), "utf8");
+    expect(svc).not.toMatch(/logger\.\w+\([^)]*(code|token|newEmail|currentEmail)/);
+  });
+
   it("the session token (the cookie secret) is never selected by the account repository", () => {
     const src = readFileSync(join(root, "src/server/repositories/account.repository.ts"), "utf8");
     expect(src).not.toMatch(/token\s*:\s*true/);

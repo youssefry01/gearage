@@ -443,7 +443,9 @@
       "wasntYou": "If this wasn't you, reset your password now. Resetting it signs out every device.",
       "button": "Reset password",
       "fallback": "If the button doesn't work, copy this link into your browser:",
-      "itWasYou": "If it was you, no action is needed."
+      "itWasYou": "If it was you, no action is needed.",
+      "allSignedOut": "Every device that was signed in to your account was signed out.",
+      "wasntYouReset": "If this wasn't you, someone may have access to your email inbox. Reset your password again and secure your email account."
     },
     "test": {
       "subject": "{brand} test email",
@@ -462,6 +464,41 @@
       "browserOnly": "{browser}",
       "osOnly": "{os}",
       "unknown": "an unknown device"
+    },
+    "emailChangeCode": {
+      "subject": "Your {brand} email confirmation code",
+      "heading": "Confirm your new email address",
+      "intro": "A request was made to use this email address for a {brand} account. Enter this code in your account to confirm it:",
+      "expires": "The code is valid for {minutes} minutes.",
+      "ignore": "If you didn't ask for this, you can ignore this email. Nothing will change."
+    },
+    "emailChangeNotice": {
+      "subject": "An email change was requested on your {brand} account",
+      "heading": "Email change requested",
+      "intro": "Someone asked to change the email address of your {brand} account to {address}.",
+      "device": "The request came from: {device}.",
+      "wasntYou": "If this wasn't you, cancel it now, then reset your password. Nothing changes until the code sent to the new address is entered.",
+      "button": "Cancel the change",
+      "fallback": "If the button doesn't work, copy this link into your browser:",
+      "expires": "The request expires in {minutes} minutes.",
+      "itWasYou": "If it was you, no action is needed. Finish the change in your account with the code sent to the new address."
+    },
+    "emailChanged": {
+      "subject": "The email address of your {brand} account was changed",
+      "heading": "Your email address was changed",
+      "intro": "The email address of your {brand} account was changed to {address}. From now on, emails for this account go to that address, not this one.",
+      "othersSignedOut": "Your other signed-in devices were signed out.",
+      "wasntYou": "If this wasn't you, contact us right away so we can help you secure the account.",
+      "button": "Contact us",
+      "fallback": "If the button doesn't work, copy this link into your browser:",
+      "itWasYou": "If it was you, no action is needed."
+    },
+    "emailChangeTaken": {
+      "subject": "Someone asked to use your email for another {brand} account",
+      "heading": "This address already has an account",
+      "intro": "A request was made to use this email address for a different {brand} account, but an account with this address already exists, so nothing was changed.",
+      "action": "If you meant to use this account, sign in with this address. If you don't remember your password, use \"Forgot password\" on the sign-in page.",
+      "ignore": "If it wasn't you, you can ignore this email."
     }
   },
   "Auth": {
@@ -570,7 +607,10 @@
       "same_password": "Choose a password that is different from your current one.",
       "invalid_session": "That device could not be found.",
       "current_session": "Use Sign out to sign out of this device.",
-      "try_again": "Your password changed while this was happening. Please try again."
+      "try_again": "Your password changed while this was happening. Please try again.",
+      "same_email": "That is already your email address.",
+      "no_email_change": "There's no email change in progress. Start again.",
+      "email_unavailable": "That address can't be used. Start again with a different address."
     },
     "forgot": {
       "title": "Reset your password",
@@ -615,11 +655,14 @@
     "profile": {
       "title": "Profile",
       "metaDescription": "Edit your profile details.",
-      "intro": "Update your name, mobile number and other details. Changing your email address isn't available yet.",
+      "intro": "Update your name, mobile number and other details.",
       "dateOfBirth": "Date of birth (optional)",
       "submit": "Save changes",
       "submitting": "Saving…",
-      "saved": "Your details were saved."
+      "saved": "Your details were saved.",
+      "emailHeading": "Email address",
+      "emailBody": "This is where we send order and security emails. Changing it needs your password and a code sent to the new address.",
+      "emailLink": "Change email address"
     },
     "security": {
       "title": "Security",
@@ -646,9 +689,9 @@
         "signingOut": "Signing out…",
         "signOutOthers": "Sign out of other devices",
         "noOthers": "You're not signed in anywhere else.",
-        "revoked": "That device was signed out.",
-        "othersRevoked": "Your other devices were signed out.",
-        "list": "Signed-in devices"
+        "list": "Signed-in devices",
+        "signedOutDevices": "{count, plural, =0 {No other devices were signed in.} one {Signed out of # device.} other {Signed out of # devices.}}",
+        "alreadySignedOut": "That device was already signed out."
       },
       "activity": {
         "heading": "Recent security activity",
@@ -661,7 +704,10 @@
           "PASSWORD_CHANGED": "Password changed",
           "PASSWORD_RESET": "Password reset by email",
           "SESSION_REVOKED": "One device was signed out",
-          "OTHER_SESSIONS_REVOKED": "Other devices were signed out"
+          "OTHER_SESSIONS_REVOKED": "Other devices were signed out",
+          "EMAIL_CHANGE_REQUESTED": "Email change requested",
+          "EMAIL_CHANGE_CANCELLED": "Email change cancelled",
+          "EMAIL_CHANGED": "Email address changed"
         }
       }
     },
@@ -670,6 +716,41 @@
       "browserOnly": "{browser}",
       "osOnly": "{os}",
       "unknown": "Unknown device"
+    },
+    "email": {
+      "title": "Change email address",
+      "metaDescription": "Change the email address of your account.",
+      "intro": "Your email address is how you sign in and where we send order and security emails. Changing it needs your password. We send a code to the new address and tell your current address about the request.",
+      "current": "Current email address",
+      "new": "New email address",
+      "password": "Your password",
+      "submit": "Send code",
+      "submitting": "Sending…",
+      "pendingHeading": "Enter the code",
+      "pendingBody": "If {address} can be used for this account, we've sent a 6-digit code there. It works until {time}, Cairo time. Check your spam folder too.",
+      "attemptsLeft": "{count, plural, one {# attempt left} other {# attempts left}}",
+      "code": "6-digit code",
+      "confirm": "Confirm new address",
+      "confirming": "Confirming…",
+      "resend": "Send a new code",
+      "resending": "Sending…",
+      "resent": "If the address can be used, we've sent a new code.",
+      "discard": "Use a different address",
+      "discarding": "Cancelling…",
+      "changed": "Your email address was changed. Your other devices were signed out, and we told your previous address.",
+      "signInNote": "From now on, sign in with your new address."
+    },
+    "cancelEmailChange": {
+      "title": "Cancel the email change",
+      "metaDescription": "Cancel a request to change the email address of an account.",
+      "intro": "Someone asked to change the email address of a {brand} account. If that wasn't you, cancel it here. Nothing changes until the code sent to the new address is entered, so cancelling stops it.",
+      "missingToken": "This link is incomplete. Open the link from your email again.",
+      "submit": "Cancel the email change",
+      "submitting": "Cancelling…",
+      "done": "The email change was cancelled. The email address of the account has not changed.",
+      "advice": "If you didn't ask for it, someone may know your password. Reset it now; resetting signs out every device.",
+      "resetLink": "Reset your password",
+      "signInLink": "Go to sign in"
     }
   }
 }

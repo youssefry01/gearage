@@ -36,6 +36,13 @@ export const routes = {
 export const accountRoutes = {
   profile: "/account/profile",
   security: "/account/security",
+  /** Change the email address (M5b-2a). Needs a session. */
+  email: "/account/email",
+  /**
+   * The page the "cancel" link in the notice to the CURRENT address opens (M5b-2a). It needs no session on purpose: the
+   * person reading that mailbox may be on another device. It does nothing until its button is pressed (a POST).
+   */
+  cancelEmailChange: "/email-change/cancel",
 } as const;
 
 export type RouteKey = keyof typeof routes;

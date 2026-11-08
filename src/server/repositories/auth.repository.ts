@@ -90,11 +90,13 @@ export type AuthPruneResult = {
   sessions: number;
   throttles: number;
   securityEvents: number;
+  emailChangeRequests: number;
 };
 
 /**
  * Deletes what is dead: accounts whose email was never verified, expired one-time values, expired sessions, old
- * throttle rows and security events past their retention (`eventsBefore`, about 12 months, ADR 0025). Unverified
+ * throttle rows, expired email-change requests (ADR 0026) and security events past their retention (`eventsBefore`,
+ * about 12 months, ADR 0025). Unverified
  * accounts are removed so a squatted address cannot stay claimed (HANDOFF issue 81).
  */
 export async function pruneAuthData(
@@ -114,12 +116,16 @@ export async function pruneAuthData(
   const securityEvents = await db.securityEvent.deleteMany({
     where: { createdAt: { lt: eventsBefore } },
   });
+  const emailChangeRequests = await db.emailChangeRequest.deleteMany({
+    where: { expiresAt: { lt: now } },
+  });
   return {
     unverifiedUsers: unverifiedUsers.count,
     verifications: verifications.count,
     sessions: sessions.count,
     throttles: throttles.count,
     securityEvents: securityEvents.count,
+    emailChangeRequests: emailChangeRequests.count,
   };
 }
 
@@ -133,13 +139,16 @@ export async function findResetTokenUser(
   token: string,
   now: Date,
   db: Db = getDb(),
-): Promise<{ id: string; email: string } | null> {
+): Promise<{ id: string; email: string; locale: string } | null> {
   const row = await db.verification.findFirst({
     where: { identifier: `reset-password:${token}`, expiresAt: { gt: now } },
     select: { value: true },
   });
   if (!row) return null;
-  return db.user.findUnique({ where: { id: row.value }, select: { id: true, email: true } });
+  return db.user.findUnique({
+    where: { id: row.value },
+    select: { id: true, email: true, locale: true },
+  });
 }
 
 /** Following an emailed link proves the person controls the inbox, so a reset also verifies the address. */

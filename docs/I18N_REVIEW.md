@@ -1,6 +1,6 @@
 # Arabic copy that needs native review
 
-1025 Arabic strings were written by the assistant, not a native copywriter. Review tone, terminology (Egyptian retail wording, for
+1094 Arabic strings were written by the assistant, not a native copywriter. Review tone, terminology (Egyptian retail wording, for
 example the category names) and plural forms. Brand and model names left in Latin (AMD Ryzen, DDR5, ...) are not listed.
 The owner plans one native-review pass once more copy exists.
 
@@ -406,6 +406,8 @@ run `npm run i18n:review` after adding strings (CI runs `npm run i18n:review:che
 | messages: Email.passwordChanged.button | Reset password | إعادة تعيين كلمة المرور |
 | messages: Email.passwordChanged.fallback | If the button doesn't work, copy this link into your browser: | إذا لم يعمل الزر، انسخ هذا الرابط إلى متصفحك: |
 | messages: Email.passwordChanged.itWasYou | If it was you, no action is needed. | إذا كنت أنت من قام بذلك، فلا يلزم أي إجراء. |
+| messages: Email.passwordChanged.allSignedOut | Every device that was signed in to your account was signed out. | تم تسجيل الخروج من جميع الأجهزة التي كانت مسجّلة الدخول إلى حسابك. |
+| messages: Email.passwordChanged.wasntYouReset | If this wasn't you, someone may have access to your email inbox. Reset your password again and secure your email account. | إذا لم تكن أنت، فقد يكون لدى شخص ما وصول إلى صندوق بريدك. أعد تعيين كلمة المرور مرة أخرى وأمّن حساب بريدك الإلكتروني. |
 | messages: Email.test.subject | {brand} test email | رسالة اختبار من {brand} |
 | messages: Email.test.heading | Test email | رسالة اختبار |
 | messages: Email.test.body | If you can read this, your email setup works. | إن كنت تقرأ هذه الرسالة فإعداد البريد يعمل. |
@@ -418,6 +420,33 @@ run `npm run i18n:review` after adding strings (CI runs `npm run i18n:review:che
 | messages: Email.devices.browserOnly | {browser} | {browser} |
 | messages: Email.devices.osOnly | {os} | {os} |
 | messages: Email.devices.unknown | an unknown device | جهاز غير معروف |
+| messages: Email.emailChangeCode.subject | Your {brand} email confirmation code | رمز تأكيد بريدك الإلكتروني في {brand} |
+| messages: Email.emailChangeCode.heading | Confirm your new email address | أكّد عنوان بريدك الإلكتروني الجديد |
+| messages: Email.emailChangeCode.intro | A request was made to use this email address for a {brand} account. Enter this code in your account to confirm it: | تم طلب استخدام هذا البريد الإلكتروني لحساب في {brand}. أدخل هذا الرمز في حسابك لتأكيده: |
+| messages: Email.emailChangeCode.expires | The code is valid for {minutes} minutes. | الرمز صالح لمدة {minutes} دقيقة. |
+| messages: Email.emailChangeCode.ignore | If you didn't ask for this, you can ignore this email. Nothing will change. | إذا لم تطلب ذلك، يمكنك تجاهل هذه الرسالة. لن يتغير أي شيء. |
+| messages: Email.emailChangeNotice.subject | An email change was requested on your {brand} account | تم طلب تغيير البريد الإلكتروني لحسابك في {brand} |
+| messages: Email.emailChangeNotice.heading | Email change requested | طلب تغيير البريد الإلكتروني |
+| messages: Email.emailChangeNotice.intro | Someone asked to change the email address of your {brand} account to {address}. | طلب شخص ما تغيير البريد الإلكتروني لحسابك في {brand} إلى {address}. |
+| messages: Email.emailChangeNotice.device | The request came from: {device}. | جاء الطلب من: {device}. |
+| messages: Email.emailChangeNotice.wasntYou | If this wasn't you, cancel it now, then reset your password. Nothing changes until the code sent to the new address is entered. | إذا لم تكن أنت، فألغِ الطلب الآن ثم أعد تعيين كلمة المرور. لا يتغير شيء حتى يُدخَل الرمز المرسل إلى العنوان الجديد. |
+| messages: Email.emailChangeNotice.button | Cancel the change | إلغاء التغيير |
+| messages: Email.emailChangeNotice.fallback | If the button doesn't work, copy this link into your browser: | إذا لم يعمل الزر، انسخ هذا الرابط إلى متصفحك: |
+| messages: Email.emailChangeNotice.expires | The request expires in {minutes} minutes. | ينتهي الطلب خلال {minutes} دقيقة. |
+| messages: Email.emailChangeNotice.itWasYou | If it was you, no action is needed. Finish the change in your account with the code sent to the new address. | إذا كنت أنت، فلا يلزم أي إجراء. أكمل التغيير في حسابك بالرمز المرسل إلى العنوان الجديد. |
+| messages: Email.emailChanged.subject | The email address of your {brand} account was changed | تم تغيير البريد الإلكتروني لحسابك في {brand} |
+| messages: Email.emailChanged.heading | Your email address was changed | تم تغيير بريدك الإلكتروني |
+| messages: Email.emailChanged.intro | The email address of your {brand} account was changed to {address}. From now on, emails for this account go to that address, not this one. | تم تغيير البريد الإلكتروني لحسابك في {brand} إلى {address}. ستصل رسائل هذا الحساب من الآن إلى ذلك العنوان وليس إلى هذا. |
+| messages: Email.emailChanged.othersSignedOut | Your other signed-in devices were signed out. | تم تسجيل الخروج من أجهزتك الأخرى المسجّلة الدخول. |
+| messages: Email.emailChanged.wasntYou | If this wasn't you, contact us right away so we can help you secure the account. | إذا لم تكن أنت، فتواصل معنا فورًا لنساعدك في تأمين الحساب. |
+| messages: Email.emailChanged.button | Contact us | تواصل معنا |
+| messages: Email.emailChanged.fallback | If the button doesn't work, copy this link into your browser: | إذا لم يعمل الزر، انسخ هذا الرابط إلى متصفحك: |
+| messages: Email.emailChanged.itWasYou | If it was you, no action is needed. | إذا كنت أنت، فلا يلزم أي إجراء. |
+| messages: Email.emailChangeTaken.subject | Someone asked to use your email for another {brand} account | طلب شخص ما استخدام بريدك في حساب آخر في {brand} |
+| messages: Email.emailChangeTaken.heading | This address already has an account | لهذا العنوان حساب بالفعل |
+| messages: Email.emailChangeTaken.intro | A request was made to use this email address for a different {brand} account, but an account with this address already exists, so nothing was changed. | تم طلب استخدام هذا البريد الإلكتروني لحساب آخر في {brand}، لكن يوجد حساب بهذا العنوان بالفعل، لذلك لم يتغير أي شيء. |
+| messages: Email.emailChangeTaken.action | If you meant to use this account, sign in with this address. If you don't remember your password, use "Forgot password" on the sign-in page. | إذا كنت تقصد استخدام هذا الحساب، فسجّل الدخول بهذا العنوان. وإذا نسيت كلمة المرور فاستخدم «نسيت كلمة المرور» في صفحة تسجيل الدخول. |
+| messages: Email.emailChangeTaken.ignore | If it wasn't you, you can ignore this email. | إذا لم تكن أنت، يمكنك تجاهل هذه الرسالة. |
 | messages: Auth.login.title | Sign in | تسجيل الدخول |
 | messages: Auth.login.metaDescription | Sign in to your {brand} account. | سجّل الدخول إلى حسابك في {brand}. |
 | messages: Auth.login.intro | Welcome back. Sign in to see your orders and saved items. | مرحبًا بعودتك. سجّل الدخول لمتابعة طلباتك وعناصرك المحفوظة. |
@@ -511,6 +540,9 @@ run `npm run i18n:review` after adding strings (CI runs `npm run i18n:review:che
 | messages: Auth.errors.invalid_session | That device could not be found. | تعذّر العثور على ذلك الجهاز. |
 | messages: Auth.errors.current_session | Use Sign out to sign out of this device. | استخدم «تسجيل الخروج» للخروج من هذا الجهاز. |
 | messages: Auth.errors.try_again | Your password changed while this was happening. Please try again. | تغيّرت كلمة المرور أثناء ذلك. حاول مرة أخرى. |
+| messages: Auth.errors.same_email | That is already your email address. | هذا هو بريدك الإلكتروني الحالي بالفعل. |
+| messages: Auth.errors.no_email_change | There's no email change in progress. Start again. | لا يوجد تغيير بريد قيد التنفيذ. ابدأ من جديد. |
+| messages: Auth.errors.email_unavailable | That address can't be used. Start again with a different address. | لا يمكن استخدام هذا العنوان. ابدأ من جديد بعنوان آخر. |
 | messages: Auth.forgot.title | Reset your password | إعادة تعيين كلمة المرور |
 | messages: Auth.forgot.metaDescription | Request a link to reset your password. | اطلب رابطًا لإعادة تعيين كلمة المرور. |
 | messages: Auth.forgot.intro | Enter your email and we'll send a link to choose a new password, if an account exists. | أدخل بريدك الإلكتروني وسنرسل رابطًا لاختيار كلمة مرور جديدة، إذا كان الحساب موجودًا. |
@@ -543,11 +575,14 @@ run `npm run i18n:review` after adding strings (CI runs `npm run i18n:review:che
 | messages: Account.overview.securityLink | Open security | فتح الأمان |
 | messages: Account.profile.title | Profile | الملف الشخصي |
 | messages: Account.profile.metaDescription | Edit your profile details. | عدّل بيانات ملفك الشخصي. |
-| messages: Account.profile.intro | Update your name, mobile number and other details. Changing your email address isn't available yet. | حدّث اسمك ورقم موبايلك وبقية بياناتك. تغيير عنوان البريد الإلكتروني غير متاح بعد. |
+| messages: Account.profile.intro | Update your name, mobile number and other details. | حدّث اسمك ورقم موبايلك وبقية بياناتك. |
 | messages: Account.profile.dateOfBirth | Date of birth (optional) | تاريخ الميلاد (اختياري) |
 | messages: Account.profile.submit | Save changes | حفظ التغييرات |
 | messages: Account.profile.submitting | Saving… | جارٍ الحفظ… |
 | messages: Account.profile.saved | Your details were saved. | تم حفظ بياناتك. |
+| messages: Account.profile.emailHeading | Email address | البريد الإلكتروني |
+| messages: Account.profile.emailBody | This is where we send order and security emails. Changing it needs your password and a code sent to the new address. | إلى هذا العنوان نرسل رسائل الطلبات والأمان. يتطلب تغييره كلمة مرورك ورمزًا يُرسل إلى العنوان الجديد. |
+| messages: Account.profile.emailLink | Change email address | تغيير البريد الإلكتروني |
 | messages: Account.security.title | Security | الأمان |
 | messages: Account.security.metaDescription | Change your password and manage where you're signed in. | غيّر كلمة المرور وأدر الأجهزة المسجّل دخولك منها. |
 | messages: Account.security.intro | Change your password, see where you're signed in and review recent activity. | غيّر كلمة المرور، واطّلع على الأجهزة المسجّل دخولك منها وعلى آخر نشاط. |
@@ -569,9 +604,9 @@ run `npm run i18n:review` after adding strings (CI runs `npm run i18n:review:che
 | messages: Account.security.sessions.signingOut | Signing out… | جارٍ تسجيل الخروج… |
 | messages: Account.security.sessions.signOutOthers | Sign out of other devices | تسجيل الخروج من الأجهزة الأخرى |
 | messages: Account.security.sessions.noOthers | You're not signed in anywhere else. | لست مسجّل الدخول في أي مكان آخر. |
-| messages: Account.security.sessions.revoked | That device was signed out. | تم تسجيل الخروج من ذلك الجهاز. |
-| messages: Account.security.sessions.othersRevoked | Your other devices were signed out. | تم تسجيل الخروج من أجهزتك الأخرى. |
 | messages: Account.security.sessions.list | Signed-in devices | الأجهزة المسجّلة الدخول |
+| messages: Account.security.sessions.signedOutDevices | {count, plural, =0 {No other devices were signed in.} one {Signed out of # device.} other {Signed out of # devices.}} | {count, plural, =0 {لم يكن هناك أجهزة أخرى مسجّلة الدخول.} one {تم تسجيل الخروج من جهاز واحد.} two {تم تسجيل الخروج من جهازين.} few {تم تسجيل الخروج من # أجهزة.} many {تم تسجيل الخروج من # جهازًا.} other {تم تسجيل الخروج من # جهاز.}} |
+| messages: Account.security.sessions.alreadySignedOut | That device was already signed out. | تم تسجيل الخروج من ذلك الجهاز بالفعل. |
 | messages: Account.security.activity.heading | Recent security activity | آخر نشاط أمني |
 | messages: Account.security.activity.intro | The latest sign-ins and security changes on your account. We keep this list for about 12 months. It doesn't include IP addresses. | أحدث عمليات تسجيل الدخول والتغييرات الأمنية في حسابك. نحتفظ بهذه القائمة نحو 12 شهرًا، ولا تتضمن عناوين IP. |
 | messages: Account.security.activity.empty | No activity yet. | لا يوجد نشاط بعد. |
@@ -582,10 +617,44 @@ run `npm run i18n:review` after adding strings (CI runs `npm run i18n:review:che
 | messages: Account.security.activity.events.PASSWORD_RESET | Password reset by email | تمت إعادة تعيين كلمة المرور عبر البريد |
 | messages: Account.security.activity.events.SESSION_REVOKED | One device was signed out | تم تسجيل الخروج من جهاز واحد |
 | messages: Account.security.activity.events.OTHER_SESSIONS_REVOKED | Other devices were signed out | تم تسجيل الخروج من الأجهزة الأخرى |
+| messages: Account.security.activity.events.EMAIL_CHANGE_REQUESTED | Email change requested | تم طلب تغيير البريد الإلكتروني |
+| messages: Account.security.activity.events.EMAIL_CHANGE_CANCELLED | Email change cancelled | تم إلغاء تغيير البريد الإلكتروني |
+| messages: Account.security.activity.events.EMAIL_CHANGED | Email address changed | تم تغيير البريد الإلكتروني |
 | messages: Account.devices.both | {browser} on {os} | {browser} على {os} |
 | messages: Account.devices.browserOnly | {browser} | {browser} |
 | messages: Account.devices.osOnly | {os} | {os} |
 | messages: Account.devices.unknown | Unknown device | جهاز غير معروف |
+| messages: Account.email.title | Change email address | تغيير البريد الإلكتروني |
+| messages: Account.email.metaDescription | Change the email address of your account. | غيّر البريد الإلكتروني لحسابك. |
+| messages: Account.email.intro | Your email address is how you sign in and where we send order and security emails. Changing it needs your password. We send a code to the new address and tell your current address about the request. | بريدك الإلكتروني هو ما تسجّل به الدخول وما نرسل إليه رسائل الطلبات والأمان. يتطلب تغييره كلمة مرورك. نرسل رمزًا إلى العنوان الجديد ونُبلغ عنوانك الحالي بالطلب. |
+| messages: Account.email.current | Current email address | البريد الإلكتروني الحالي |
+| messages: Account.email.new | New email address | البريد الإلكتروني الجديد |
+| messages: Account.email.password | Your password | كلمة مرورك |
+| messages: Account.email.submit | Send code | إرسال الرمز |
+| messages: Account.email.submitting | Sending… | جارٍ الإرسال… |
+| messages: Account.email.pendingHeading | Enter the code | أدخل الرمز |
+| messages: Account.email.pendingBody | If {address} can be used for this account, we've sent a 6-digit code there. It works until {time}, Cairo time. Check your spam folder too. | إذا كان بالإمكان استخدام {address} لهذا الحساب، فقد أرسلنا رمزًا من 6 أرقام إليه. يعمل الرمز حتى {time} بتوقيت القاهرة. تحقق من مجلد الرسائل غير المرغوب فيها أيضًا. |
+| messages: Account.email.attemptsLeft | {count, plural, one {# attempt left} other {# attempts left}} | {count, plural, zero {لا توجد محاولات متبقية} one {تبقّت محاولة واحدة} two {تبقّت محاولتان} few {تبقّت # محاولات} many {تبقّت # محاولة} other {تبقّت # محاولة}} |
+| messages: Account.email.code | 6-digit code | الرمز المكوّن من 6 أرقام |
+| messages: Account.email.confirm | Confirm new address | تأكيد العنوان الجديد |
+| messages: Account.email.confirming | Confirming… | جارٍ التأكيد… |
+| messages: Account.email.resend | Send a new code | إرسال رمز جديد |
+| messages: Account.email.resending | Sending… | جارٍ الإرسال… |
+| messages: Account.email.resent | If the address can be used, we've sent a new code. | إذا كان بالإمكان استخدام العنوان، فقد أرسلنا رمزًا جديدًا. |
+| messages: Account.email.discard | Use a different address | استخدام عنوان آخر |
+| messages: Account.email.discarding | Cancelling… | جارٍ الإلغاء… |
+| messages: Account.email.changed | Your email address was changed. Your other devices were signed out, and we told your previous address. | تم تغيير بريدك الإلكتروني. تم تسجيل الخروج من أجهزتك الأخرى وأبلغنا عنوانك السابق. |
+| messages: Account.email.signInNote | From now on, sign in with your new address. | من الآن، سجّل الدخول بعنوانك الجديد. |
+| messages: Account.cancelEmailChange.title | Cancel the email change | إلغاء تغيير البريد الإلكتروني |
+| messages: Account.cancelEmailChange.metaDescription | Cancel a request to change the email address of an account. | ألغِ طلب تغيير البريد الإلكتروني لحساب. |
+| messages: Account.cancelEmailChange.intro | Someone asked to change the email address of a {brand} account. If that wasn't you, cancel it here. Nothing changes until the code sent to the new address is entered, so cancelling stops it. | طلب شخص ما تغيير البريد الإلكتروني لحساب في {brand}. إذا لم تكن أنت، فألغِ الطلب من هنا. لا يتغير شيء حتى يُدخَل الرمز المرسل إلى العنوان الجديد، لذلك يوقف الإلغاء الطلب. |
+| messages: Account.cancelEmailChange.missingToken | This link is incomplete. Open the link from your email again. | هذا الرابط غير مكتمل. افتح الرابط من رسالتك مرة أخرى. |
+| messages: Account.cancelEmailChange.submit | Cancel the email change | إلغاء تغيير البريد الإلكتروني |
+| messages: Account.cancelEmailChange.submitting | Cancelling… | جارٍ الإلغاء… |
+| messages: Account.cancelEmailChange.done | The email change was cancelled. The email address of the account has not changed. | تم إلغاء تغيير البريد الإلكتروني. لم يتغير بريد الحساب. |
+| messages: Account.cancelEmailChange.advice | If you didn't ask for it, someone may know your password. Reset it now; resetting signs out every device. | إذا لم تطلب ذلك، فقد يعرف شخص ما كلمة مرورك. أعد تعيينها الآن؛ إعادة التعيين تسجّل الخروج من جميع الأجهزة. |
+| messages: Account.cancelEmailChange.resetLink | Reset your password | إعادة تعيين كلمة المرور |
+| messages: Account.cancelEmailChange.signInLink | Go to sign in | الذهاب إلى تسجيل الدخول |
 
 ## Brand copy
 

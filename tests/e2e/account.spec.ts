@@ -54,7 +54,7 @@ test.describe("account area", () => {
   test("the three account pages need a session and bring you back after signing in", async ({
     page,
   }) => {
-    for (const path of ["/account", "/account/profile", "/account/security"]) {
+    for (const path of ["/account", "/account/profile", "/account/security", "/account/email"]) {
       await page.goto(`/en${path}`);
       await expect(page).toHaveURL(
         new RegExp(`/en/login\\?next=${encodeURIComponent(path).replace(/%/g, "%")}`),
@@ -138,11 +138,16 @@ test.describe("account area", () => {
     const others = list.getByTestId("session-other");
     await expect(others).toHaveCount(1);
     await expect(others.getByTestId("session-device")).toHaveText("Firefox on macOS");
+    // "Signed in" has date and time (exact: from the session's creation time); "Last active" is a date only.
+    await expect(list.getByTestId("session-current")).toContainText(/Signed in .*\d{1,2}:\d{2}/);
+    await expect(list.getByTestId("session-current")).toContainText(
+      /Last active [A-Z][a-z]{2} \d{1,2}, \d{4}(?!.*\d:\d)/,
+    );
     await expect(list.getByTestId("session-current").getByRole("button")).toHaveCount(0); // no sign-out for this device here
 
     await whenHydrated(others.getByRole("button", { name: /Sign out Firefox on macOS/ }));
     await others.getByRole("button", { name: /Sign out Firefox on macOS/ }).click();
-    await expect(page.getByTestId("sessions-notice")).toHaveText("That device was signed out.");
+    await expect(page.getByTestId("sessions-notice")).toHaveText("Signed out of 1 device.");
     await expect(page.getByTestId("session-other")).toHaveCount(0);
 
     // The other browser is signed out at once: its next request is sent to sign in.
@@ -168,9 +173,10 @@ test.describe("account area", () => {
     await expect(page.getByTestId("session-other")).toHaveCount(2);
     await whenHydrated(page.getByTestId("sign-out-others"));
     await page.getByTestId("sign-out-others").click();
-    await expect(page.getByTestId("sessions-notice")).toHaveText(
-      "Your other devices were signed out.",
-    );
+    await expect(page.getByTestId("sessions-notice")).toHaveText("Signed out of 2 devices.");
+    // The result is announced politely and as one sentence, and the region is always in the page.
+    await expect(page.getByTestId("sessions-notice")).toHaveAttribute("aria-live", "polite");
+    await expect(page.getByTestId("sessions-notice")).toHaveAttribute("aria-atomic", "true");
     await expect(page.getByTestId("session-other")).toHaveCount(0);
     await expect(page.getByText("You're not signed in anywhere else.")).toBeVisible();
     await expect(page.getByTestId("sign-out-others")).toHaveCount(0);

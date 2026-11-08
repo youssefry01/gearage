@@ -1,4 +1,4 @@
-# Manual test guide: authentication and account (M5a-2, M5b-1)
+# Manual test guide: authentication and account (M5a-2, M5b-1, M5b-2a)
 
 Use a **private window** per scenario. Run `npm run dev` (or a production build with `npm run build && npm start`).
 Emails: with `EMAIL_PROVIDER=log` they are files in the folder named by `EMAIL_LOG_DIR` (default `.emails/`); with
@@ -101,8 +101,8 @@ Use **two browsers** (A and B, for example Chrome and Firefox) signed in to the 
 ## 12. Signed-in devices (M5b-1)
 
 1. With A and B signed in, A's Security page lists two devices: this one marked "This device" (no button) and the other, such as "Firefox on macOS", with a **Sign out** button, the sign-in time and the last-active date. Times are in Cairo time.
-2. **Sign out** the other device in A. The list updates; reload B: it is signed out.
-3. Sign in on B again, and on a third browser C. In A press **Sign out of other devices**: both go; A stays; the button is replaced by "You're not signed in anywhere else."
+2. **Sign out** the other device in A. The list updates and "Signed out of 1 device." appears (a screen reader reads it once; focus moves to the list); reload B: it is signed out.
+3. Sign in on B again, and on a third browser C. In A press **Sign out of other devices**: both go; A stays; "Signed out of 2 devices." appears (polite live region) and the button is replaced by "You're not signed in anywhere else."
 4. The normal **Sign out** (account page) ends only the device you press it on.
 5. Everything above in Arabic (`/ar/account/security`): right-to-left, "Chrome على Windows" style labels.
 
@@ -116,3 +116,37 @@ SELECT type, device, "createdAt" FROM security_event ORDER BY "createdAt" DESC L
 ```
 
 To see the 12-month cleanup: set an event's `createdAt` to 400 days ago, then run the housekeeping job (section 9); the log line `auth_pruned` includes `securityEvents`.
+
+## 14. Reset by email sends the password-changed notice (M5b-2a)
+
+1. Forgot password for a real account, open the link, set a new password.
+2. An email "Your ... password was changed" arrives at that address (Brevo inbox or `.emails/`), in the language of the page you used. It names the device and says that **every device was signed out** (not "this device stayed signed in"), with a **Reset password** button. Try once from `/ar/forgot-password`: the email is Arabic.
+3. The activity list shows "Password reset by email". A wrong or used link sends no notice.
+
+## 15. Change email address (M5b-2a)
+
+Use **two browsers** (A and B) signed in to the same account, and two real mailboxes you can read: the current one (OLD) and another one (NEW, for example a `+` alias).
+
+1. A: Profile, **Change email address** (or `/en/account/email`). Wrong password: "That isn't your current password." Nothing is sent. The same address as your current one, in capitals: "That is already your email address."
+2. Right password and the NEW address: the page changes to **Enter the code** with `n***@...` (masked) and "5 attempts left"; focus is on that heading.
+3. OLD mailbox: "An email change was requested on your ... account": masked new address, the device, a **Cancel the change** button, 30 minutes. NEW mailbox: the 6-digit code (nothing about your old address).
+4. Reload the page: the code step is still there. Type a wrong code: error and "4 attempts left". Press **Send a new code**: "If the address can be used, we've sent a new code."; the first code stops working.
+5. Enter the right code: "Your email address was changed. Your other devices were signed out..." (focus moves to it); the current address shown above is the new one.
+6. Reload B: it goes to sign-in. OLD mailbox: "The email address of your ... account was changed" with a **Contact us** button. The Security page's activity list shows "Email address changed".
+7. Sign in with the NEW address and the same password: works. With the OLD address: "Incorrect email or password." "Forgot password" for the OLD address sends nothing. A reset link that was in the OLD mailbox before the change no longer works.
+8. Five wrong codes in a row: "Too many wrong codes. Request a new one."; the page returns to the start and even the right code no longer works.
+9. **Use a different address** returns to the form (no confirmation: nothing is lost). Activity list: "Email change cancelled".
+10. Arabic (`/ar/account/email`): right-to-left, the address stays left-to-right and in the right place in the emails.
+11. Expiry (optional): start a change and wait 30+ minutes, or set `expiresAt` in the past: `update email_change_request set "expiresAt" = now() - interval '1 minute';` then enter the code: "That code has expired. Request a new one." The page returns to the start.
+
+## 16. Cancel link and an address that already has an account (M5b-2a)
+
+1. Start a change (section 15, steps 1 to 3) but do not enter the code. Open the **Cancel the change** link from the OLD mailbox in a **private window with no session**: the page only shows one button (opening the link changes nothing; the address bar shows `#token=...`).
+2. Press **Cancel the email change**: "The email change was cancelled...", advice to reset the password if you did not ask for it, and the token is gone from the address bar. In A, the code from the NEW mailbox now says "There's no email change in progress. Start again." Pressing the button again (or opening a used link) says the link is invalid or has expired.
+3. Another account's address: start a change to an address that already has an account (use a second test account). The page says exactly the same as in section 15 step 2, and the OLD mailbox gets the same notice. The OTHER address's mailbox gets "Someone asked to use your email for another ... account" (no code). Any code you type fails with "That code isn't right" and the attempts counter.
+4. Rate limits (optional, with `RATE_LIMIT_SCALE` unset): more than 3 requests to the same new address in an hour, or 5 requests from the account in an hour, end with "Too many attempts".
+
+```sql
+select "userId", "newEmail", left("codeHash",8) as code_hash, attempts, "expiresAt" from email_change_request;   -- only hashes, never the code
+select type, "createdAt" from security_event order by "createdAt" desc limit 6;
+```

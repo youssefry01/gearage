@@ -1,11 +1,12 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useState, useSyncExternalStore } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { routes } from "@/config/routes";
 import { resetPasswordSchema, resetTokenSchema } from "@/domain/auth";
+import type { Locale } from "@/i18n/locales";
 import { Link, useRouter } from "@/i18n/navigation";
 import { resetPasswordAction } from "./auth.actions";
 import { FormAlert, PasswordField, useActionErrorText, useErrorText } from "./form-fields";
@@ -25,6 +26,7 @@ const readHash = () => window.location.hash;
  */
 export function ResetForm() {
   const t = useTranslations("Auth");
+  const locale = useLocale() as Locale;
   const router = useRouter();
   const errorText = useErrorText();
   const actionErrorText = useActionErrorText();
@@ -62,7 +64,7 @@ export function ResetForm() {
 
   const onSubmit = handleSubmit(async (values) => {
     setFormError(undefined);
-    const res = await resetPasswordAction({ token, password: values.password });
+    const res = await resetPasswordAction({ token, password: values.password, locale });
     if (res.data) {
       // Do not keep the used token in the address bar or history.
       window.history.replaceState(null, "", window.location.pathname);

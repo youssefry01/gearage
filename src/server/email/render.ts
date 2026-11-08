@@ -26,6 +26,9 @@ const esc = (value: string): string =>
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#39;");
 
+/** Keeps an address (always left-to-right) from being reordered inside an Arabic sentence: Unicode LTR isolates. */
+const ltr = (value: string): string => `\u2066${value}\u2069`;
+
 const fill = (template: string, values: Record<string, string | number>): string =>
   template.replace(/\{(\w+)\}/g, (whole, key: string) => String(values[key] ?? whole));
 
@@ -145,6 +148,7 @@ export async function renderEmail<T extends EmailTemplate>(
     }
     case "password-changed": {
       const p = payload as EmailPayload<"password-changed">;
+      const viaReset = p.method === "reset";
       subject = m.passwordChanged.subject;
       title = m.passwordChanged.heading;
       blocks = [
@@ -157,12 +161,76 @@ export async function renderEmail<T extends EmailTemplate>(
               ),
             ]
           : []),
-        paragraph(m.passwordChanged.othersSignedOut),
-        paragraph(m.passwordChanged.wasntYou),
+        // A reset by link signs EVERY device out (nobody is left signed in); a change from the account keeps this one.
+        paragraph(viaReset ? m.passwordChanged.allSignedOut : m.passwordChanged.othersSignedOut),
+        paragraph(viaReset ? m.passwordChanged.wasntYouReset : m.passwordChanged.wasntYou),
         button(m.passwordChanged.button, p.resetUrl),
         muted(m.passwordChanged.fallback),
         linkLine(p.resetUrl),
         muted(m.passwordChanged.itWasYou),
+      ];
+      break;
+    }
+    case "email-change-code": {
+      const p = payload as EmailPayload<"email-change-code">;
+      subject = m.emailChangeCode.subject;
+      title = m.emailChangeCode.heading;
+      blocks = [
+        heading(m.emailChangeCode.heading),
+        paragraph(m.emailChangeCode.intro),
+        codeBlock(p.code),
+        muted(fill(m.emailChangeCode.expires, { minutes: p.expiresMinutes })),
+        muted(m.emailChangeCode.ignore),
+      ];
+      break;
+    }
+    case "email-change-notice": {
+      const p = payload as EmailPayload<"email-change-notice">;
+      subject = m.emailChangeNotice.subject;
+      title = m.emailChangeNotice.heading;
+      blocks = [
+        heading(m.emailChangeNotice.heading),
+        paragraph(fill(m.emailChangeNotice.intro, { address: ltr(p.newEmailMasked) })),
+        ...(p.device
+          ? [
+              paragraph(
+                fill(m.emailChangeNotice.device, { device: describeDevice(p.device, m.devices) }),
+              ),
+            ]
+          : []),
+        paragraph(m.emailChangeNotice.wasntYou),
+        button(m.emailChangeNotice.button, p.cancelUrl),
+        muted(m.emailChangeNotice.fallback),
+        linkLine(p.cancelUrl),
+        muted(fill(m.emailChangeNotice.expires, { minutes: p.expiresMinutes })),
+        muted(m.emailChangeNotice.itWasYou),
+      ];
+      break;
+    }
+    case "email-changed": {
+      const p = payload as EmailPayload<"email-changed">;
+      subject = m.emailChanged.subject;
+      title = m.emailChanged.heading;
+      blocks = [
+        heading(m.emailChanged.heading),
+        paragraph(fill(m.emailChanged.intro, { address: ltr(p.newEmailMasked) })),
+        paragraph(m.emailChanged.othersSignedOut),
+        paragraph(m.emailChanged.wasntYou),
+        button(m.emailChanged.button, p.contactUrl),
+        muted(m.emailChanged.fallback),
+        linkLine(p.contactUrl),
+        muted(m.emailChanged.itWasYou),
+      ];
+      break;
+    }
+    case "email-change-taken": {
+      subject = m.emailChangeTaken.subject;
+      title = m.emailChangeTaken.heading;
+      blocks = [
+        heading(m.emailChangeTaken.heading),
+        paragraph(m.emailChangeTaken.intro),
+        paragraph(m.emailChangeTaken.action),
+        muted(m.emailChangeTaken.ignore),
       ];
       break;
     }

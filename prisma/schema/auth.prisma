@@ -37,9 +37,10 @@ model User {
   marketingConsent   Boolean   @default(false)
   marketingConsentAt DateTime?
 
-  sessions       Session[]
-  accounts       Account[]
-  securityEvents SecurityEvent[]
+  sessions           Session[]
+  accounts           Account[]
+  securityEvents     SecurityEvent[]
+  emailChangeRequest EmailChangeRequest?
 
   @@map("user")
 }
@@ -116,6 +117,9 @@ enum SecurityEventType {
   PASSWORD_RESET
   SESSION_REVOKED
   OTHER_SESSIONS_REVOKED
+  EMAIL_CHANGE_REQUESTED
+  EMAIL_CHANGE_CANCELLED
+  EMAIL_CHANGED
 }
 
 /// The account's security activity (M5b-1, ADR 0025): what happened and when, nothing else. Sign-in events also carry
@@ -133,4 +137,27 @@ model SecurityEvent {
   @@index([userId, createdAt])
   @@index([createdAt])
   @@map("security_event")
+}
+
+/// A pending email change (M5b-2a, ADR 0026): at most one per account. The code that proves control of the NEW address and
+/// the token in the "cancel" link sent to the CURRENT address are stored only as HMACs (a database leak alone cannot
+/// replay either). The same row exists whether or not the new address already belongs to an account, so nothing in
+/// the database or the responses tells the two cases apart. Expired rows are deleted by the daily `prune-auth-data` job.
+model EmailChangeRequest {
+  id         String   @id @default(uuid(7)) @db.Uuid
+  userId     String   @unique @db.Uuid
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  /// Normalized (trimmed, lower-case) address the account wants to move to.
+  newEmail   String
+  /// HMAC-SHA256 (hex) of the 6-digit code, bound to the account and the new address.
+  codeHash   String
+  /// HMAC-SHA256 (hex) of the cancel token.
+  cancelHash String   @unique
+  /// Wrong codes so far; the request is destroyed at EMAIL_CHANGE_MAX_ATTEMPTS.
+  attempts   Int      @default(0)
+  expiresAt  DateTime
+  createdAt  DateTime
+
+  @@index([expiresAt])
+  @@map("email_change_request")
 }

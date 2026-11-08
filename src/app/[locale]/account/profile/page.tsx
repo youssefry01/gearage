@@ -5,9 +5,11 @@ import { notFound } from "next/navigation";
 import { accountRoutes } from "@/config/routes";
 import { accountMetadata } from "@/features/account/account-metadata";
 import { AccountShell } from "@/features/account/account-shell";
+import { buttonStyles } from "@/components/ui/button";
 import { ProfileForm } from "@/features/account/profile-form";
 import { requireSession } from "@/features/account/require-session";
 import { toLocalMobile } from "@/domain/auth";
+import { Link } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
 import { getProfile } from "@/server/services/account.service";
 
@@ -42,6 +44,21 @@ export default async function ProfilePage({ params }: Props) {
             gender: profile.gender ? (profile.gender.toLowerCase() as "male" | "female") : "",
           }}
         />
+      </section>
+      <section
+        aria-labelledby="email-heading"
+        className="border-border bg-card rounded-panel flex flex-col gap-3 border p-5 sm:p-6"
+      >
+        <h2 id="email-heading" className="text-heading font-semibold text-balance">
+          {t("emailHeading")}
+        </h2>
+        <p className="text-small text-muted-foreground">{t("emailBody")}</p>
+        <Link
+          href={accountRoutes.email}
+          className={`${buttonStyles({ variant: "secondary" })} self-start`}
+        >
+          {t("emailLink")}
+        </Link>
       </section>
     </AccountShell>
   );

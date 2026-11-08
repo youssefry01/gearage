@@ -207,20 +207,22 @@ export async function revokeSession(
   currentSessionId: string,
   sessionId: string,
   deps: Deps = {},
-): Promise<{ status: "revoked" }> {
+): Promise<{ status: "revoked"; count: number }> {
   if (sessionId === currentSessionId) {
     throw new AppError("BAD_REQUEST", "Use Sign out for this device", {
       details: { issue: "current_session" },
     });
   }
   const now = clock(deps);
-  await getDb().$transaction(async (tx) => {
+  const count = await getDb().$transaction(async (tx) => {
     const removed = await repo.deleteSession(userId, sessionId, currentSessionId, tx);
     if (removed > 0)
       await repo.insertSecurityEvent({ userId, type: "SESSION_REVOKED", createdAt: now }, tx);
+    return removed;
   });
-  // Identical answer whether the id was live, already gone, or belongs to nobody (it says nothing about other accounts).
-  return { status: "revoked" };
+  // The count is 1 if this call signed the device out and 0 if it was already gone. An id that belongs to another
+  // account also answers 0, exactly like one that never existed: it says nothing about other accounts (ADR 0026 item 9).
+  return { status: "revoked", count };
 }
 
 /** "Sign out of other devices": every session of this account except the current one. */

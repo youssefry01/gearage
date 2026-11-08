@@ -20,12 +20,15 @@ export const SECURITY_EVENT_TYPES = [
   "PASSWORD_RESET",
   "SESSION_REVOKED",
   "OTHER_SESSIONS_REVOKED",
+  "EMAIL_CHANGE_REQUESTED",
+  "EMAIL_CHANGE_CANCELLED",
+  "EMAIL_CHANGED",
 ] as const;
 export type SecurityEventKind = (typeof SECURITY_EVENT_TYPES)[number];
 
 // --- Profile ------------------------------------------------------------------------------------------------------
 /**
- * What the profile form sends. Email is not here (changing it needs re-verification, M5b-2) and neither is marketing
+ * What the profile form sends. Email is not here (changing it has its own page and needs re-verification, M5b-2a) and neither is marketing
  * consent (it moves with the notification preferences, M8a). An empty optional field means "clear it".
  */
 export const profileSchema = z.object({
