@@ -142,11 +142,29 @@ Use **two browsers** (A and B) signed in to the same account, and two real mailb
 ## 16. Cancel link and an address that already has an account (M5b-2a)
 
 1. Start a change (section 15, steps 1 to 3) but do not enter the code. Open the **Cancel the change** link from the OLD mailbox in a **private window with no session**: the page only shows one button (opening the link changes nothing; the address bar shows `#token=...`).
-2. Press **Cancel the email change**: "The email change was cancelled...", advice to reset the password if you did not ask for it, and the token is gone from the address bar. In A, the code from the NEW mailbox now says "There's no email change in progress. Start again." Pressing the button again (or opening a used link) says the link is invalid or has expired.
+2. Press **Cancel the email change**: "The email change was cancelled... every device was signed out", advice that a reset link was emailed, and the token is gone from the address bar. **Every browser is signed out, including A** (reload A: sign-in page); the OLD mailbox gets a "Reset your password" email; the old password still works until you reset (ADR 0027, open choice 1). In A, the code from the NEW mailbox now says "There's no email change in progress. Start again." Pressing the button again (or opening a used link) says the link is invalid or has expired.
 3. Another account's address: start a change to an address that already has an account (use a second test account). The page says exactly the same as in section 15 step 2, and the OLD mailbox gets the same notice. The OTHER address's mailbox gets "Someone asked to use your email for another ... account" (no code). Any code you type fails with "That code isn't right" and the attempts counter.
 4. Rate limits (optional, with `RATE_LIMIT_SCALE` unset): more than 3 requests to the same new address in an hour, or 5 requests from the account in an hour, end with "Too many attempts".
 
 ```sql
 select "userId", "newEmail", left("codeHash",8) as code_hash, attempts, "expiresAt" from email_change_request;   -- only hashes, never the code
+select type, "createdAt" from security_event order by "createdAt" desc limit 6;
+```
+
+## 17. Undo an email change (ADR 0027)
+
+Same set-up as section 15 (browsers A and B, mailboxes OLD and NEW, a second test account C with its own mailbox).
+
+1. Complete an email change (section 15). The OLD mailbox's "The email address of your ... account was changed" now has an **Undo the change** button, says "next 7 days", and still has the contact link.
+2. Reservation: from C, start an email change to the OLD address: the page behaves exactly as for any taken address (code step), the OLD mailbox gets "Someone asked to use your email for another ... account", and no code arrives. Registering a new account with the OLD address (private window): the same "check your email" step as always, and the OLD mailbox gets the "already has an account" email; no account is created.
+3. Open **Undo the change** in a private window with no session: only a button is shown; the address bar has `#token=...`. Press **Undo the email change**: "The change was undone...", focus on that message, token gone from the address bar.
+4. A and B are both signed out. OLD mailbox: "The email address of your ... account was restored" and a reset-password email; NEW mailbox: "An email address was removed from a ... account" (no link). Signing in with the OLD address and the OLD password: "Incorrect email or password." Use the reset email: set a new password, sign in. The activity list shows "Email change undone".
+5. Press the same undo link again, or open it in a new tab: invalid or expired.
+6. Two changes in a row (A to B, then B to C), then the FIRST undo link: the first address is restored and the address held at that moment is told.
+7. After the window (optional): `update email_change_revert set "expiresAt" = now() - interval '1 minute', "createdAt" = now() - interval '8 days';` then the link says invalid or expired, and the old address can be registered again.
+8. Arabic (`/ar/email-change/revert#token=` + 43 characters): right-to-left; the three new emails in Arabic.
+
+```sql
+select "oldEmail", "newEmail", left("tokenHash",8) as token_hash, "expiresAt" from email_change_revert;   -- hashes only
 select type, "createdAt" from security_event order by "createdAt" desc limit 6;
 ```

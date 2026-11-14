@@ -491,7 +491,10 @@
       "wasntYou": "If this wasn't you, contact us right away so we can help you secure the account.",
       "button": "Contact us",
       "fallback": "If the button doesn't work, copy this link into your browser:",
-      "itWasYou": "If it was you, no action is needed."
+      "itWasYou": "If it was you, no action is needed.",
+      "revert": "If this wasn't you, you can undo the change for the next {days} days. Undoing it restores this address, signs out every device and requires a new password. Until then this address is kept for you.",
+      "revertButton": "Undo the change",
+      "revertHelp": "If the link has expired or you need help, contact us:"
     },
     "emailChangeTaken": {
       "subject": "Someone asked to use your email for another {brand} account",
@@ -499,6 +502,20 @@
       "intro": "A request was made to use this email address for a different {brand} account, but an account with this address already exists, so nothing was changed.",
       "action": "If you meant to use this account, sign in with this address. If you don't remember your password, use \"Forgot password\" on the sign-in page.",
       "ignore": "If it wasn't you, you can ignore this email."
+    },
+    "emailReverted": {
+      "subject": "The email address of your {brand} account was restored",
+      "heading": "The email change was undone",
+      "intro": "The change of email address on your {brand} account was undone. This address is back on the account.",
+      "allSignedOut": "Every device was signed out and the old password was disabled.",
+      "resetNext": "We sent you a separate email with a link to choose a new password.",
+      "wasntYou": "If you didn't do this, contact us right away."
+    },
+    "emailRevertReleased": {
+      "subject": "An email address was removed from a {brand} account",
+      "heading": "This address is no longer used for the account",
+      "intro": "The owner of a {brand} account restored an earlier email address, so this address is no longer used for that account.",
+      "ignore": "No action is needed."
     }
   },
   "Auth": {
@@ -610,7 +627,8 @@
       "try_again": "Your password changed while this was happening. Please try again.",
       "same_email": "That is already your email address.",
       "no_email_change": "There's no email change in progress. Start again.",
-      "email_unavailable": "That address can't be used. Start again with a different address."
+      "email_unavailable": "That address can't be used. Start again with a different address.",
+      "address_unavailable": "The previous address can't be restored automatically. Contact support so we can help you."
     },
     "forgot": {
       "title": "Reset your password",
@@ -707,7 +725,8 @@
           "OTHER_SESSIONS_REVOKED": "Other devices were signed out",
           "EMAIL_CHANGE_REQUESTED": "Email change requested",
           "EMAIL_CHANGE_CANCELLED": "Email change cancelled",
-          "EMAIL_CHANGED": "Email address changed"
+          "EMAIL_CHANGED": "Email address changed",
+          "EMAIL_CHANGE_REVERTED": "Email change undone"
         }
       }
     },
@@ -747,8 +766,20 @@
       "missingToken": "This link is incomplete. Open the link from your email again.",
       "submit": "Cancel the email change",
       "submitting": "Cancelling…",
-      "done": "The email change was cancelled. The email address of the account has not changed.",
-      "advice": "If you didn't ask for it, someone may know your password. Reset it now; resetting signs out every device.",
+      "done": "The email change was cancelled. The email address of the account has not changed, and every device was signed out.",
+      "advice": "Whoever started the change knew your password, so we emailed you a link to choose a new one. Use it now, then sign in again.",
+      "resetLink": "Reset your password",
+      "signInLink": "Go to sign in"
+    },
+    "revertEmailChange": {
+      "title": "Undo the email change",
+      "metaDescription": "Restore the previous email address of an account.",
+      "intro": "The email address of a {brand} account was changed. If that wasn't you, undo it here: the previous address is restored, every device is signed out and the password must be reset. This link works once.",
+      "missingToken": "This link is incomplete. Open the link from your email again.",
+      "submit": "Undo the email change",
+      "submitting": "Undoing…",
+      "done": "The change was undone. This email address is back on the account and every device was signed out.",
+      "advice": "The old password no longer works. We emailed this address a link to choose a new one; it can take a few minutes to arrive.",
       "resetLink": "Reset your password",
       "signInLink": "Go to sign in"
     }

@@ -113,3 +113,109 @@ export async function deleteResetTokens(userId: string, db: Db = getDb()): Promi
   });
   return result.count;
 }
+
+// --- Revert window (ADR 0027) ----------------------------------------------------------------------------------------
+
+/**
+ * Records the way back for a change that just completed and RESERVES the old address. One reservation per address:
+ * a previous row for the same address is replaced, and the account's own reservation of the address it is moving TO
+ * is dropped (it holds that address again). The caller runs this inside the transaction that moved the address.
+ */
+export async function replaceRevert(
+  data: {
+    userId: string;
+    oldEmail: string;
+    newEmail: string;
+    tokenHash: string;
+    expiresAt: Date;
+    createdAt: Date;
+  },
+  db: Db = getDb(),
+): Promise<void> {
+  await db.emailChangeRevert.deleteMany({
+    where: { OR: [{ oldEmail: data.oldEmail }, { userId: data.userId, oldEmail: data.newEmail }] },
+  });
+  await db.emailChangeRevert.create({ data });
+}
+
+/**
+ * Is `email` held back for ANOTHER account (a live reservation whose owner is not `exceptUserId`)? An address reserved
+ * for the account asking is its own to take back, so it counts as free for that account only.
+ */
+export async function isReservedForOthers(
+  email: string,
+  exceptUserId: string | null,
+  now: Date,
+  db: Db = getDb(),
+): Promise<boolean> {
+  const row = await db.emailChangeRevert.findFirst({
+    where: {
+      oldEmail: email,
+      expiresAt: { gt: now },
+      ...(exceptUserId ? { NOT: { userId: exceptUserId } } : {}),
+    },
+    select: { id: true },
+  });
+  return row !== null;
+}
+
+export type RevertRow = { id: string; userId: string; oldEmail: string; newEmail: string };
+
+/**
+ * Consumes the live revert whose token hashes to `tokenHash` (one statement: two clicks revert once). Expired rows do
+ * not match. Run inside the reverting transaction, so a refusal later in it puts the row back.
+ */
+export async function takeRevertByHash(
+  tokenHash: string,
+  now: Date,
+  db: Db = getDb(),
+): Promise<RevertRow | null> {
+  const rows = await db.$queryRaw<RevertRow[]>(Prisma.sql`
+    DELETE FROM "email_change_revert" WHERE "tokenHash" = ${tokenHash} AND "expiresAt" > ${now}
+    RETURNING "id", "userId", "oldEmail", "newEmail"`);
+  return rows[0] ?? null;
+}
+
+/** Every revert row of the account (after a revert the account's history is reset: no stale link may work). */
+export async function deleteRevertsOfUser(userId: string, db: Db = getDb()): Promise<number> {
+  const result = await db.emailChangeRevert.deleteMany({ where: { userId } });
+  return result.count;
+}
+
+export type UserForNotice = { id: string; email: string; locale: string };
+
+export async function getUserForNotice(
+  userId: string,
+  db: Db = getDb(),
+): Promise<UserForNotice | null> {
+  return db.user.findUnique({
+    where: { id: userId },
+    select: { id: true, email: true, locale: true },
+  });
+}
+
+/** Does ANOTHER account hold this address? */
+export async function emailHeldByOther(
+  email: string,
+  exceptUserId: string,
+  db: Db = getDb(),
+): Promise<boolean> {
+  const row = await db.user.findFirst({
+    where: { email, NOT: { id: exceptUserId } },
+    select: { id: true },
+  });
+  return row !== null;
+}
+
+/** Makes the stored password unusable (a hash of a random value nobody knows): the owner must reset it by email. */
+export async function setCredentialHash(
+  userId: string,
+  hash: string,
+  now: Date,
+  db: Db = getDb(),
+): Promise<void> {
+  await db.account.updateMany({
+    where: { userId, providerId: "credential" },
+    data: { password: hash, updatedAt: now },
+  });
+}

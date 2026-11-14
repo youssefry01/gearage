@@ -50,10 +50,13 @@ describe("auth structure (ADR 0002)", () => {
     for (const a of actions) expect(a, a).toMatch(/= authedAction$/);
   });
 
-  it("the only public email-change action is the cancel link, and it has its own per-IP policy", () => {
+  it("the only public email-change actions are the cancel and revert links, each with its own per-IP policy", () => {
     const src = readFileSync(join(root, "src/features/auth/auth.actions.ts"), "utf8");
     expect(src).toMatch(
       /export const cancelEmailChangeAction = publicAction\s*\.metadata\(\{ policy: policies\.emailChangeCancelIp\.name/,
+    );
+    expect(src).toMatch(
+      /export const revertEmailChangeAction = publicAction\s*\.metadata\(\{ policy: policies\.emailChangeRevertIp\.name/,
     );
     const account = readFileSync(join(root, "src/features/account/account.actions.ts"), "utf8");
     expect(account).not.toMatch(/publicAction/);
@@ -65,6 +68,7 @@ describe("auth structure (ADR 0002)", () => {
       "utf8",
     );
     expect(repoSrc).not.toMatch(/cancelHash\s*:\s*true/);
+    expect(repoSrc).not.toMatch(/tokenHash\s*:\s*true/);
     const svc = readFileSync(join(root, "src/server/services/email-change.service.ts"), "utf8");
     expect(svc).not.toMatch(/logger\.\w+\([^)]*(code|token|newEmail|currentEmail)/);
   });
@@ -74,5 +78,10 @@ describe("auth structure (ADR 0002)", () => {
     expect(src).not.toMatch(/token\s*:\s*true/);
     expect(src).not.toMatch(/userAgent\s*:\s*true/);
     expect(src).not.toMatch(/ipAddress\s*:\s*true/);
+  });
+
+  it("e2e never waits on an always-present live region with toBeVisible (it is visible while empty; wait for its text)", () => {
+    const e2e = readFileSync(join(root, "tests/e2e/account.spec.ts"), "utf8");
+    expect(e2e).not.toMatch(/sessions-notice"\)\)\.toBeVisible/);
   });
 });

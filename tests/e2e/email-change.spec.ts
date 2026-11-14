@@ -1,6 +1,6 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Browser, type Page } from "@playwright/test";
-import { codeFrom, emailsFor, waitForEmail } from "./emails";
+import { codeFrom, emailsFor, resetLinkFrom, waitForEmail } from "./emails";
 import { whenHydrated } from "./helpers";
 
 // Email change (M5b-2a, ADR 0026). Each test registers its own throw-away account.
@@ -57,6 +57,12 @@ async function codeFor(newEmail: string): Promise<string> {
 const cancelLinkFrom = (text: string) => {
   const m = /https?:\/\/[^\s"<>]+\/email-change\/cancel#token=[^\s"<>]+/.exec(text);
   if (!m) throw new Error("no cancel link");
+  return m[0];
+};
+
+const revertLinkFrom = (text: string) => {
+  const m = /https?:\/\/[^\s"<>]+\/email-change\/revert#token=[^\s"<>]+/.exec(text);
+  if (!m) throw new Error("no revert link");
   return m[0];
 };
 
@@ -169,12 +175,111 @@ test.describe("email change", () => {
     await expect(cancelPage).not.toHaveURL(/token=/); // the used token is not left in the address bar
     await context.close();
 
-    // The code that was mailed now leads nowhere, and the page goes back to the start.
-    await page.getByLabel("6-digit code").fill(code);
-    await expect(page.getByRole("alert").first()).toContainText(/no email change in progress/i);
+    // Cancelling signed EVERY device out (this one too) and emailed a reset link to the account's address.
+    await page.goto("/en/account");
+    await expect(page).toHaveURL(/\/en\/login\?next=/);
+    await expect
+      .poll(async () =>
+        (await emailsFor(oldEmail)).some((m) => /reset-password#token=/.test(m.text)),
+      )
+      .toBe(true);
+
+    // The password still works (a cancel does not disable it) and the request was removed, so the mailed code is dead.
+    expect(code).toMatch(/^\d{6}$/);
+    await page.goto("/en/login?next=%2Faccount%2Femail");
+    await whenHydrated(page.getByRole("button", { name: "Sign in", exact: true }));
+    await page.getByLabel("Email", { exact: true }).fill(oldEmail);
+    await page.getByLabel("Password", { exact: true }).fill(PASSWORD);
+    await page.getByRole("button", { name: "Sign in", exact: true }).click();
+    await expect(page).toHaveURL(/\/en\/account\/email$/);
     await expect(page.getByTestId("email-request-form")).toBeVisible();
-    await page.goto("/en/account/email");
     await expect(page.getByTestId("current-email")).toHaveText(oldEmail);
+  });
+
+  test("the undo link restores the old address from another browser, reserves it meanwhile, signs everything out and forces a reset", async ({
+    page,
+    browser,
+    baseURL,
+  }) => {
+    const oldEmail = unique("revert");
+    const newEmail = unique("revertnew");
+    await registerAndVerify(page, oldEmail);
+    await startChange(page, newEmail);
+    await expect(page.getByTestId("email-code-form")).toBeVisible();
+    await page.getByLabel("6-digit code").fill(await codeFor(newEmail));
+    await expect(page.getByTestId("email-changed")).toBeVisible();
+
+    const told = await waitForEmail(oldEmail, 3); // 1 sign-up code, 2 notice, 3 "was changed"
+    expect(told.subject).toMatch(/address of your .* account was changed/i);
+    const link = revertLinkFrom(told.text);
+    expect(told.text).toMatch(/next 7 days/);
+
+    // The old address is reserved: registering it looks like any taken address (same step; the owner is emailed).
+    const stranger = await browser.newContext({ baseURL });
+    await stranger.addCookies([{ name: "consent", value: CONSENT, url: baseURL! }]);
+    const sp = await stranger.newPage();
+    await sp.goto("/en/register");
+    await whenHydrated(sp.getByRole("button", { name: "Create account" }));
+    await sp.getByLabel("First name").fill("Sam");
+    await sp.getByLabel("Last name").fill("Stranger");
+    await sp.getByLabel("Email", { exact: true }).fill(oldEmail);
+    await sp.getByLabel("Mobile number").fill("010 1234 5678");
+    await sp.getByLabel("Password", { exact: true }).fill("another-long-passphrase-777");
+    await sp.getByRole("checkbox", { name: /accept/i }).check();
+    await sp.getByRole("button", { name: "Create account" }).click();
+    await expect(sp).toHaveURL(/\/en\/verify-email$/);
+    await expect
+      .poll(async () =>
+        (await emailsFor(oldEmail)).some((m) => /already have an account/i.test(m.text)),
+      )
+      .toBe(true);
+    await stranger.close();
+
+    // Someone with no session opens the link: nothing happens until the button is pressed.
+    const context = await browser.newContext({ baseURL });
+    await context.addCookies([{ name: "consent", value: CONSENT, url: baseURL! }]);
+    const revertPage = await context.newPage();
+    await revertPage.goto(link);
+    const button = revertPage.getByRole("button", { name: "Undo the email change" });
+    await whenHydrated(button);
+    const results = await new AxeBuilder({ page: revertPage }).analyze();
+    expect(results.violations).toEqual([]);
+    await button.click();
+    await expect(revertPage.getByTestId("revert-done")).toBeVisible();
+    await expect(revertPage.getByTestId("revert-done")).toBeFocused();
+    await expect(revertPage).not.toHaveURL(/token=/);
+    // A second press of the same link (opened in a new tab, a new document) is refused.
+    const again = await context.newPage();
+    await again.goto(link);
+    await whenHydrated(again.getByRole("button", { name: "Undo the email change" }));
+    await again.getByRole("button", { name: "Undo the email change" }).click();
+    await expect(again.getByRole("alert").first()).toContainText(/invalid or has expired/i);
+    await context.close();
+
+    // Every device is signed out, both addresses were told, and a reset link went to the restored address.
+    await page.goto("/en/account");
+    await expect(page).toHaveURL(/\/en\/login\?next=/);
+    await expect
+      .poll(async () => (await emailsFor(oldEmail)).some((m) => /was restored/i.test(m.subject)))
+      .toBe(true);
+    await expect
+      .poll(async () => (await emailsFor(newEmail)).some((m) => /removed from/i.test(m.subject)))
+      .toBe(true);
+    const reset = (await emailsFor(oldEmail)).find((m) => /reset-password#token=/.test(m.text))!;
+
+    // The old password is dead on the restored address; the emailed link sets a new one.
+    await whenHydrated(page.getByRole("button", { name: "Sign in", exact: true }));
+    await page.getByLabel("Email", { exact: true }).fill(oldEmail);
+    await page.getByLabel("Password", { exact: true }).fill(PASSWORD);
+    await page.getByRole("button", { name: "Sign in", exact: true }).click();
+    await expect(page.locator("form [role=alert]").first()).toHaveText(
+      "Incorrect email or password.",
+    );
+    await page.goto(resetLinkFrom(reset));
+    await whenHydrated(page.getByRole("button", { name: "Save new password" }));
+    await page.getByLabel("New password", { exact: true }).fill("a brand new passphrase 2026-x");
+    await page.getByRole("button", { name: "Save new password" }).click();
+    await expect(page).toHaveURL(/\/en\/login\?reset=1$/);
   });
 
   test("an address that already has an account looks identical to the person asking; its owner is told by email", async ({

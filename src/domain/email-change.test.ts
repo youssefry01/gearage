@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest";
 import {
   cancelTokenSchema,
   confirmEmailChangeSchema,
+  EMAIL_REVERT_DAYS,
+  revertTokenSchema,
   maskEmail,
   requestEmailChangeSchema,
 } from "./email-change";
@@ -84,5 +86,39 @@ describe("email templates and policies", () => {
   it("every email-change policy fails closed", () => {
     for (const p of Object.values(policies).filter((x) => x.name.startsWith("auth.email.change")))
       expect(p.failMode, p.name).toBe("closed");
+  });
+});
+
+describe("the revert window (ADR 0027)", () => {
+  it("is seven days, and its link token has the same strict shape as the cancel token", () => {
+    expect(EMAIL_REVERT_DAYS).toBe(7);
+    expect(revertTokenSchema.safeParse("A".repeat(43)).success).toBe(true);
+    expect(revertTokenSchema.safeParse("A".repeat(42)).success).toBe(false);
+    expect(revertTokenSchema.safeParse("A".repeat(42) + "=").success).toBe(false);
+  });
+
+  it("its notices are transactional, outlive a day in the outbox, and the old payload (no link) still validates", () => {
+    for (const t of ["email-reverted", "email-revert-released"] as const) {
+      expect(EMAIL_CATEGORIES[t]).toBe("transactional");
+      expect(outboxExpiry(t, {}, new Date(0)).getTime()).toBe(24 * 60 * 60_000);
+    }
+    expect(
+      emailPayloads["email-changed"].safeParse({
+        newEmailMasked: "j***@example.com",
+        contactUrl: "https://shop.example/en/contact",
+      }).success,
+    ).toBe(true);
+    expect(
+      emailPayloads["email-changed"].safeParse({
+        newEmailMasked: "j***@example.com",
+        contactUrl: "https://shop.example/en/contact",
+        revertUrl: "javascript:alert(1)",
+        revertDays: 7,
+      }).success,
+    ).toBe(false);
+  });
+
+  it("the revert link has its own per-IP policy, fail closed", () => {
+    expect(policies.emailChangeRevertIp.failMode).toBe("closed");
   });
 });

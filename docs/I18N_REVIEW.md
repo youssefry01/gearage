@@ -1,6 +1,6 @@
 # Arabic copy that needs native review
 
-1094 Arabic strings were written by the assistant, not a native copywriter. Review tone, terminology (Egyptian retail wording, for
+1119 Arabic strings were written by the assistant, not a native copywriter. Review tone, terminology (Egyptian retail wording, for
 example the category names) and plural forms. Brand and model names left in Latin (AMD Ryzen, DDR5, ...) are not listed.
 The owner plans one native-review pass once more copy exists.
 
@@ -442,11 +442,24 @@ run `npm run i18n:review` after adding strings (CI runs `npm run i18n:review:che
 | messages: Email.emailChanged.button | Contact us | تواصل معنا |
 | messages: Email.emailChanged.fallback | If the button doesn't work, copy this link into your browser: | إذا لم يعمل الزر، انسخ هذا الرابط إلى متصفحك: |
 | messages: Email.emailChanged.itWasYou | If it was you, no action is needed. | إذا كنت أنت، فلا يلزم أي إجراء. |
+| messages: Email.emailChanged.revert | If this wasn't you, you can undo the change for the next {days} days. Undoing it restores this address, signs out every device and requires a new password. Until then this address is kept for you. | إذا لم تكن أنت، يمكنك التراجع عن التغيير خلال الأيام {days} القادمة. يعيد التراجع هذا العنوان، ويسجّل الخروج من جميع الأجهزة، ويتطلب كلمة مرور جديدة. حتى ذلك الحين يبقى هذا العنوان محجوزًا لك. |
+| messages: Email.emailChanged.revertButton | Undo the change | التراجع عن التغيير |
+| messages: Email.emailChanged.revertHelp | If the link has expired or you need help, contact us: | إذا انتهت صلاحية الرابط أو احتجت إلى مساعدة، فتواصل معنا: |
 | messages: Email.emailChangeTaken.subject | Someone asked to use your email for another {brand} account | طلب شخص ما استخدام بريدك في حساب آخر في {brand} |
 | messages: Email.emailChangeTaken.heading | This address already has an account | لهذا العنوان حساب بالفعل |
 | messages: Email.emailChangeTaken.intro | A request was made to use this email address for a different {brand} account, but an account with this address already exists, so nothing was changed. | تم طلب استخدام هذا البريد الإلكتروني لحساب آخر في {brand}، لكن يوجد حساب بهذا العنوان بالفعل، لذلك لم يتغير أي شيء. |
 | messages: Email.emailChangeTaken.action | If you meant to use this account, sign in with this address. If you don't remember your password, use "Forgot password" on the sign-in page. | إذا كنت تقصد استخدام هذا الحساب، فسجّل الدخول بهذا العنوان. وإذا نسيت كلمة المرور فاستخدم «نسيت كلمة المرور» في صفحة تسجيل الدخول. |
 | messages: Email.emailChangeTaken.ignore | If it wasn't you, you can ignore this email. | إذا لم تكن أنت، يمكنك تجاهل هذه الرسالة. |
+| messages: Email.emailReverted.subject | The email address of your {brand} account was restored | تمت استعادة البريد الإلكتروني لحسابك في {brand} |
+| messages: Email.emailReverted.heading | The email change was undone | تم التراجع عن تغيير البريد الإلكتروني |
+| messages: Email.emailReverted.intro | The change of email address on your {brand} account was undone. This address is back on the account. | تم التراجع عن تغيير البريد الإلكتروني في حسابك في {brand}. عاد هذا العنوان إلى الحساب. |
+| messages: Email.emailReverted.allSignedOut | Every device was signed out and the old password was disabled. | تم تسجيل الخروج من جميع الأجهزة وتعطيل كلمة المرور القديمة. |
+| messages: Email.emailReverted.resetNext | We sent you a separate email with a link to choose a new password. | أرسلنا إليك رسالة منفصلة تحتوي على رابط لاختيار كلمة مرور جديدة. |
+| messages: Email.emailReverted.wasntYou | If you didn't do this, contact us right away. | إذا لم تكن أنت من فعل ذلك، فتواصل معنا فورًا. |
+| messages: Email.emailRevertReleased.subject | An email address was removed from a {brand} account | تمت إزالة بريد إلكتروني من حساب في {brand} |
+| messages: Email.emailRevertReleased.heading | This address is no longer used for the account | لم يعد هذا العنوان مستخدمًا للحساب |
+| messages: Email.emailRevertReleased.intro | The owner of a {brand} account restored an earlier email address, so this address is no longer used for that account. | استعاد صاحب حساب في {brand} بريدًا إلكترونيًا سابقًا، لذلك لم يعد هذا العنوان مستخدمًا لذلك الحساب. |
+| messages: Email.emailRevertReleased.ignore | No action is needed. | لا يلزم أي إجراء. |
 | messages: Auth.login.title | Sign in | تسجيل الدخول |
 | messages: Auth.login.metaDescription | Sign in to your {brand} account. | سجّل الدخول إلى حسابك في {brand}. |
 | messages: Auth.login.intro | Welcome back. Sign in to see your orders and saved items. | مرحبًا بعودتك. سجّل الدخول لمتابعة طلباتك وعناصرك المحفوظة. |
@@ -543,6 +556,7 @@ run `npm run i18n:review` after adding strings (CI runs `npm run i18n:review:che
 | messages: Auth.errors.same_email | That is already your email address. | هذا هو بريدك الإلكتروني الحالي بالفعل. |
 | messages: Auth.errors.no_email_change | There's no email change in progress. Start again. | لا يوجد تغيير بريد قيد التنفيذ. ابدأ من جديد. |
 | messages: Auth.errors.email_unavailable | That address can't be used. Start again with a different address. | لا يمكن استخدام هذا العنوان. ابدأ من جديد بعنوان آخر. |
+| messages: Auth.errors.address_unavailable | The previous address can't be restored automatically. Contact support so we can help you. | لا يمكن استعادة العنوان السابق تلقائيًا. تواصل مع الدعم لنساعدك. |
 | messages: Auth.forgot.title | Reset your password | إعادة تعيين كلمة المرور |
 | messages: Auth.forgot.metaDescription | Request a link to reset your password. | اطلب رابطًا لإعادة تعيين كلمة المرور. |
 | messages: Auth.forgot.intro | Enter your email and we'll send a link to choose a new password, if an account exists. | أدخل بريدك الإلكتروني وسنرسل رابطًا لاختيار كلمة مرور جديدة، إذا كان الحساب موجودًا. |
@@ -620,6 +634,7 @@ run `npm run i18n:review` after adding strings (CI runs `npm run i18n:review:che
 | messages: Account.security.activity.events.EMAIL_CHANGE_REQUESTED | Email change requested | تم طلب تغيير البريد الإلكتروني |
 | messages: Account.security.activity.events.EMAIL_CHANGE_CANCELLED | Email change cancelled | تم إلغاء تغيير البريد الإلكتروني |
 | messages: Account.security.activity.events.EMAIL_CHANGED | Email address changed | تم تغيير البريد الإلكتروني |
+| messages: Account.security.activity.events.EMAIL_CHANGE_REVERTED | Email change undone | تم التراجع عن تغيير البريد الإلكتروني |
 | messages: Account.devices.both | {browser} on {os} | {browser} على {os} |
 | messages: Account.devices.browserOnly | {browser} | {browser} |
 | messages: Account.devices.osOnly | {os} | {os} |
@@ -651,10 +666,20 @@ run `npm run i18n:review` after adding strings (CI runs `npm run i18n:review:che
 | messages: Account.cancelEmailChange.missingToken | This link is incomplete. Open the link from your email again. | هذا الرابط غير مكتمل. افتح الرابط من رسالتك مرة أخرى. |
 | messages: Account.cancelEmailChange.submit | Cancel the email change | إلغاء تغيير البريد الإلكتروني |
 | messages: Account.cancelEmailChange.submitting | Cancelling… | جارٍ الإلغاء… |
-| messages: Account.cancelEmailChange.done | The email change was cancelled. The email address of the account has not changed. | تم إلغاء تغيير البريد الإلكتروني. لم يتغير بريد الحساب. |
-| messages: Account.cancelEmailChange.advice | If you didn't ask for it, someone may know your password. Reset it now; resetting signs out every device. | إذا لم تطلب ذلك، فقد يعرف شخص ما كلمة مرورك. أعد تعيينها الآن؛ إعادة التعيين تسجّل الخروج من جميع الأجهزة. |
+| messages: Account.cancelEmailChange.done | The email change was cancelled. The email address of the account has not changed, and every device was signed out. | تم إلغاء تغيير البريد الإلكتروني. لم يتغير بريد الحساب، وتم تسجيل الخروج من جميع الأجهزة. |
+| messages: Account.cancelEmailChange.advice | Whoever started the change knew your password, so we emailed you a link to choose a new one. Use it now, then sign in again. | من بدأ التغيير كان يعرف كلمة مرورك، لذلك أرسلنا إليك رابطًا لاختيار كلمة مرور جديدة. استخدمه الآن ثم سجّل الدخول مرة أخرى. |
 | messages: Account.cancelEmailChange.resetLink | Reset your password | إعادة تعيين كلمة المرور |
 | messages: Account.cancelEmailChange.signInLink | Go to sign in | الذهاب إلى تسجيل الدخول |
+| messages: Account.revertEmailChange.title | Undo the email change | التراجع عن تغيير البريد الإلكتروني |
+| messages: Account.revertEmailChange.metaDescription | Restore the previous email address of an account. | استعد البريد الإلكتروني السابق لحساب. |
+| messages: Account.revertEmailChange.intro | The email address of a {brand} account was changed. If that wasn't you, undo it here: the previous address is restored, every device is signed out and the password must be reset. This link works once. | تم تغيير البريد الإلكتروني لحساب في {brand}. إذا لم تكن أنت، فتراجع عن التغيير من هنا: يُستعاد العنوان السابق، ويُسجَّل الخروج من جميع الأجهزة، ويجب إعادة تعيين كلمة المرور. يعمل هذا الرابط مرة واحدة. |
+| messages: Account.revertEmailChange.missingToken | This link is incomplete. Open the link from your email again. | هذا الرابط غير مكتمل. افتح الرابط من رسالتك مرة أخرى. |
+| messages: Account.revertEmailChange.submit | Undo the email change | التراجع عن تغيير البريد الإلكتروني |
+| messages: Account.revertEmailChange.submitting | Undoing… | جارٍ التراجع… |
+| messages: Account.revertEmailChange.done | The change was undone. This email address is back on the account and every device was signed out. | تم التراجع عن التغيير. عاد هذا البريد الإلكتروني إلى الحساب وتم تسجيل الخروج من جميع الأجهزة. |
+| messages: Account.revertEmailChange.advice | The old password no longer works. We emailed this address a link to choose a new one; it can take a few minutes to arrive. | لم تعد كلمة المرور القديمة تعمل. أرسلنا إلى هذا العنوان رابطًا لاختيار كلمة مرور جديدة؛ قد يستغرق وصوله بضع دقائق. |
+| messages: Account.revertEmailChange.resetLink | Reset your password | إعادة تعيين كلمة المرور |
+| messages: Account.revertEmailChange.signInLink | Go to sign in | الذهاب إلى تسجيل الدخول |
 
 ## Brand copy
 

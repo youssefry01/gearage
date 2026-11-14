@@ -1,19 +1,26 @@
 import { randomBytes, randomInt, timingSafeEqual } from "node:crypto";
 import { accountRoutes, routes } from "@/config/routes";
 import { ENUMERATION_FLOOR_MS } from "@/domain/auth";
-import { EMAIL_CHANGE_MAX_ATTEMPTS, EMAIL_CHANGE_MINUTES, maskEmail } from "@/domain/email-change";
+import {
+  EMAIL_CHANGE_MAX_ATTEMPTS,
+  EMAIL_CHANGE_MINUTES,
+  EMAIL_REVERT_DAYS,
+  maskEmail,
+} from "@/domain/email-change";
 import { policies } from "@/domain/rate-limit";
 import { Prisma } from "@/generated/prisma/client";
-import type { Locale } from "@/i18n/locales";
+import { defaultLocale, locales, type Locale } from "@/i18n/locales";
 import { AppError } from "@/lib/errors";
 import { getEnv } from "@/lib/env";
 import { logger } from "@/lib/logger";
+import { getAuth, resetRedirectUrl } from "@/server/auth/auth";
+import { runWithAuthContext } from "@/server/auth/context";
 import { getDb } from "@/server/db";
 import * as accountRepo from "@/server/repositories/account.repository";
 import * as authRepo from "@/server/repositories/auth.repository";
 import * as repo from "@/server/repositories/email-change.repository";
 import { hmacHex } from "@/server/security/keys";
-import { verifyPassword } from "@/server/security/password";
+import { hashPassword, passwordConfigFromEnv, verifyPassword } from "@/server/security/password";
 import { withMinimumDuration } from "@/server/security/timing";
 import { dispatchAfterResponse } from "@/server/services/after-response";
 import { recordSecurityEvent } from "@/server/services/account.service";
@@ -32,6 +39,10 @@ import { enqueueEmail } from "@/server/services/email.service";
  *    logs the event and tells the old address, all in one transaction.
  *  - The code and the cancel token are stored only as HMACs.
  *  - Nothing here logs a password, a code, a token or an address.
+ *  - A completed change leaves a REVERT (ADR 0027): the old address is reserved for EMAIL_REVERT_DAYS and a single-use
+ *    link sent to it restores it, signs every device out and makes the stored password unusable (a reset is required).
+ *    A reserved address counts as taken for every other account, so it follows the ordinary "taken" path everywhere.
+ *  - Cancelling a pending change (the link to the CURRENT address) also signs out every device and emails a reset link.
  */
 
 type Deps = { now?: () => Date };
@@ -58,6 +69,33 @@ export function hashCode(userId: string, newEmail: string, code: string): string
 
 export function hashCancelToken(token: string): string {
   return hmacHex("email-change-cancel", token);
+}
+
+/** A different HMAC key from the cancel token: one secret can never stand in for the other. */
+export function hashRevertToken(token: string): string {
+  return hmacHex("email-change-revert", token);
+}
+
+const localeOf = (value: string): Locale =>
+  (locales as readonly string[]).includes(value) ? (value as Locale) : defaultLocale;
+
+/** Thrown inside the confirming transaction when the address is reserved for another account. Handled like P2002. */
+class AddressUnavailable extends Error {}
+
+/**
+ * Emails a password-reset link to `email` through the ordinary Better Auth flow (the same email "Forgot password"
+ * sends). Best effort and after the fact: the cancel or revert it follows has already succeeded.
+ */
+async function queueResetLink(email: string, locale: Locale): Promise<string[]> {
+  try {
+    const { queuedEmailIds } = await runWithAuthContext(locale, () =>
+      getAuth().api.requestPasswordReset({ body: { email, redirectTo: resetRedirectUrl(locale) } }),
+    );
+    return queuedEmailIds;
+  } catch (err) {
+    logger.error("email_change_reset_link_failed", { err });
+    return [];
+  }
 }
 
 function sameHex(a: string, b: string): boolean {
@@ -140,7 +178,10 @@ export async function requestEmailChange(
   const expiresAt = new Date(now.getTime() + EMAIL_CHANGE_MINUTES * 60_000);
 
   const ids = await withMinimumDuration(ENUMERATION_FLOOR_MS, async () => {
-    const taken = (await authRepo.findUserBrief(args.newEmail)) !== null;
+    // An address reserved for ANOTHER account's revert counts as taken (ADR 0027): the same footprint as an account.
+    const taken =
+      (await authRepo.findUserBrief(args.newEmail)) !== null ||
+      (await repo.isReservedForOthers(args.newEmail, args.userId, now));
     try {
       return await getDb().$transaction(async (tx) => {
         await repo.replaceRequest(
@@ -232,7 +273,9 @@ export async function resendEmailChangeCode(
   const code = newCode();
   const expiresAt = new Date(now.getTime() + EMAIL_CHANGE_MINUTES * 60_000);
   const id = await withMinimumDuration(ENUMERATION_FLOOR_MS, async () => {
-    const taken = (await authRepo.findUserBrief(pending.newEmail)) !== null;
+    const taken =
+      (await authRepo.findUserBrief(pending.newEmail)) !== null ||
+      (await repo.isReservedForOthers(pending.newEmail, args.userId, now));
     return getDb().$transaction(async (tx) => {
       const renewed = await repo.renewCode(
         args.userId,
@@ -336,8 +379,25 @@ export async function confirmEmailChange(
       if (!(await repo.updateUserEmail(args.userId, pending.newEmail, now, tx))) {
         throw new AppError("NOT_FOUND", "Account not found");
       }
+      // Someone else's revert may have reserved the address since the request was made.
+      if (await repo.isReservedForOthers(pending.newEmail, args.userId, now, tx)) {
+        throw new AddressUnavailable();
+      }
       const removed = await accountRepo.deleteOtherSessions(args.userId, args.sessionId, tx);
       await repo.deleteResetTokens(args.userId, tx);
+      // The way back: reserve the address being left and mint the single-use revert link for it (ADR 0027).
+      const revertToken = newCancelToken();
+      await repo.replaceRevert(
+        {
+          userId: args.userId,
+          oldEmail: args.currentEmail.toLowerCase(),
+          newEmail: pending.newEmail,
+          tokenHash: hashRevertToken(revertToken),
+          expiresAt: new Date(now.getTime() + EMAIL_REVERT_DAYS * 86_400_000),
+          createdAt: now,
+        },
+        tx,
+      );
       await accountRepo.insertSecurityEvent(
         { userId: args.userId, type: "EMAIL_CHANGED", createdAt: now },
         tx,
@@ -350,6 +410,8 @@ export async function confirmEmailChange(
           payload: {
             newEmailMasked: maskEmail(pending.newEmail),
             contactUrl: `${base()}/${args.locale}${routes.contact}`,
+            revertUrl: `${base()}/${args.locale}${accountRoutes.revertEmailChange}#token=${revertToken}`,
+            revertDays: EMAIL_REVERT_DAYS,
           },
         },
         { db: tx, now },
@@ -361,7 +423,7 @@ export async function confirmEmailChange(
   } catch (err) {
     // Someone registered or moved to this address while the code was in the mail. The person holds the code, so they
     // control that inbox: telling them it is no longer free reveals nothing they could not already see there.
-    if (isUniqueViolation(err)) {
+    if (isUniqueViolation(err) || err instanceof AddressUnavailable) {
       await repo.deleteRequest(pending.id).catch(() => undefined);
       throw new AppError("CONFLICT", "That address can no longer be used", {
         details: { issue: "email_unavailable" },
@@ -388,22 +450,101 @@ export async function discardEmailChange(
 /**
  * The cancel link from the notice to the CURRENT address. Opening the link does nothing; this runs when its button is
  * pressed (a POST). The token is 256 random bits, so telling a live link from a dead one leaks nothing.
+ *
+ * Whoever started the change knew the password, so it is treated as exposed: in ONE transaction the request is removed,
+ * EVERY session of the account is deleted (the owner's too: they sign in again after the reset) and the event is
+ * written; afterwards a password-reset link is emailed to the account's address (decided 2026-11-10).
  */
 export async function cancelEmailChangeByToken(
   token: string,
   deps: Deps = {},
 ): Promise<{ status: "cancelled" }> {
-  const taken = await repo.takeByCancelHash(hashCancelToken(token));
-  if (!taken) {
-    throw new AppError("BAD_REQUEST", "Invalid or expired link", {
-      details: { issue: "invalid_token" },
-    });
-  }
-  await recordSecurityEvent({
-    userId: taken.userId,
-    type: "EMAIL_CHANGE_CANCELLED",
-    createdAt: clock(deps),
+  const now = clock(deps);
+  const userId = await getDb().$transaction(async (tx) => {
+    const taken = await repo.takeByCancelHash(hashCancelToken(token), tx);
+    if (!taken) {
+      throw new AppError("BAD_REQUEST", "Invalid or expired link", {
+        details: { issue: "invalid_token" },
+      });
+    }
+    await accountRepo.deleteAllSessions(taken.userId, tx);
+    await accountRepo.insertSecurityEvent(
+      { userId: taken.userId, type: "EMAIL_CHANGE_CANCELLED", createdAt: now },
+      tx,
+    );
+    return taken.userId;
   });
+  const user = await repo.getUserForNotice(userId);
+  if (user) dispatchAfterResponse(await queueResetLink(user.email, localeOf(user.locale)));
   logger.info("email_change_cancelled_by_link");
   return { status: "cancelled" };
+}
+
+// --- Revert ----------------------------------------------------------------------------------------------------------
+
+/**
+ * The undo link from the notice to the OLD address (ADR 0027), valid EMAIL_REVERT_DAYS, single use, consumed when its
+ * button is pressed (a POST). In ONE transaction: the link is consumed, the account gets its old address back (the
+ * address it held at that moment is released), EVERY session is deleted, reset links and any pending change are removed,
+ * the stored password is replaced by a hash of a random value (a reset is required), the event is written and both
+ * addresses are told. If another account somehow holds the old address the transaction rolls back (the link stays
+ * as it was) and the answer points to support. A reset link is emailed to the restored address afterwards.
+ */
+export async function revertEmailChangeByToken(
+  token: string,
+  deps: Deps = {},
+): Promise<{ status: "reverted" }> {
+  const now = clock(deps);
+  const unusable = await hashPassword(randomBytes(32).toString("hex"), passwordConfigFromEnv());
+  const unavailable = () =>
+    new AppError("CONFLICT", "The old address can no longer be restored", {
+      details: { issue: "address_unavailable" },
+    });
+  try {
+    const done = await getDb().$transaction(async (tx) => {
+      const row = await repo.takeRevertByHash(hashRevertToken(token), now, tx);
+      const user = row ? await repo.getUserForNotice(row.userId, tx) : null;
+      if (!row || !user) {
+        throw new AppError("BAD_REQUEST", "Invalid or expired link", {
+          details: { issue: "invalid_token" },
+        });
+      }
+      if (await repo.emailHeldByOther(row.oldEmail, row.userId, tx)) throw unavailable();
+      const leaving = user.email;
+      if (leaving !== row.oldEmail) {
+        if (!(await repo.updateUserEmail(row.userId, row.oldEmail, now, tx))) throw unavailable();
+      }
+      await accountRepo.deleteAllSessions(row.userId, tx);
+      await repo.deleteResetTokens(row.userId, tx);
+      await repo.deleteRequestOfUser(row.userId, tx);
+      await repo.deleteRevertsOfUser(row.userId, tx);
+      await repo.setCredentialHash(row.userId, unusable, now, tx);
+      await accountRepo.insertSecurityEvent(
+        { userId: row.userId, type: "EMAIL_CHANGE_REVERTED", createdAt: now },
+        tx,
+      );
+      const locale = localeOf(user.locale);
+      const ids = [
+        await enqueueEmail(
+          { template: "email-reverted", to: row.oldEmail, locale, payload: {} },
+          { db: tx, now },
+        ),
+      ];
+      if (leaving !== row.oldEmail) {
+        ids.push(
+          await enqueueEmail(
+            { template: "email-revert-released", to: leaving, locale, payload: {} },
+            { db: tx, now },
+          ),
+        );
+      }
+      return { ids, email: row.oldEmail, locale };
+    });
+    dispatchAfterResponse([...done.ids, ...(await queueResetLink(done.email, done.locale))]);
+    logger.info("email_change_reverted_by_link");
+    return { status: "reverted" };
+  } catch (err) {
+    if (isUniqueViolation(err)) throw unavailable();
+    throw err;
+  }
 }

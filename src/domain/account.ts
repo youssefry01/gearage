@@ -23,6 +23,7 @@ export const SECURITY_EVENT_TYPES = [
   "EMAIL_CHANGE_REQUESTED",
   "EMAIL_CHANGE_CANCELLED",
   "EMAIL_CHANGED",
+  "EMAIL_CHANGE_REVERTED",
 ] as const;
 export type SecurityEventKind = (typeof SECURITY_EVENT_TYPES)[number];
 

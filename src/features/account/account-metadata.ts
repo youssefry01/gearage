@@ -7,7 +7,7 @@ import { pageMetadata } from "@/lib/seo";
 /** Account pages are private: not indexed, no hreflang cluster, no referrer (same rules as the sign-in pages). */
 export async function accountMetadata(
   locale: Locale,
-  section: "profile" | "security" | "email" | "cancelEmailChange",
+  section: "profile" | "security" | "email" | "cancelEmailChange" | "revertEmailChange",
   path: string,
 ): Promise<Metadata> {
   const t = await getTranslations({ locale, namespace: `Account.${section}` });

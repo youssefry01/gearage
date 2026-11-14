@@ -18,6 +18,7 @@ import { getAuth, resetRedirectUrl } from "@/server/auth/auth";
 import { runWithAuthContext } from "@/server/auth/context";
 import { authErrorCode } from "@/server/auth/errors";
 import * as repo from "@/server/repositories/auth.repository";
+import * as emailChangeRepo from "@/server/repositories/email-change.repository";
 import { recordSecurityEvent } from "@/server/services/account.service";
 import { enqueueEmail } from "@/server/services/email.service";
 import { hashPassword, passwordConfigFromEnv } from "@/server/security/password";
@@ -76,8 +77,18 @@ export async function register(
     dateOfBirth = dob.date;
   }
 
-  const { queuedEmailIds } = await withMinimumDuration(ENUMERATION_FLOOR_MS, () =>
-    runWithAuthContext(locale, () =>
+  const { queuedEmailIds } = await withMinimumDuration(ENUMERATION_FLOOR_MS, async () => {
+    // An address held back for another account's email-change revert (ADR 0027) follows the SAME path as an address with
+    // an account: one password hash spent, the same email ("account-exists"), the same answer.
+    if (await emailChangeRepo.isReservedForOthers(data.email, null, now)) {
+      await hashPassword(data.password, passwordConfigFromEnv());
+      const id = await enqueueEmail(
+        { template: "account-exists", to: data.email, locale, payload: {} },
+        { now },
+      );
+      return { value: null, queuedEmailIds: [id] };
+    }
+    return runWithAuthContext(locale, () =>
       getAuth().api.signUpEmail({
         body: {
           name: `${data.firstName} ${data.lastName}`,
@@ -97,8 +108,8 @@ export async function register(
           marketingConsentAt: data.marketingConsent ? now : undefined,
         },
       }),
-    ),
-  );
+    );
+  });
   dispatchAfterResponse(queuedEmailIds);
   return { status: "check-email" };
 }

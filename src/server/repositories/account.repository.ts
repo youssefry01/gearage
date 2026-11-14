@@ -104,6 +104,12 @@ export async function deleteOtherSessions(
   return result.count;
 }
 
+/** Deletes EVERY session of `userId` (cancel and revert sign the whole account out). Returns how many rows went. */
+export async function deleteAllSessions(userId: string, db: Db = getDb()): Promise<number> {
+  const result = await db.session.deleteMany({ where: { userId } });
+  return result.count;
+}
+
 // --- Security events -----------------------------------------------------------------------------------------------
 
 export type SecurityEventRow = {

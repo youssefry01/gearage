@@ -10,6 +10,8 @@ export const EMAIL_TEMPLATES = [
   "email-change-notice",
   "email-changed",
   "email-change-taken",
+  "email-reverted",
+  "email-revert-released",
   "test",
 ] as const;
 export type EmailTemplate = (typeof EMAIL_TEMPLATES)[number];
@@ -29,6 +31,8 @@ export const EMAIL_CATEGORIES = {
   "email-change-notice": "transactional",
   "email-changed": "transactional",
   "email-change-taken": "transactional",
+  "email-reverted": "transactional",
+  "email-revert-released": "transactional",
   test: "transactional",
 } as const satisfies Record<EmailTemplate, "transactional" | "marketing">;
 
@@ -83,7 +87,17 @@ export const emailPayloads = {
     expiresMinutes: z.number().int().min(1).max(120),
   }),
   // To the OLD address once the change took effect.
-  "email-changed": z.object({ newEmailMasked: maskedEmail, contactUrl: httpUrl }),
+  // `revertUrl` and `revertDays` are optional so a row queued before the revert existed still renders (ADR 0027).
+  "email-changed": z.object({
+    newEmailMasked: maskedEmail,
+    contactUrl: httpUrl,
+    revertUrl: httpUrl.optional(),
+    revertDays: z.number().int().min(1).max(30).optional(),
+  }),
+  // To the restored address after a revert: it is yours again, every device is signed out, the password must be reset.
+  "email-reverted": z.object({}),
+  // To the address the account held when the revert was pressed: it no longer belongs to that account.
+  "email-revert-released": z.object({}),
   // To an address that already has an account, when someone asks to move another account to it. Reveals nothing but
   // that THIS inbox's own account exists, which the inbox owner is entitled to know (same rule as "account-exists").
   "email-change-taken": z.object({}),
@@ -97,7 +111,10 @@ export function outboxExpiry(template: EmailTemplate, payload: unknown, now: Dat
   // A security notice stays useful for a day (a delayed "your password was changed" is still worth reading); a code or
   // link is useless after it expires.
   const minutes =
-    template === "password-changed" || template === "email-changed"
+    template === "password-changed" ||
+    template === "email-changed" ||
+    template === "email-reverted" ||
+    template === "email-revert-released"
       ? 24 * 60
       : template === "test" || template === "account-exists" || template === "email-change-taken"
         ? 60

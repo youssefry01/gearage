@@ -10,6 +10,11 @@ import { CODE_MAX_ATTEMPTS, codeSchema, emailSchema } from "@/domain/auth";
 export const EMAIL_CHANGE_MINUTES = 30;
 /** Wrong codes allowed per request; after that the request is destroyed and the person starts again. */
 export const EMAIL_CHANGE_MAX_ATTEMPTS = CODE_MAX_ATTEMPTS;
+/**
+ * After a change completes, the OLD address is reserved and a single-use revert link works for this long (ADR 0027,
+ * decided 2026-11-10). After the window, recovery goes through support with identity checks.
+ */
+export const EMAIL_REVERT_DAYS = 7;
 /** A cancel token is 32 random bytes in base64url: exactly 43 characters. */
 export const CANCEL_TOKEN_LENGTH = 43;
 
@@ -32,6 +37,9 @@ export type ConfirmEmailChangeInput = z.input<typeof confirmEmailChangeSchema>;
 export const cancelTokenSchema = z
   .string({ error: "invalid_token" })
   .regex(new RegExp(`^[A-Za-z0-9_-]{${CANCEL_TOKEN_LENGTH}}$`), { error: "invalid_token" });
+
+/** The token in the revert link: same shape as the cancel token (a different secret, stored under a different HMAC key). */
+export const revertTokenSchema = cancelTokenSchema;
 
 /**
  * `jane.doe@example.com` to `j***@example.com`: enough for the owner to recognise an address, little for anyone else.

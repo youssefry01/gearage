@@ -271,7 +271,11 @@ test.describe("account area", () => {
     await page.goto("/en/account/security");
     await whenHydrated(page.getByTestId("sign-out-others"));
     await page.getByTestId("sign-out-others").click();
-    await expect(page.getByTestId("sessions-notice")).toBeVisible();
+    // Wait for the notice TEXT, never for the element to be "visible": the live region is always in the page (an sr-only
+    // box of 1 px), so Playwright counts it visible before the action has even answered. The action answers only after
+    // its one transaction (sessions deleted + OTHER_SESSIONS_REVOKED event) has committed, so once the text is there
+    // a single fresh load must contain the event. (HANDOFF issue 107.)
+    await expect(page.getByTestId("sessions-notice")).toHaveText("Signed out of 1 device.");
     await page.reload();
 
     const events = page.getByTestId("activity-event");

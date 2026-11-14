@@ -10,6 +10,8 @@ import { AUTH_STATE_FILE } from "./e2e-env";
  *     Action loads Argon2. On a cold production server that first request took about 3x longer than a warm one (HANDOFF
  *     section 11c) and made the first test that touched /login time out on its first attempt. A security test must not
  *     depend on retries, so the cold work is done here, and its duration is printed so a regression is visible.
+ *     The warm-up also performs one real sign-out and sign-in (and one sign-in for an unknown address), so Better Auth's
+ *     sign-in path, Argon2 verification and the session hooks are warm too.
  *  2. A SIGNED-IN SESSION for the specs that audit pages behind login (the accessibility and responsive matrices):
  *     one throw-away account is registered and verified through the real UI and its cookies are saved to disk.
  */
@@ -58,11 +60,41 @@ export default async function globalSetup(config: FullConfig): Promise<void> {
   await page.getByLabel("6-digit code").fill(codeFrom(await waitForEmail(email)));
   await page.waitForURL(/\/en\/account$/);
 
+  // Sign out and sign in again for real. Registration warmed Argon2 HASHING; a sign-in is a different path (Better Auth's
+  // sign-in, Argon2 VERIFY, the session create hooks with the device label, the lockout bookkeeping). The first test that
+  // touched it after a cold start failed once on the first repeat (HANDOFF issue 108), so it is exercised here, twice:
+  // an address with no account (the dummy-hash path) and the real credentials.
+  const loginPassword = "correct-horse-battery-staple-91";
+  const signIn = async (address: string, password: string) => {
+    await page.goto("/en/login");
+    await hydrated("Sign in");
+    await page.getByLabel("Email", { exact: true }).fill(address);
+    await page.getByLabel("Password", { exact: true }).fill(password);
+    await page.getByRole("button", { name: "Sign in", exact: true }).click();
+  };
+  await page.getByTestId("logout").click();
+  await page.waitForURL(/\/en$/);
+  const warmT = performance.now();
+  await signIn(`ghost-${Date.now()}@example.test`, "not-the-password-0000");
+  await page.locator("form [role=alert]").first().waitFor();
+  await signIn(email, loginPassword);
+  await page.waitForURL(/\/en\/account$/);
+  const signInMs = performance.now() - warmT;
+  // The signed-in pages the specs hit first, so their first render is not the cold one.
+  for (const path of ["/en/account/profile", "/en/account/security"]) await page.goto(path);
+  console.log(
+    `e2e warm-up: wrong-address sign-in plus real sign-in took ${Math.round(signInMs)} ms`,
+  );
+
   await mkdir("tests/.auth", { recursive: true });
   await context.storageState({ path: AUTH_STATE_FILE });
   await writeFile(
     "tests/.auth/warmup.json",
-    JSON.stringify({ firstLoginMs: Math.round(first), secondLoginMs: Math.round(second) }),
+    JSON.stringify({
+      firstLoginMs: Math.round(first),
+      secondLoginMs: Math.round(second),
+      signInMs: Math.round(signInMs),
+    }),
   );
   await browser.close();
 }

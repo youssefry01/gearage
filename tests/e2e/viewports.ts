@@ -69,4 +69,6 @@ export const PAGES = [
   "/account/email",
   // Email change (M5b-2a): the public cancel page opened from the notice, with a token-shaped fragment.
   "/email-change/cancel#token=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+  // The undo link after a completed change (ADR 0027): the public revert page.
+  "/email-change/revert#token=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
 ] as const;

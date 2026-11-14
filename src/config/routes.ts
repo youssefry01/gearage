@@ -43,6 +43,8 @@ export const accountRoutes = {
    * person reading that mailbox may be on another device. It does nothing until its button is pressed (a POST).
    */
   cancelEmailChange: "/email-change/cancel",
+  /** The page the "undo" link in the notice to the OLD address opens after a change completed (ADR 0027). No session needed. */
+  revertEmailChange: "/email-change/revert",
 } as const;
 
 export type RouteKey = keyof typeof routes;

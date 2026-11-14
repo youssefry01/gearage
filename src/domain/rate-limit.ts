@@ -53,6 +53,7 @@ export const policies = {
   emailChangeSendTarget: policy("auth.email.change.send.target", 3, 60 * 60, "closed"),
   emailChangeVerifyUser: policy("auth.email.change.verify.user", 10, 15 * 60, "closed"),
   emailChangeCancelIp: policy("auth.email.change.cancel.ip", 10, 15 * 60, "closed"),
+  emailChangeRevertIp: policy("auth.email.change.revert.ip", 10, 15 * 60, "closed"),
 } as const;
 
 export type LimitResult = {

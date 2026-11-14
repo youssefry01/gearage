@@ -458,6 +458,7 @@ describe("pruneAuthData", () => {
       throttles: 0,
       securityEvents: 0,
       emailChangeRequests: 0,
+      emailChangeReverts: 0,
     });
   });
 });

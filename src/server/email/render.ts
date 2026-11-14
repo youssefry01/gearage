@@ -215,11 +215,46 @@ export async function renderEmail<T extends EmailTemplate>(
         heading(m.emailChanged.heading),
         paragraph(fill(m.emailChanged.intro, { address: ltr(p.newEmailMasked) })),
         paragraph(m.emailChanged.othersSignedOut),
-        paragraph(m.emailChanged.wasntYou),
-        button(m.emailChanged.button, p.contactUrl),
-        muted(m.emailChanged.fallback),
-        linkLine(p.contactUrl),
+        // With a revert link (ADR 0027) the undo comes first and support second; a row queued before the revert existed
+        // has no link and keeps the original wording.
+        ...(p.revertUrl
+          ? [
+              paragraph(fill(m.emailChanged.revert, { days: p.revertDays ?? 7 })),
+              button(m.emailChanged.revertButton, p.revertUrl),
+              muted(m.emailChanged.fallback),
+              linkLine(p.revertUrl),
+              paragraph(m.emailChanged.revertHelp),
+              linkLine(p.contactUrl),
+            ]
+          : [
+              paragraph(m.emailChanged.wasntYou),
+              button(m.emailChanged.button, p.contactUrl),
+              muted(m.emailChanged.fallback),
+              linkLine(p.contactUrl),
+            ]),
         muted(m.emailChanged.itWasYou),
+      ];
+      break;
+    }
+    case "email-reverted": {
+      subject = m.emailReverted.subject;
+      title = m.emailReverted.heading;
+      blocks = [
+        heading(m.emailReverted.heading),
+        paragraph(m.emailReverted.intro),
+        paragraph(m.emailReverted.allSignedOut),
+        paragraph(m.emailReverted.resetNext),
+        muted(m.emailReverted.wasntYou),
+      ];
+      break;
+    }
+    case "email-revert-released": {
+      subject = m.emailRevertReleased.subject;
+      title = m.emailRevertReleased.heading;
+      blocks = [
+        heading(m.emailRevertReleased.heading),
+        paragraph(m.emailRevertReleased.intro),
+        muted(m.emailRevertReleased.ignore),
       ];
       break;
     }

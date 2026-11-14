@@ -20,14 +20,14 @@ model User {
   createdAt     DateTime
   updatedAt     DateTime
 
-  firstName String
-  lastName  String
+  firstName   String
+  lastName    String
   /// Egyptian mobile in E.164 (+20...). Not unique on purpose: a unique phone would be a second way to probe for accounts.
-  phone     String
+  phone       String
   dateOfBirth DateTime? @db.Date
   gender      Gender?
   /// Language of the page the account was created from; used for emails sent without a request.
-  locale      String   @default("en")
+  locale      String    @default("en")
 
   /// Consent evidence (Personal Data Protection Law 151/2020): what was accepted, which version of the text, when.
   termsAcceptedAt    DateTime
@@ -41,6 +41,7 @@ model User {
   accounts           Account[]
   securityEvents     SecurityEvent[]
   emailChangeRequest EmailChangeRequest?
+  emailChangeReverts EmailChangeRevert[]
 
   @@map("user")
 }
@@ -120,6 +121,7 @@ enum SecurityEventType {
   EMAIL_CHANGE_REQUESTED
   EMAIL_CHANGE_CANCELLED
   EMAIL_CHANGED
+  EMAIL_CHANGE_REVERTED
 }
 
 /// The account's security activity (M5b-1, ADR 0025): what happened and when, nothing else. Sign-in events also carry
@@ -160,4 +162,27 @@ model EmailChangeRequest {
 
   @@index([expiresAt])
   @@map("email_change_request")
+}
+
+/// The way back after an email change completed (M5b-2a follow-up, ADR 0027). Created in the same transaction as the
+/// change; it RESERVES the old address for EMAIL_REVERT_DAYS (nobody can register it or move another account to it; those
+/// attempts follow the ordinary "taken" path) and holds the single-use token in the link sent to the old address, stored
+/// only as an HMAC. `oldEmail` is unique: one reservation per address at a time. Expired rows are deleted by the daily
+/// `prune-auth-data` job.
+model EmailChangeRevert {
+  id        String   @id @default(uuid(7)) @db.Uuid
+  userId    String   @db.Uuid
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  /// Normalized address the account had before the change: what a revert restores, and what is reserved.
+  oldEmail  String   @unique
+  /// Normalized address the account moved to (for the notices; the revert releases whatever the account holds then).
+  newEmail  String
+  /// HMAC-SHA256 (hex) of the revert token.
+  tokenHash String   @unique
+  expiresAt DateTime
+  createdAt DateTime
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("email_change_revert")
 }

@@ -9,7 +9,7 @@ import {
   verifyCodeSchema,
 } from "@/domain/auth";
 import { deviceFromUserAgent } from "@/domain/device";
-import { cancelTokenSchema } from "@/domain/email-change";
+import { cancelTokenSchema, revertTokenSchema } from "@/domain/email-change";
 import { policies } from "@/domain/rate-limit";
 import { locales } from "@/i18n/locales";
 import { authedAction, publicAction } from "@/server/actions/client";
@@ -117,3 +117,13 @@ export const cancelEmailChangeAction = publicAction
   .metadata({ policy: policies.emailChangeCancelIp.name })
   .inputSchema(z.object({ token: cancelTokenSchema }))
   .action(async ({ parsedInput }) => emailChange.cancelEmailChangeByToken(parsedInput.token));
+
+/**
+ * The "undo the change" button on the page the notice to the OLD address links to (ADR 0027). Public on purpose (the
+ * mailbox owner has no session, and every session of the account is ended by it); gated by the link's token, which is
+ * 256 random bits, and by its own per-IP policy.
+ */
+export const revertEmailChangeAction = publicAction
+  .metadata({ policy: policies.emailChangeRevertIp.name })
+  .inputSchema(z.object({ token: revertTokenSchema }))
+  .action(async ({ parsedInput }) => emailChange.revertEmailChangeByToken(parsedInput.token));

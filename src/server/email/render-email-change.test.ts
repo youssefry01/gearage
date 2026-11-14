@@ -17,7 +17,11 @@ const payloads = {
     contactUrl: "https://shop.example/en/contact",
   },
   "email-change-taken": {},
+  "email-reverted": {},
+  "email-revert-released": {},
 } as const;
+
+const revertUrl = "https://shop.example/en/email-change/revert#token=" + "B".repeat(43);
 
 describe("email-change templates", () => {
   it.each(locales)("render in %s with no leftover placeholders", async (locale) => {
@@ -56,4 +60,29 @@ describe("email-change templates", () => {
     expect(viaChange.text).toContain("This device stayed signed in");
     expect(legacy.text).toBe(viaChange.text);
   });
+
+  it("the notice to the OLD address after a change carries the undo link and the window; a row from before the revert existed renders the old text", async () => {
+    const withRevert = await renderEmail("email-changed", "en", {
+      ...payloads["email-changed"],
+      revertUrl,
+      revertDays: 7,
+    });
+    expect(withRevert.text).toContain(revertUrl);
+    expect(withRevert.html).toContain(revertUrl);
+    expect(withRevert.text).toContain("next 7 days");
+    expect(withRevert.text).toContain("https://shop.example/en/contact");
+    const legacy = await renderEmail("email-changed", "en", payloads["email-changed"]);
+    expect(legacy.text).not.toContain("/email-change/revert");
+    expect(legacy.text).toContain("contact us right away");
+  });
+
+  it.each(locales)(
+    "the two revert notices carry no link, no address and no code in %s",
+    async (locale) => {
+      for (const template of ["email-reverted", "email-revert-released"] as const) {
+        const r = await renderEmail(template, locale, {});
+        expect(r.text, template).not.toMatch(/https?:\/\/|@|\d{6}/);
+      }
+    },
+  );
 });

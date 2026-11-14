@@ -4,8 +4,8 @@
 /// One search document per non-deleted product, maintained by triggers (never written by application code).
 /// `vector` is weighted: A title/brand/model/SKU, B categories and tags, C short descriptions, D specs and bundle parts.
 model ProductSearch {
-  productId String   @id @db.Uuid
-  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId String                  @id @db.Uuid
+  product   Product                 @relation(fields: [productId], references: [id], onDelete: Cascade)
   vector    Unsupported("tsvector")
   /// search_fold(title en + ar): normalized words plus letter/digit-split forms, for the "contains the phrase" boost.
   titleFold String

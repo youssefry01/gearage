@@ -91,6 +91,7 @@ export type AuthPruneResult = {
   throttles: number;
   securityEvents: number;
   emailChangeRequests: number;
+  emailChangeReverts: number;
 };
 
 /**
@@ -119,6 +120,9 @@ export async function pruneAuthData(
   const emailChangeRequests = await db.emailChangeRequest.deleteMany({
     where: { expiresAt: { lt: now } },
   });
+  const emailChangeReverts = await db.emailChangeRevert.deleteMany({
+    where: { expiresAt: { lt: now } },
+  });
   return {
     unverifiedUsers: unverifiedUsers.count,
     verifications: verifications.count,
@@ -126,6 +130,7 @@ export async function pruneAuthData(
     throttles: throttles.count,
     securityEvents: securityEvents.count,
     emailChangeRequests: emailChangeRequests.count,
+    emailChangeReverts: emailChangeReverts.count,
   };
 }
 
