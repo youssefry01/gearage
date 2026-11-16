@@ -452,14 +452,19 @@ export async function discardEmailChange(
  * pressed (a POST). The token is 256 random bits, so telling a live link from a dead one leaks nothing.
  *
  * Whoever started the change knew the password, so it is treated as exposed: in ONE transaction the request is removed,
- * EVERY session of the account is deleted (the owner's too: they sign in again after the reset) and the event is
- * written; afterwards a password-reset link is emailed to the account's address (decided 2026-11-10).
+ * EVERY session of the account is deleted (the owner's too: they sign in again after the reset), the stored password is
+ * replaced by a hash of a random value exactly as an undo does (the old password stops working; a reset is required)
+ * and the event is written; afterwards a password-reset link is emailed to the account's address (decided 2026-11-10;
+ * disabling the password decided 2026-11-14, ADR 0027 item 7).
  */
 export async function cancelEmailChangeByToken(
   token: string,
   deps: Deps = {},
 ): Promise<{ status: "cancelled" }> {
   const now = clock(deps);
+  // Hashed before the transaction (as in the undo) so no lock is held while Argon2 runs; the link is public and rate
+  // limited per IP, so a request with a dead token costs one hash at most a few times per window.
+  const unusable = await hashPassword(randomBytes(32).toString("hex"), passwordConfigFromEnv());
   const userId = await getDb().$transaction(async (tx) => {
     const taken = await repo.takeByCancelHash(hashCancelToken(token), tx);
     if (!taken) {
@@ -468,6 +473,8 @@ export async function cancelEmailChangeByToken(
       });
     }
     await accountRepo.deleteAllSessions(taken.userId, tx);
+    await repo.deleteResetTokens(taken.userId, tx);
+    await repo.setCredentialHash(taken.userId, unusable, now, tx);
     await accountRepo.insertSecurityEvent(
       { userId: taken.userId, type: "EMAIL_CHANGE_CANCELLED", createdAt: now },
       tx,

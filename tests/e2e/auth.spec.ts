@@ -1,6 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 import { codeFrom, emailsFor, resetLinkFrom, waitForEmail } from "./emails";
-import { whenHydrated } from "./helpers";
+import { signOut, whenHydrated } from "./helpers";
 
 // Throw-away addresses and a password that is long, unusual and not in any breach list (the breach check is skipped in
 // test mode, but the shape rules still apply).
@@ -45,8 +45,7 @@ test.describe("authentication", () => {
     await registerAndVerify(page, email);
     await expect(page.getByTestId("account-hello")).toContainText("Mona");
 
-    await page.getByTestId("logout").click();
-    await expect(page).toHaveURL(/\/en$/);
+    await signOut(page);
     await page.goto("/en/account");
     await expect(page).toHaveURL(/\/en\/login\?next=%2Faccount/);
 
@@ -75,7 +74,7 @@ test.describe("authentication", () => {
   }) => {
     const email = unique("known");
     await registerAndVerify(page, email);
-    await page.getByTestId("logout").click();
+    await signOut(page);
 
     const alert = page.locator("form [role=alert]").first();
     await signIn(page, email, "not-the-password-0000");
@@ -135,7 +134,7 @@ test.describe("authentication", () => {
   }) => {
     const email = unique("lock");
     await registerAndVerify(page, email);
-    await page.getByTestId("logout").click();
+    await signOut(page);
     for (let i = 0; i < 5; i++) {
       await signIn(page, email, `wrong-password-${i}-xxxxxxxx`);
       await expect(page.locator("form [role=alert]").first()).toContainText(
@@ -166,7 +165,7 @@ test.describe("authentication", () => {
   test("the next parameter only ever leads to a path on this site", async ({ page }) => {
     const email = unique("redirect");
     await registerAndVerify(page, email);
-    await page.getByTestId("logout").click();
+    await signOut(page);
     await page.goto("/en/login?next=//evil.example/steal");
     await whenHydrated(page.getByRole("button", { name: "Sign in", exact: true }));
     await page.getByLabel("Email", { exact: true }).fill(email);
@@ -181,7 +180,7 @@ test.describe("authentication", () => {
   }) => {
     const email = unique("csrf");
     await registerAndVerify(page, email);
-    await page.getByTestId("logout").click();
+    await signOut(page);
     await page.goto("/en/login");
     await whenHydrated(page.getByRole("button", { name: "Sign in", exact: true }));
 
@@ -238,7 +237,7 @@ test.describe("authentication", () => {
     test("the same confirmation appears for a real and an unknown address", async ({ page }) => {
       const email = unique("forgot");
       await registerAndVerify(page, email);
-      await page.getByTestId("logout").click();
+      await signOut(page);
       await requestReset(page, email);
       const real = await page.getByTestId("forgot-sent").textContent();
       await requestReset(page, unique("nobody"));
@@ -252,7 +251,7 @@ test.describe("authentication", () => {
     }) => {
       const email = unique("reset");
       await registerAndVerify(page, email);
-      await page.getByTestId("logout").click();
+      await signOut(page);
       await requestReset(page, email);
       await expect.poll(async () => (await emailsFor(email)).length).toBe(2);
       const link = resetLinkFrom((await emailsFor(email))[1]!);
@@ -279,7 +278,7 @@ test.describe("authentication", () => {
       await expect(page).toHaveURL(/\/en\/account$/);
 
       // The link is single-use.
-      await page.getByTestId("logout").click();
+      await signOut(page);
       await page.goto(link);
       await whenHydrated(page.getByRole("button", { name: "Save new password" }));
       await page

@@ -51,7 +51,7 @@ export function useActionErrorText() {
 type FieldProps = InputHTMLAttributes<HTMLInputElement> & {
   label: string;
   error?: string;
-  hint?: string;
+  hint?: ReactNode;
   ref?: Ref<HTMLInputElement>;
   children?: ReactNode;
   /** Rendered below the input, inside the field (strength meter). */

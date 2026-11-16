@@ -62,10 +62,17 @@ test.describe("account area", () => {
     }
   });
 
-  test("overview shows the details and links to profile and security", async ({ page }) => {
-    await registerAndVerify(page, unique("overview"));
+  test("overview is a short summary: who is signed in, the device count, and links to profile and security", async ({
+    page,
+  }) => {
+    const email = unique("overview");
+    await registerAndVerify(page, email);
     await expect(page.getByTestId("account-hello")).toContainText("Mona");
-    await expect(page.getByText("01012345678")).toBeVisible(); // shown the way people write it
+    await expect(page.getByText(`Signed in as ${email}`)).toBeVisible();
+    await expect(page.getByTestId("overview-devices")).toContainText(
+      "You're signed in on 1 device",
+    );
+    await expect(page.getByText("01012345678")).toHaveCount(0); // the details live on the profile page, not twice
     const nav = page.getByRole("navigation", { name: "Account sections" });
     await expect(nav.getByRole("link", { name: "Overview" })).toHaveAttribute(
       "aria-current",

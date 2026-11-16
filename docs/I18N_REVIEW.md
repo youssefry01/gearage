@@ -1,6 +1,6 @@
 # Arabic copy that needs native review
 
-1119 Arabic strings were written by the assistant, not a native copywriter. Review tone, terminology (Egyptian retail wording, for
+1129 Arabic strings were written by the assistant, not a native copywriter. Review tone, terminology (Egyptian retail wording, for
 example the category names) and plural forms. Brand and model names left in Latin (AMD Ryzen, DDR5, ...) are not listed.
 The owner plans one native-review pass once more copy exists.
 
@@ -80,6 +80,13 @@ run `npm run i18n:review` after adding strings (CI runs `npm run i18n:review:che
 | messages: Nav.callUs | Call us | اتصل بنا |
 | messages: Nav.utility | Account and help | الحساب والمساعدة |
 | messages: Nav.preferences | Preferences | التفضيلات |
+| messages: Nav.greeting | Hello, {name} | مرحبًا، {name} |
+| messages: Nav.signedInAs | Signed in as {name} | تم تسجيل الدخول باسم {name} |
+| messages: Nav.myAccount | My account | حسابي |
+| messages: Nav.signOut | Sign out | تسجيل الخروج |
+| messages: Nav.signingOut | Signing out… | جارٍ تسجيل الخروج… |
+| messages: Nav.signOutFailed | Couldn't sign out. Try again. | تعذّر تسجيل الخروج. حاول مرة أخرى. |
+| messages: Nav.createAccount | Create account | إنشاء حساب |
 | messages: Routes.search | Search | البحث |
 | messages: Routes.cart | Cart | السلة |
 | messages: Routes.wishlist | Wishlist | المفضلة |
@@ -501,9 +508,9 @@ run `npm run i18n:review` after adding strings (CI runs `npm run i18n:review:che
 | messages: Auth.account.hello | Hello, {name} | مرحبًا، {name} |
 | messages: Auth.account.email | Email | البريد الإلكتروني |
 | messages: Auth.account.phone | Mobile | الموبايل |
-| messages: Auth.account.signedInNote | You are signed in. Orders, addresses and wishlist arrive in later updates. | تم تسجيل دخولك. ستتوفر الطلبات والعناوين وقائمة الأمنيات في تحديثات لاحقة. |
 | messages: Auth.account.logout | Sign out | تسجيل الخروج |
 | messages: Auth.account.loggingOut | Signing out… | جارٍ تسجيل الخروج… |
+| messages: Auth.account.logoutFailed | Couldn't sign out. Try again. | تعذّر تسجيل الخروج. حاول مرة أخرى. |
 | messages: Auth.fields.firstName | First name | الاسم الأول |
 | messages: Auth.fields.lastName | Last name | اسم العائلة |
 | messages: Auth.fields.email | Email | البريد الإلكتروني |
@@ -577,16 +584,13 @@ run `npm run i18n:review` after adding strings (CI runs `npm run i18n:review:che
 | messages: Account.nav.overview | Overview | نظرة عامة |
 | messages: Account.nav.profile | Profile | الملف الشخصي |
 | messages: Account.nav.security | Security | الأمان |
-| messages: Account.overview.detailsHeading | Your details | بياناتك |
-| messages: Account.overview.name | Name | الاسم |
-| messages: Account.overview.email | Email | البريد الإلكتروني |
-| messages: Account.overview.phone | Mobile | الموبايل |
 | messages: Account.overview.profileTitle | Profile | الملف الشخصي |
 | messages: Account.overview.profileBody | Your name, mobile number, date of birth and gender. | اسمك ورقم موبايلك وتاريخ ميلادك ونوعك. |
 | messages: Account.overview.profileLink | Edit profile | تعديل الملف الشخصي |
 | messages: Account.overview.securityTitle | Security | الأمان |
-| messages: Account.overview.securityBody | Change your password, see where you're signed in and review recent security activity. | غيّر كلمة المرور، واطّلع على الأجهزة المسجّل دخولك منها وعلى آخر نشاط أمني. |
+| messages: Account.overview.securityBody | {count, plural, one {You're signed in on # device. Change your password and review recent security activity.} other {You're signed in on # devices. Change your password and review recent security activity.}} | {count, plural, one {أنت مسجّل الدخول على جهاز واحد. غيّر كلمة المرور واطّلع على آخر نشاط أمني.} two {أنت مسجّل الدخول على جهازين. غيّر كلمة المرور واطّلع على آخر نشاط أمني.} few {أنت مسجّل الدخول على # أجهزة. غيّر كلمة المرور واطّلع على آخر نشاط أمني.} many {أنت مسجّل الدخول على # جهازًا. غيّر كلمة المرور واطّلع على آخر نشاط أمني.} other {أنت مسجّل الدخول على # جهاز. غيّر كلمة المرور واطّلع على آخر نشاط أمني.}} |
 | messages: Account.overview.securityLink | Open security | فتح الأمان |
+| messages: Account.overview.signedInAs | Signed in as <email></email>. | تم تسجيل الدخول باسم <email></email>. |
 | messages: Account.profile.title | Profile | الملف الشخصي |
 | messages: Account.profile.metaDescription | Edit your profile details. | عدّل بيانات ملفك الشخصي. |
 | messages: Account.profile.intro | Update your name, mobile number and other details. | حدّث اسمك ورقم موبايلك وبقية بياناتك. |
@@ -594,9 +598,8 @@ run `npm run i18n:review` after adding strings (CI runs `npm run i18n:review:che
 | messages: Account.profile.submit | Save changes | حفظ التغييرات |
 | messages: Account.profile.submitting | Saving… | جارٍ الحفظ… |
 | messages: Account.profile.saved | Your details were saved. | تم حفظ بياناتك. |
-| messages: Account.profile.emailHeading | Email address | البريد الإلكتروني |
-| messages: Account.profile.emailBody | This is where we send order and security emails. Changing it needs your password and a code sent to the new address. | إلى هذا العنوان نرسل رسائل الطلبات والأمان. يتطلب تغييره كلمة مرورك ورمزًا يُرسل إلى العنوان الجديد. |
-| messages: Account.profile.emailLink | Change email address | تغيير البريد الإلكتروني |
+| messages: Account.profile.emailHint | Your email address is changed under Security. | يمكنك تغيير بريدك الإلكتروني من قسم الأمان. |
+| messages: Account.profile.emailHintLink | Go to Security | الانتقال إلى الأمان |
 | messages: Account.security.title | Security | الأمان |
 | messages: Account.security.metaDescription | Change your password and manage where you're signed in. | غيّر كلمة المرور وأدر الأجهزة المسجّل دخولك منها. |
 | messages: Account.security.intro | Change your password, see where you're signed in and review recent activity. | غيّر كلمة المرور، واطّلع على الأجهزة المسجّل دخولك منها وعلى آخر نشاط. |
@@ -635,6 +638,12 @@ run `npm run i18n:review` after adding strings (CI runs `npm run i18n:review:che
 | messages: Account.security.activity.events.EMAIL_CHANGE_CANCELLED | Email change cancelled | تم إلغاء تغيير البريد الإلكتروني |
 | messages: Account.security.activity.events.EMAIL_CHANGED | Email address changed | تم تغيير البريد الإلكتروني |
 | messages: Account.security.activity.events.EMAIL_CHANGE_REVERTED | Email change undone | تم التراجع عن تغيير البريد الإلكتروني |
+| messages: Account.security.email.heading | Email address | البريد الإلكتروني |
+| messages: Account.security.email.intro | This is what you sign in with and where we send order and security emails. Changing it needs your password and a code sent to the new address. | هو ما تسجّل به الدخول وما نرسل إليه رسائل الطلبات والأمان. تغييره يحتاج إلى كلمة المرور ورمز يُرسل إلى العنوان الجديد. |
+| messages: Account.security.email.current | Current email address | البريد الإلكتروني الحالي |
+| messages: Account.security.email.change | Change email address | تغيير البريد الإلكتروني |
+| messages: Account.security.email.continue | Continue the change | متابعة التغيير |
+| messages: Account.security.email.pending | A change to {address} is waiting for its code. | هناك تغيير إلى {address} ينتظر إدخال الرمز. |
 | messages: Account.devices.both | {browser} on {os} | {browser} على {os} |
 | messages: Account.devices.browserOnly | {browser} | {browser} |
 | messages: Account.devices.osOnly | {os} | {os} |
@@ -660,6 +669,7 @@ run `npm run i18n:review` after adding strings (CI runs `npm run i18n:review:che
 | messages: Account.email.discarding | Cancelling… | جارٍ الإلغاء… |
 | messages: Account.email.changed | Your email address was changed. Your other devices were signed out, and we told your previous address. | تم تغيير بريدك الإلكتروني. تم تسجيل الخروج من أجهزتك الأخرى وأبلغنا عنوانك السابق. |
 | messages: Account.email.signInNote | From now on, sign in with your new address. | من الآن، سجّل الدخول بعنوانك الجديد. |
+| messages: Account.email.back | Back to Security | العودة إلى الأمان |
 | messages: Account.cancelEmailChange.title | Cancel the email change | إلغاء تغيير البريد الإلكتروني |
 | messages: Account.cancelEmailChange.metaDescription | Cancel a request to change the email address of an account. | ألغِ طلب تغيير البريد الإلكتروني لحساب. |
 | messages: Account.cancelEmailChange.intro | Someone asked to change the email address of a {brand} account. If that wasn't you, cancel it here. Nothing changes until the code sent to the new address is entered, so cancelling stops it. | طلب شخص ما تغيير البريد الإلكتروني لحساب في {brand}. إذا لم تكن أنت، فألغِ الطلب من هنا. لا يتغير شيء حتى يُدخَل الرمز المرسل إلى العنوان الجديد، لذلك يوقف الإلغاء الطلب. |
@@ -667,7 +677,7 @@ run `npm run i18n:review` after adding strings (CI runs `npm run i18n:review:che
 | messages: Account.cancelEmailChange.submit | Cancel the email change | إلغاء تغيير البريد الإلكتروني |
 | messages: Account.cancelEmailChange.submitting | Cancelling… | جارٍ الإلغاء… |
 | messages: Account.cancelEmailChange.done | The email change was cancelled. The email address of the account has not changed, and every device was signed out. | تم إلغاء تغيير البريد الإلكتروني. لم يتغير بريد الحساب، وتم تسجيل الخروج من جميع الأجهزة. |
-| messages: Account.cancelEmailChange.advice | Whoever started the change knew your password, so we emailed you a link to choose a new one. Use it now, then sign in again. | من بدأ التغيير كان يعرف كلمة مرورك، لذلك أرسلنا إليك رابطًا لاختيار كلمة مرور جديدة. استخدمه الآن ثم سجّل الدخول مرة أخرى. |
+| messages: Account.cancelEmailChange.advice | Whoever started the change knew your password, so it no longer works. We emailed you a link to choose a new one. Use it now, then sign in again. | من بدأ التغيير كان يعرف كلمة مرورك، لذلك لم تعد تعمل. أرسلنا إليك رابطًا لاختيار كلمة مرور جديدة. استخدمه الآن ثم سجّل الدخول مرة أخرى. |
 | messages: Account.cancelEmailChange.resetLink | Reset your password | إعادة تعيين كلمة المرور |
 | messages: Account.cancelEmailChange.signInLink | Go to sign in | الذهاب إلى تسجيل الدخول |
 | messages: Account.revertEmailChange.title | Undo the email change | التراجع عن تغيير البريد الإلكتروني |

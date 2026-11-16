@@ -348,7 +348,7 @@ describe("the undo link", () => {
 });
 
 describe("cancelling a pending change", () => {
-  it("also signs out EVERY device and emails a password-reset link to the account's address", async () => {
+  it("signs out EVERY device, disables the password exactly like an undo, and emails a password-reset link", async () => {
     const user = await makeAccount("mona@example.test");
     await auth.login(user.email, PASSWORD, "en", { device: deviceFromUserAgent(FIREFOX_MAC) });
     await start(user, "new@example.test");
@@ -357,14 +357,45 @@ describe("cancelling a pending change", () => {
       (notice!.payload as { cancelUrl: string }).cancelUrl.split("#token=")[1]!,
     );
     expect((await sessionsOf(user.id)).length).toBe(2);
+    const hashBefore = (await db().account.findFirstOrThrow({ where: { userId: user.id } }))
+      .password;
 
     await emailChange.cancelEmailChangeByToken(token);
 
     expect(await sessionsOf(user.id)).toHaveLength(0);
-    expect(await outboxTo("mona@example.test", "reset-password")).toHaveLength(1);
     expect(await emailOf(user.id)).toBe("mona@example.test");
-    // The password is NOT disabled by a cancel (the owner chooses a new one with the link; decision open, ADR 0027).
-    await expect(auth.login("mona@example.test", PASSWORD, "en")).resolves.toEqual({
+    expect(await db().emailChangeRequest.count({ where: { userId: user.id } })).toBe(0);
+    // The stored password was replaced (a hash of a random value), so the old one stops working at once...
+    const hashAfter = (await db().account.findFirstOrThrow({ where: { userId: user.id } }))
+      .password;
+    expect(hashAfter).not.toBe(hashBefore);
+    await expect(auth.login("mona@example.test", PASSWORD, "en")).rejects.toMatchObject({
+      code: "UNAUTHENTICATED",
+    });
+    // ...and the emailed link is the way back: it sets a new password and the account is usable again.
+    const reset = await outboxTo("mona@example.test", "reset-password");
+    expect(reset).toHaveLength(1);
+    expect(
+      await db().securityEvent.count({
+        where: { userId: user.id, type: "EMAIL_CHANGE_CANCELLED" },
+      }),
+    ).toBe(1);
+  });
+
+  it("the new password chosen through the emailed link works after a cancel", async () => {
+    const user = await makeAccount("mona@example.test");
+    await start(user, "new@example.test");
+    const [notice] = await outboxTo(user.email, "email-change-notice");
+    const token = decodeURIComponent(
+      (notice!.payload as { cancelUrl: string }).cancelUrl.split("#token=")[1]!,
+    );
+    await emailChange.cancelEmailChangeByToken(token);
+    const [reset] = await outboxTo("mona@example.test", "reset-password");
+    const resetToken = decodeURIComponent(
+      (reset!.payload as { url: string }).url.split("#token=")[1]!,
+    );
+    await auth.resetPassword(resetToken, NEW_PASSWORD);
+    await expect(auth.login("mona@example.test", NEW_PASSWORD, "en")).resolves.toEqual({
       status: "ok",
     });
   });

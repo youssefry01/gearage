@@ -1,6 +1,6 @@
 # ADR 0027: The way back after an email change, and a harder cancel (M5b-2a follow-up)
 
-Status: accepted for review (owner decisions of 2026-11-10; the choices in "Open for the owner" need a yes).
+Status: accepted (owner decisions of 2026-11-10; the three open choices were answered yes on 2026-11-14, see "Decided").
 Related: [0022](0022-email-and-outbox.md), [0024](0024-auth-flows-and-lockout.md), [0026](0026-email-change-and-reset-notice.md).
 
 ## Context
@@ -34,9 +34,11 @@ a sign that the password is exposed.
 5. **If another account holds the old address** (only possible by hand, since it is reserved) the transaction rolls back,
    the link stays as it was, and the answer is `address_unavailable`, which the page words as "contact support".
 6. **After the window, recovery goes through support with identity checks.** Nothing in code; it is launch blocker 11.
-7. **Cancel is stronger** (owner, 2026-11-10): the cancel link now deletes EVERY session of the account in the same
-   transaction that removes the request, and a password-reset link is emailed to the account's address. The password is
-   NOT disabled by a cancel (open choice 1 below).
+7. **Cancel is stronger** (owner, 2026-11-10; password disabled 2026-11-14): the cancel link deletes EVERY session of the
+   account and the account's reset tokens, replaces the stored password hash with a hash of 32 random bytes exactly as an
+   undo does (the old password stops working at once; the emailed reset link is the way back), and writes the event, all in
+   the same transaction that removes the request. A password-reset link is then emailed to the account's address. The
+   hash of the random value is computed before the transaction so no lock is held while Argon2 runs.
 8. **Retention:** a revert row holds two email addresses and an HMAC for at most 7 days; the daily job deletes
    expired rows and deleting the account cascades. Listed in the privacy-policy checklist.
 
@@ -51,10 +53,9 @@ a sign that the password is exposed.
   contains no link, address or code (a test pins this).
 - Support must be able to act on the case "the revert window has passed" (blocker 11).
 
-## Open for the owner
+## Decided (2026-11-14)
 
-1. Should a cancel ALSO disable the password (as a revert does)? Whoever started the change knew it, so an attacker with the
-   password can sign in again right after a cancel until the reset is done. Disabling is safer and costs the owner one
-   reset; it is one line (`setCredentialHash`) in `cancelEmailChangeByToken` and one test.
-2. Is 7 days right? It is one constant.
-3. The reset link is emailed automatically after a revert or cancel. Say if you would rather show only the page text.
+1. A cancel disables the password exactly like an undo (tested in `tests/db/email-revert.db.test.ts`: the old password is
+   refused, a new one chosen through the emailed link works, every session is gone).
+2. 7 days stays; it is the named constant `EMAIL_REVERT_DAYS`.
+3. The reset email after an undo or a cancel stays, with its rate limits.

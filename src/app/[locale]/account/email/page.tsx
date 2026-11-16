@@ -7,6 +7,7 @@ import { accountMetadata } from "@/features/account/account-metadata";
 import { AccountShell } from "@/features/account/account-shell";
 import { EmailChangePanel, type PendingView } from "@/features/account/email-change-panel";
 import { requireSession } from "@/features/account/require-session";
+import { Link } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
 import { formatTime } from "@/lib/format-datetime";
 import { getPendingEmailChange } from "@/server/services/email-change.service";
@@ -39,7 +40,14 @@ export default async function EmailPage({ params }: Props) {
     : null;
 
   return (
-    <AccountShell locale={locale} current="profile" title={t("title")} intro={t("intro")}>
+    <AccountShell locale={locale} current="security" title={t("title")} intro={t("intro")}>
+      <Link
+        href={accountRoutes.security}
+        className="rounded-control text-link hover:text-link-hover inline-flex min-h-11 items-center self-start font-semibold underline underline-offset-4"
+        data-testid="email-back"
+      >
+        {t("back")}
+      </Link>
       <section className="border-border bg-card rounded-panel flex flex-col gap-5 border p-5 sm:p-6">
         <dl className="text-small grid grid-cols-[max-content_1fr] gap-x-4 gap-y-2">
           <dt className="text-muted-foreground">{t("current")}</dt>

@@ -27,7 +27,11 @@ test.describe("desktop header", () => {
     await expect(header.getByRole("link", { name: storeName("en") }).first()).toBeVisible();
     await expect(header.getByRole("search")).toBeVisible();
     await expect(header.getByRole("link", { name: /Wishlist/ })).toBeVisible();
-    await expect(header.getByRole("link", { name: /Account/ })).toBeVisible();
+    await expect(
+      header
+        .getByRole("link", { name: /Account/ })
+        .or(header.getByRole("button", { name: /Account/ })),
+    ).toBeVisible();
     await expect(header.getByRole("link", { name: /^Cart/ })).toBeVisible();
     await expect(header.getByRole("navigation", { name: "Product categories" })).toBeVisible();
     const search = await header.locator("#site-search").boundingBox();

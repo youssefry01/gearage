@@ -5,7 +5,9 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { profileSchema, type ProfileInput } from "@/domain/account";
-import { useRouter } from "@/i18n/navigation";
+import { accountRoutes } from "@/config/routes";
+import { useAccountStateStore } from "./account-state-store";
+import { Link, useRouter } from "@/i18n/navigation";
 import {
   FormAlert,
   GenderSelect,
@@ -29,7 +31,10 @@ export type ProfileFormValues = {
   email: string;
 };
 
-/** Edits name, mobile, date of birth and gender. The email is shown, read-only: changing it has its own page (/account/email) and needs re-verification (M5b-2a). */
+/**
+ * One form, one Save: name, mobile, date of birth and gender. The email is shown read-only, with a pointer to where it is
+ * changed (Security, M5b-2b): that needs the password and a code sent to the new address, so it is not a field here.
+ */
 export function ProfileForm({ initial }: { initial: ProfileFormValues }) {
   const t = useTranslations("Account.profile");
   const tf = useTranslations("Auth.fields");
@@ -73,6 +78,7 @@ export function ProfileForm({ initial }: { initial: ProfileFormValues }) {
       reset(getValues()); // what is on screen is now the saved state: nothing is unsaved
       setSaved(true);
       router.refresh(); // the greeting and the overview read the saved values
+      void useAccountStateStore.getState().refresh(); // so does the name in the header
       return;
     }
     if (res.serverError?.field && res.serverError.issue) {
@@ -130,6 +136,17 @@ export function ProfileForm({ initial }: { initial: ProfileFormValues }) {
         readOnly
         defaultValue={initial.email}
         className="bg-muted"
+        hint={
+          <>
+            {t("emailHint")}{" "}
+            <Link
+              href={accountRoutes.security}
+              className="text-link hover:text-link-hover inline-flex min-h-11 items-center font-semibold underline underline-offset-4"
+            >
+              {t("emailHintLink")}
+            </Link>
+          </>
+        }
       />
       <PhoneField error={err("phone")} {...register("phone", phoneRegisterOptions)} />
       <TextField

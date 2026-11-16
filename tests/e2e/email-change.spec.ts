@@ -184,16 +184,17 @@ test.describe("email change", () => {
       )
       .toBe(true);
 
-    // The password still works (a cancel does not disable it) and the request was removed, so the mailed code is dead.
+    // The password was disabled by the cancel (as by an undo): the old one is refused, so the mailed reset link is the way back.
     expect(code).toMatch(/^\d{6}$/);
-    await page.goto("/en/login?next=%2Faccount%2Femail");
+    await page.goto("/en/login");
     await whenHydrated(page.getByRole("button", { name: "Sign in", exact: true }));
     await page.getByLabel("Email", { exact: true }).fill(oldEmail);
     await page.getByLabel("Password", { exact: true }).fill(PASSWORD);
     await page.getByRole("button", { name: "Sign in", exact: true }).click();
-    await expect(page).toHaveURL(/\/en\/account\/email$/);
-    await expect(page.getByTestId("email-request-form")).toBeVisible();
-    await expect(page.getByTestId("current-email")).toHaveText(oldEmail);
+    await expect(page.locator("form [role=alert]").first()).toHaveText(
+      "Incorrect email or password.",
+    );
+    await expect(page).toHaveURL(/\/en\/login/);
   });
 
   test("the undo link restores the old address from another browser, reserves it meanwhile, signs everything out and forces a reset", async ({

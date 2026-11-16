@@ -79,12 +79,12 @@ In the Console, `document.cookie` must **not** contain the session token. After 
 
 ## 10. Profile (M5b-1)
 
-1. Sign in, open `/en/account`: your name, email and mobile (as `01012345678`) are shown, with links to Profile and Security.
+1. Sign in, open `/en/account`: a greeting, "Signed in as" your email (once), and two cards: Profile and Security ("You're signed in on N devices"). The mobile number is not repeated here; it is on Profile (as `01012345678`).
 2. Open Profile. Change the first name and the mobile number, set a date of birth and a gender, **Save changes**. "Your details were saved." appears; reload and the values are still there; `/en/account` greets you by the new name.
 3. In the mobile field type `12345`, save: "Enter an Egyptian mobile number like 01012345678". Paste 40 digits: the field stops at 17 characters. Type Arabic digits: they turn into 0-9.
 4. Set a date of birth less than 16 years ago: a clear message. Clear the date and the gender, save, reload: both are empty.
 5. Edit a field and try to close or reload the tab: the browser asks first. After saving it does not.
-6. The email field is read-only.
+6. The email field is read-only, with "Your email address is changed under Security" and a **Go to Security** link. There is exactly one **Save changes** button on the page.
 
 ## 11. Change password (M5b-1)
 
@@ -142,7 +142,7 @@ Use **two browsers** (A and B) signed in to the same account, and two real mailb
 ## 16. Cancel link and an address that already has an account (M5b-2a)
 
 1. Start a change (section 15, steps 1 to 3) but do not enter the code. Open the **Cancel the change** link from the OLD mailbox in a **private window with no session**: the page only shows one button (opening the link changes nothing; the address bar shows `#token=...`).
-2. Press **Cancel the email change**: "The email change was cancelled... every device was signed out", advice that a reset link was emailed, and the token is gone from the address bar. **Every browser is signed out, including A** (reload A: sign-in page); the OLD mailbox gets a "Reset your password" email; the old password still works until you reset (ADR 0027, open choice 1). In A, the code from the NEW mailbox now says "There's no email change in progress. Start again." Pressing the button again (or opening a used link) says the link is invalid or has expired.
+2. Press **Cancel the email change**: "The email change was cancelled... every device was signed out", advice that a reset link was emailed, and the token is gone from the address bar. **Every browser is signed out, including A** (reload A: sign-in page); the OLD mailbox gets a "Reset your password" email; **the old password no longer works** (the cancel disables it like an undo, ADR 0027): signing in with it says "Incorrect email or password" until you set a new one through the emailed link. In A, the code from the NEW mailbox now says "There's no email change in progress. Start again." Pressing the button again (or opening a used link) says the link is invalid or has expired.
 3. Another account's address: start a change to an address that already has an account (use a second test account). The page says exactly the same as in section 15 step 2, and the OLD mailbox gets the same notice. The OTHER address's mailbox gets "Someone asked to use your email for another ... account" (no code). Any code you type fails with "That code isn't right" and the attempts counter.
 4. Rate limits (optional, with `RATE_LIMIT_SCALE` unset): more than 3 requests to the same new address in an hour, or 5 requests from the account in an hour, end with "Too many attempts".
 
@@ -168,3 +168,14 @@ Same set-up as section 15 (browsers A and B, mailboxes OLD and NEW, a second tes
 select "oldEmail", "newEmail", left("tokenHash",8) as token_hash, "expiresAt" from email_change_revert;   -- hashes only
 select type, "createdAt" from security_event order by "createdAt" desc limit 6;
 ```
+
+## 18. Header account menu and the account shell (M5b-2b, ADR 0028)
+
+1. Signed out, any page (try the home page and a product): the header shows the person icon. After a moment it is a button; press it: a panel with **Sign in** and **Create account**. Escape closes it and focus is back on the button; clicking elsewhere closes it; Tab through both links and out closes it. DevTools, Network: one `GET /api/account/state` per page load, response `{"signedIn":false}`, headers `Cache-Control: private, no-store` and `Vary: Cookie`; with no `auth.session_token` cookie it is answered without touching the database.
+2. Sign in (use `?next=/en/cart` on the login page to land somewhere other than the account): on the page you land on, the button now shows your initial in an orange circle (at 1280px and wider also "Hello, <first name>"). Press it: "Signed in as <name>", **My account**, **Profile**, **Security**, **Sign out**. Choosing a link goes there and closes the panel.
+3. On Profile change the first name and **Save changes**: the greeting in the header changes without a reload.
+4. Sign out from the panel: you land on the home page, the header flips to the signed-out button, and `/en/account` sends you to the sign-in page. In DevTools, Application, Cookies, the session cookie is gone. Do the same with the **Sign out** button on any account page.
+5. Two browsers: sign in on A and B, sign out other devices from A (Security): B's header still says signed in until you switch to B's tab for more than a minute or navigate to an account page; then it flips. (The page is checked again when the tab comes back after a minute.)
+6. Account pages at 1280px: a column of Overview / Profile / Security with **Sign out** at its foot, the current page filled orange. At 320px (DevTools device toolbar): the same links as a wrapping row of 44px buttons above the content with **Sign out** last; nothing scrolls sideways, in English and in Arabic (`/ar/account`, mirrored).
+7. Security shows, in order: Change password, Email address (your address and **Change email address**), Where you're signed in, Recent security activity. **Change email address** opens `/en/account/email`, where **Security** is the highlighted section and **Back to Security** returns. With a change waiting for its code, the Email section says so and the button reads **Continue the change**.
+8. Phone: open the menu at 320px and in Arabic: the panel never goes past either screen edge. With the keyboard: Tab to the button, Enter opens, Tab moves into the panel, Escape closes.

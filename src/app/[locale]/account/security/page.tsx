@@ -3,6 +3,7 @@ import { hasLocale } from "next-intl";
 import { getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { accountRoutes } from "@/config/routes";
+import { buttonStyles } from "@/components/ui/button";
 import { accountMetadata } from "@/features/account/account-metadata";
 import { AccountShell } from "@/features/account/account-shell";
 import { ActivityList } from "@/features/account/activity-list";
@@ -11,9 +12,11 @@ import { PasswordForm } from "@/features/account/password-form";
 import { requireSession } from "@/features/account/require-session";
 import { SessionsPanel, type SessionItem } from "@/features/account/sessions-panel";
 import { describeDevice } from "@/domain/device";
+import { Link } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
 import { formatDate, formatDateTime } from "@/lib/format-datetime";
 import { listActivity, listSessions } from "@/server/services/account.service";
+import { getPendingEmailChange } from "@/server/services/email-change.service";
 
 export const dynamic = "force-dynamic";
 
@@ -30,11 +33,12 @@ export default async function SecurityPage({ params }: Props) {
   const { locale } = await params;
   if (!hasLocale(routing.locales, locale)) notFound();
   const session = await requireSession(locale, accountRoutes.security);
-  const [t, patterns, sessions, events] = await Promise.all([
+  const [t, patterns, sessions, events, pendingEmail] = await Promise.all([
     getTranslations({ locale, namespace: "Account.security" }),
     getDevicePatterns(locale),
     listSessions(session.user.id, session.sessionId),
     listActivity(session.user.id),
+    getPendingEmailChange(session.user.id),
   ]);
 
   const items: SessionItem[] = sessions.map((s) => ({
@@ -58,6 +62,36 @@ export default async function SecurityPage({ params }: Props) {
         </h2>
         <p className="text-small text-muted-foreground">{t("password.intro")}</p>
         <PasswordForm username={session.user.email} userInputs={userInputs} />
+      </section>
+
+      <section aria-labelledby="email-heading" className={card}>
+        <h2 id="email-heading" className="text-heading font-semibold text-balance">
+          {t("email.heading")}
+        </h2>
+        <p className="text-small text-muted-foreground">{t("email.intro")}</p>
+        <dl className="text-small grid grid-cols-[max-content_1fr] gap-x-4 gap-y-2">
+          <dt className="text-muted-foreground">{t("email.current")}</dt>
+          <dd
+            dir="ltr"
+            translate="no"
+            className="text-start break-all"
+            data-testid="security-email"
+          >
+            {session.user.email}
+          </dd>
+        </dl>
+        {pendingEmail ? (
+          <p className="text-small" data-testid="security-email-pending">
+            {t("email.pending", { address: pendingEmail.newEmailMasked })}
+          </p>
+        ) : null}
+        <Link
+          href={accountRoutes.email}
+          className={`${buttonStyles({ variant: "secondary" })} self-start`}
+          data-testid="security-email-change"
+        >
+          {pendingEmail ? t("email.continue") : t("email.change")}
+        </Link>
       </section>
 
       <section aria-labelledby="sessions-heading" className={card}>

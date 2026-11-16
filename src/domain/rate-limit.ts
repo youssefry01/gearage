@@ -24,6 +24,8 @@ export const policies = {
   searchSuggest: policy("search.suggest", 120, 60, "open"),
   productCards: policy("products.cards", 60, 60, "open"),
   status: policy("status", 60, 60, "open"),
+  // The header asks who is signed in once per page load of anyone holding a session cookie (M5b-2b, ADR 0028).
+  accountState: policy("account.state", 120, 60, "open"),
   // View tracking (fail open: the event is dropped, the shopper never notices).
   viewIp: policy("product.view.ip", 120, 60, "open"),
   viewDedupe: policy("product.view.dedupe", 1, 30 * 60, "open"),

@@ -2,6 +2,7 @@ import { mkdir, writeFile } from "node:fs/promises";
 import { chromium, expect, type FullConfig } from "@playwright/test";
 import { codeFrom, waitForEmail } from "./emails";
 import { AUTH_STATE_FILE } from "./e2e-env";
+import { signOut } from "./helpers";
 
 /**
  * Runs once, after the web server is up and before any test.
@@ -72,8 +73,7 @@ export default async function globalSetup(config: FullConfig): Promise<void> {
     await page.getByLabel("Password", { exact: true }).fill(password);
     await page.getByRole("button", { name: "Sign in", exact: true }).click();
   };
-  await page.getByTestId("logout").click();
-  await page.waitForURL(/\/en$/);
+  await signOut(page);
   const warmT = performance.now();
   await signIn(`ghost-${Date.now()}@example.test`, "not-the-password-0000");
   await page.locator("form [role=alert]").first().waitFor();

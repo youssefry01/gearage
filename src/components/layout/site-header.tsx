@@ -1,4 +1,4 @@
-import { Heart, User } from "lucide-react";
+import { Heart } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { Logo } from "@/components/brand/logo";
 import { routes } from "@/config/routes";
@@ -6,6 +6,7 @@ import type { CategoryNode } from "@/domain/category-tree";
 import type { TopBarLine } from "@/domain/store-settings";
 import type { Locale } from "@/i18n/locales";
 import { Link } from "@/i18n/navigation";
+import { AccountMenu } from "./account-menu";
 import { CartLink } from "./cart-link";
 import { headerIconLink } from "./header-styles";
 import { HeaderSearch } from "./header-search";
@@ -64,13 +65,7 @@ export function SiteHeader({
               {t("wishlist")}
             </span>
           </Link>
-          <Link href={routes.account} className={`${headerIconLink} inline-flex`}>
-            <User aria-hidden="true" className="size-6" />
-            <span className="sr-only xl:not-sr-only xl:flex xl:flex-col xl:text-start xl:leading-tight">
-              <span className="text-muted-foreground text-xs">{t("signIn")}</span>
-              <span className="text-small font-semibold">{t("account")}</span>
-            </span>
-          </Link>
+          <AccountMenu />
           <CartLink />
         </div>
       </div>

@@ -32,3 +32,21 @@ export async function openDrawer(page: Page): Promise<void> {
   await menu.click();
   await expect(page.getByRole("dialog")).toBeVisible();
 }
+
+/**
+ * Signs out through the account page's Sign out button and returns only once the sign-out has FINISHED. The button's
+ * action is awaited before the app navigates home, so the URL reaching the home page and the session cookie being gone
+ * are the proof. Navigating right after the click instead cancels the in-flight Server Action and, when it had not
+ * finished, the session survives (the race behind the flaky "next parameter" test). Never click Sign out and then goto.
+ */
+export async function signOut(page: Page): Promise<void> {
+  const button = page.getByTestId("logout");
+  await whenHydrated(button);
+  await button.click();
+  await page.waitForURL(/\/(en|ar)\/?$/);
+  await expect
+    .poll(async () =>
+      (await page.context().cookies()).some((c) => c.name.includes("session_token")),
+    )
+    .toBe(false);
+}

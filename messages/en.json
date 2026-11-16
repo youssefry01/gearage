@@ -76,7 +76,14 @@
     "support": "Help & support",
     "callUs": "Call us",
     "utility": "Account and help",
-    "preferences": "Preferences"
+    "preferences": "Preferences",
+    "greeting": "Hello, {name}",
+    "signedInAs": "Signed in as {name}",
+    "myAccount": "My account",
+    "signOut": "Sign out",
+    "signingOut": "Signing out…",
+    "signOutFailed": "Couldn't sign out. Try again.",
+    "createAccount": "Create account"
   },
   "Routes": {
     "search": "Search",
@@ -567,9 +574,9 @@
       "hello": "Hello, {name}",
       "email": "Email",
       "phone": "Mobile",
-      "signedInNote": "You are signed in. Orders, addresses and wishlist arrive in later updates.",
       "logout": "Sign out",
-      "loggingOut": "Signing out…"
+      "loggingOut": "Signing out…",
+      "logoutFailed": "Couldn't sign out. Try again."
     },
     "fields": {
       "firstName": "First name",
@@ -659,16 +666,13 @@
       "security": "Security"
     },
     "overview": {
-      "detailsHeading": "Your details",
-      "name": "Name",
-      "email": "Email",
-      "phone": "Mobile",
       "profileTitle": "Profile",
       "profileBody": "Your name, mobile number, date of birth and gender.",
       "profileLink": "Edit profile",
       "securityTitle": "Security",
-      "securityBody": "Change your password, see where you're signed in and review recent security activity.",
-      "securityLink": "Open security"
+      "securityBody": "{count, plural, one {You're signed in on # device. Change your password and review recent security activity.} other {You're signed in on # devices. Change your password and review recent security activity.}}",
+      "securityLink": "Open security",
+      "signedInAs": "Signed in as <email></email>."
     },
     "profile": {
       "title": "Profile",
@@ -678,9 +682,8 @@
       "submit": "Save changes",
       "submitting": "Saving…",
       "saved": "Your details were saved.",
-      "emailHeading": "Email address",
-      "emailBody": "This is where we send order and security emails. Changing it needs your password and a code sent to the new address.",
-      "emailLink": "Change email address"
+      "emailHint": "Your email address is changed under Security.",
+      "emailHintLink": "Go to Security"
     },
     "security": {
       "title": "Security",
@@ -728,6 +731,14 @@
           "EMAIL_CHANGED": "Email address changed",
           "EMAIL_CHANGE_REVERTED": "Email change undone"
         }
+      },
+      "email": {
+        "heading": "Email address",
+        "intro": "This is what you sign in with and where we send order and security emails. Changing it needs your password and a code sent to the new address.",
+        "current": "Current email address",
+        "change": "Change email address",
+        "continue": "Continue the change",
+        "pending": "A change to {address} is waiting for its code."
       }
     },
     "devices": {
@@ -757,7 +768,8 @@
       "discard": "Use a different address",
       "discarding": "Cancelling…",
       "changed": "Your email address was changed. Your other devices were signed out, and we told your previous address.",
-      "signInNote": "From now on, sign in with your new address."
+      "signInNote": "From now on, sign in with your new address.",
+      "back": "Back to Security"
     },
     "cancelEmailChange": {
       "title": "Cancel the email change",
@@ -767,7 +779,7 @@
       "submit": "Cancel the email change",
       "submitting": "Cancelling…",
       "done": "The email change was cancelled. The email address of the account has not changed, and every device was signed out.",
-      "advice": "Whoever started the change knew your password, so we emailed you a link to choose a new one. Use it now, then sign in again.",
+      "advice": "Whoever started the change knew your password, so it no longer works. We emailed you a link to choose a new one. Use it now, then sign in again.",
       "resetLink": "Reset your password",
       "signInLink": "Go to sign in"
     },
