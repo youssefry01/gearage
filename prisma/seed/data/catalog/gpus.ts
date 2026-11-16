@@ -3,16 +3,10 @@ import { enumSpec, numberSpec, textSpec, tokens, t } from "../helpers";
 
 export const gpuSpecs: SeedSpecs = {
   "components/graphics-cards": [
-    enumSpec(
-      "gpu_maker",
-      "GPU maker",
-      "مصنّع المعالج الرسومي",
-      tokens(["NVIDIA", "AMD", "Intel"]),
-      {
-        required: true,
-        facet: "CHECKBOX",
-      },
-    ),
+    enumSpec("gpu_maker", "GPU maker", "مصنّع المعالج الرسومي", tokens(["NVIDIA", "AMD", "Intel"]), {
+      required: true,
+      facet: "CHECKBOX",
+    }),
     textSpec("chipset", "GPU", "المعالج الرسومي", { required: true, facet: "CHECKBOX" }),
     numberSpec("vram_gb", "Video memory", "ذاكرة الفيديو", {
       unit: "GB",
