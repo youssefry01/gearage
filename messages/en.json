@@ -635,7 +635,12 @@
       "same_email": "That is already your email address.",
       "no_email_change": "There's no email change in progress. Start again.",
       "email_unavailable": "That address can't be used. Start again with a different address.",
-      "address_unavailable": "The previous address can't be restored automatically. Contact support so we can help you."
+      "address_unavailable": "The previous address can't be restored automatically. Contact support so we can help you.",
+      "invalid_governorate": "Choose a governorate from the list.",
+      "invalid_text": "This contains characters that are not allowed.",
+      "address_limit": "You have reached the limit of saved addresses. Delete one first.",
+      "address_not_found": "That address could not be found. It may have been deleted.",
+      "invalid_address": "That address could not be found."
     },
     "forgot": {
       "title": "Reset your password",
@@ -663,7 +668,8 @@
       "label": "Account sections",
       "overview": "Overview",
       "profile": "Profile",
-      "security": "Security"
+      "security": "Security",
+      "addresses": "Addresses"
     },
     "overview": {
       "profileTitle": "Profile",
@@ -672,7 +678,10 @@
       "securityTitle": "Security",
       "securityBody": "{count, plural, one {You're signed in on # device. Change your password and review recent security activity.} other {You're signed in on # devices. Change your password and review recent security activity.}}",
       "securityLink": "Open security",
-      "signedInAs": "Signed in as <email></email>."
+      "signedInAs": "Signed in as <email></email>.",
+      "addressesTitle": "Addresses",
+      "addressesBody": "{count, plural, =0 {Save a delivery address so checkout is quicker.} one {You have # saved address.} other {You have # saved addresses.}}",
+      "addressesLink": "Manage addresses"
     },
     "profile": {
       "title": "Profile",
@@ -740,6 +749,55 @@
         "continue": "Continue the change",
         "pending": "A change to {address} is waiting for its code."
       }
+    },
+    "addresses": {
+      "title": "Addresses",
+      "metaDescription": "Manage your delivery addresses.",
+      "intro": "Save the places you want orders delivered to. You can keep up to {max}.",
+      "listLabel": "Saved addresses",
+      "empty": "You haven't saved an address yet.",
+      "emptyHint": "Add one now and it will be ready at checkout.",
+      "add": "Add an address",
+      "addFirst": "Add your first address",
+      "limitReached": "You have saved the maximum of {max} addresses. Delete one to add another.",
+      "defaultBadge": "Default",
+      "setDefault": "Set as default",
+      "edit": "Edit",
+      "delete": "Delete",
+      "deleteQuestion": "Delete this address?",
+      "deleteConfirm": "Yes, delete",
+      "deleteCancel": "Keep it",
+      "saved": "Address saved.",
+      "added": "Address added.",
+      "deleted": "Address deleted.",
+      "defaultSet": "Default address updated.",
+      "failed": "That didn't work. Please try again.",
+      "formAddTitle": "New address",
+      "formEditTitle": "Edit address",
+      "cancel": "Cancel",
+      "submitAdd": "Save address",
+      "submitEdit": "Save changes",
+      "submitting": "Saving…",
+      "label": "Name for this address (optional)",
+      "labelHint": "For example Home or Office.",
+      "recipientName": "Recipient's full name",
+      "phone": "Recipient's mobile number",
+      "governorate": "Governorate",
+      "governorateChoose": "Choose a governorate",
+      "city": "City or district",
+      "area": "Area or neighborhood",
+      "street": "Street",
+      "building": "Building name or number",
+      "floor": "Floor (optional)",
+      "apartment": "Apartment (optional)",
+      "landmark": "Nearby landmark (optional)",
+      "landmarkHint": "Helps the courier find you, for example next to a pharmacy.",
+      "makeDefault": "Use as my default address",
+      "firstIsDefault": "Your first address becomes your default address.",
+      "floorWord": "Floor",
+      "apartmentWord": "Apartment",
+      "landmarkWord": "Landmark",
+      "phoneWord": "Mobile"
     },
     "devices": {
       "both": "{browser} on {os}",

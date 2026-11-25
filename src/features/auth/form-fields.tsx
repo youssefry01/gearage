@@ -206,15 +206,19 @@ export const phoneRegisterOptions = {
   },
 };
 
-/** The Egyptian mobile field shared by registration and the profile: numeric keyboard, 17-character limit, left-to-right. */
+/** The Egyptian mobile field shared by registration, the profile and the address book: numeric keyboard, 17-character limit, left-to-right. */
 export function PhoneField({
   error,
+  label,
   ...props
-}: Omit<FieldProps, "label" | "type" | "dir" | "maxLength" | "inputMode" | "hint">) {
+}: Omit<FieldProps, "label" | "type" | "dir" | "maxLength" | "inputMode" | "hint"> & {
+  /** Overrides "Mobile number" (the address book asks for the RECIPIENT's number). */
+  label?: string;
+}) {
   const t = useTranslations("Auth.fields");
   return (
     <TextField
-      label={t("phone")}
+      label={label ?? t("phone")}
       type="tel"
       autoComplete="tel"
       inputMode="tel"

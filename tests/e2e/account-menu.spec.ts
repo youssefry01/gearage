@@ -91,7 +91,7 @@ test.describe("header account menu: signed in", () => {
 
     await trigger(page).click();
     await expect(panel(page)).toContainText("Signed in as Mona");
-    for (const name of ["My account", "Profile", "Security"]) {
+    for (const name of ["My account", "Profile", "Security", "Addresses"]) {
       await expect(panel(page).getByRole("link", { name })).toBeVisible();
     }
     await panel(page).getByRole("link", { name: "Profile" }).click();
@@ -210,7 +210,13 @@ test.describe("account shell", () => {
       baseURL,
     }) => {
       await preparePage(context, baseURL!, "/account");
-      for (const path of ["/account", "/account/profile", "/account/security", "/account/email"]) {
+      for (const path of [
+        "/account",
+        "/account/profile",
+        "/account/security",
+        "/account/addresses",
+        "/account/email",
+      ]) {
         for (const width of [320, 1280]) {
           await page.setViewportSize({ width, height: 800 });
           await page.goto(`/${locale}${path}`);
@@ -243,6 +249,45 @@ test.describe("account shell", () => {
       }
     });
   }
+
+  test("the side menu sticks 1rem below the REAL header height (--header-sticky-h) at every desktop width, and the variable follows a resize", async ({
+    page,
+    context,
+    baseURL,
+  }) => {
+    await preparePage(context, baseURL!, "/account");
+    const variable = () =>
+      page.evaluate(() =>
+        document.documentElement.style.getPropertyValue("--header-sticky-h").trim(),
+      );
+    let previous = "";
+    for (const width of [1024, 1280, 1440]) {
+      await page.setViewportSize({ width, height: 800 });
+      await page.goto("/en/account/security");
+      const nav = page.getByRole("navigation").filter({ has: page.getByTestId("logout") });
+      await expect(nav).toBeVisible();
+      await whenHydrated(page.getByTestId("logout"));
+      // The header measured itself: the variable is a pixel value now (the CSS fallback is in rem).
+      await expect.poll(variable).toMatch(/^\d+px$/);
+      await page.evaluate(() => window.scrollTo(0, 600));
+      await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(100);
+      const { headerBottom, navTop } = await page.evaluate(() => ({
+        headerBottom: document.querySelector("header")!.getBoundingClientRect().bottom,
+        navTop: document
+          .querySelector("nav[aria-label='Account sections']")!
+          .getBoundingClientRect().top,
+      }));
+      expect(Math.abs(navTop - (headerBottom + 16)), `${width}px`).toBeLessThanOrEqual(1);
+      expect(
+        Math.abs(parseFloat(await variable()) - headerBottom),
+        `${width}px var`,
+      ).toBeLessThanOrEqual(1);
+      previous = await variable();
+    }
+    // A narrower window has a different header (no category row below lg): the variable follows without a reload.
+    await page.setViewportSize({ width: 700, height: 800 });
+    await expect.poll(variable).not.toBe(previous);
+  });
 
   test("Security shows the email with a Change button that opens the flow, and the flow stays under Security", async ({
     page,

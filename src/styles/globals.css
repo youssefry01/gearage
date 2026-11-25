@@ -102,7 +102,10 @@
   html {
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
-    scroll-padding-top: 8rem;
+    /* The part of the sticky header that stays on screen. The header publishes its measured value (HeaderOffset);
+       this is the value before that and without JavaScript. In-page jumps and sticky side menus use it. */
+    --header-sticky-h: 8rem;
+    scroll-padding-top: calc(var(--header-sticky-h) + 1rem);
     --drawer-offset: -100%;
   }
 

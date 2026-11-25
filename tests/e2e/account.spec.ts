@@ -54,7 +54,13 @@ test.describe("account area", () => {
   test("the three account pages need a session and bring you back after signing in", async ({
     page,
   }) => {
-    for (const path of ["/account", "/account/profile", "/account/security", "/account/email"]) {
+    for (const path of [
+      "/account",
+      "/account/profile",
+      "/account/security",
+      "/account/addresses",
+      "/account/email",
+    ]) {
       await page.goto(`/en${path}`);
       await expect(page).toHaveURL(
         new RegExp(`/en/login\\?next=${encodeURIComponent(path).replace(/%/g, "%")}`),

@@ -42,6 +42,7 @@ model User {
   securityEvents     SecurityEvent[]
   emailChangeRequest EmailChangeRequest?
   emailChangeReverts EmailChangeRevert[]
+  addresses          Address[]
 
   @@map("user")
 }

@@ -9,7 +9,7 @@ export type { AccountSection };
 
 /**
  * Frame of every account page (M5b-2b): the page heading and, beside it, one navigation with the sections and Sign out.
- * From lg it is a column to the side of the content that stays below the sticky header while the page scrolls (so Sign out is never hidden under it), with Sign out at its foot; below lg it is a wrapping row of 44px links
+ * From lg it is a column to the side of the content that stays below the sticky header while the page scrolls (its offset is the header's measured height, `--header-sticky-h`, plus 1rem) (so Sign out is never hidden under it), with Sign out at its foot; below lg it is a wrapping row of 44px links
  * above the content with Sign out as its last item, so on a 320px phone nothing is hidden behind a scroll. One
  * <nav>, one DOM order (heading, menu, content): the same links in the same order for a keyboard and a screen reader at every width.
  */
@@ -38,7 +38,7 @@ export async function AccountShell({
       </header>
       <nav
         aria-label={t("label")}
-        className="lg:sticky lg:top-36 lg:col-start-1 lg:row-span-2 lg:row-start-1 lg:self-start [@media(max-height:32rem)]:static"
+        className="lg:sticky lg:top-[calc(var(--header-sticky-h)+1rem)] lg:col-start-1 lg:row-span-2 lg:row-start-1 lg:self-start [@media(max-height:32rem)]:static"
       >
         <ul className="flex flex-wrap gap-2 lg:flex-col lg:gap-1">
           {ACCOUNT_SECTIONS.map((section) => {

@@ -33,6 +33,7 @@ export const SIGNED_IN_PAGES = [
   "/account",
   "/account/profile",
   "/account/security",
+  "/account/addresses",
   "/account/email",
 ] as const;
 /** Pages covered by the responsive/a11y specs ("" = home). The style guide is enabled by ENABLE_STYLEGUIDE=1. */
@@ -66,6 +67,7 @@ export const PAGES = [
   "/account",
   "/account/profile",
   "/account/security",
+  "/account/addresses",
   "/account/email",
   // Email change (M5b-2a): the public cancel page opened from the notice, with a token-shaped fragment.
   "/email-change/cancel#token=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",

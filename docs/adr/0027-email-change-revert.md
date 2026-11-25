@@ -59,3 +59,13 @@ a sign that the password is exposed.
    refused, a new one chosen through the emailed link works, every session is gone).
 2. 7 days stays; it is the named constant `EMAIL_REVERT_DAYS`.
 3. The reset email after an undo or a cancel stays, with its rate limits.
+
+## Decided (2026-11-17)
+
+4. **A cancel deliberately leaves the undo links of earlier, completed changes usable.** The cancel link is sent to the
+   CURRENT address. After a completed change that is the NEW address, which may belong to whoever made the change. If a
+   cancel also deleted the revert rows, that person could start a second change, press the cancel link that arrives in
+   their own inbox, and destroy the owner's only way back (the undo link sent to the OLD address). So a cancel closes the
+   pending request, signs everything out and disables the password, and nothing else; an undo (which proves control of
+   the OLD address) is the operation that resets the account's history. Pinned by a test in
+   `tests/db/email-revert.db.test.ts`. This answers the owner's question in M5b-2c (it had not been written down before).

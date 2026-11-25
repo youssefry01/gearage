@@ -8,6 +8,7 @@ import type { Locale } from "@/i18n/locales";
 import { Link } from "@/i18n/navigation";
 import { AccountMenu } from "./account-menu";
 import { CartLink } from "./cart-link";
+import { HeaderOffset } from "./header-offset";
 import { headerIconLink } from "./header-styles";
 import { HeaderSearch } from "./header-search";
 import { LanguageSwitcher } from "./language-switcher";
@@ -37,6 +38,7 @@ export function SiteHeader({
 
   return (
     <header className="border-border bg-background sticky top-0 z-40 border-b [--topbar-h:2.25rem] md:top-[calc(var(--topbar-h)*-1)] pointer-coarse:[--topbar-h:2.75rem] [@media(max-height:32rem)]:static">
+      <HeaderOffset />
       <TopBar supportPhone={supportPhone} lines={topBarLines} />
 
       <div className="max-w-page px-gutter mx-auto flex flex-wrap items-center gap-x-2 gap-y-2 py-2 lg:grid lg:grid-cols-[auto_minmax(0,1fr)_auto] lg:gap-x-6 lg:py-3">

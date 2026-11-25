@@ -1,6 +1,6 @@
 # Arabic copy that needs native review
 
-1129 Arabic strings were written by the assistant, not a native copywriter. Review tone, terminology (Egyptian retail wording, for
+1185 Arabic strings were written by the assistant, not a native copywriter. Review tone, terminology (Egyptian retail wording, for
 example the category names) and plural forms. Brand and model names left in Latin (AMD Ryzen, DDR5, ...) are not listed.
 The owner plans one native-review pass once more copy exists.
 
@@ -564,6 +564,11 @@ run `npm run i18n:review` after adding strings (CI runs `npm run i18n:review:che
 | messages: Auth.errors.no_email_change | There's no email change in progress. Start again. | لا يوجد تغيير بريد قيد التنفيذ. ابدأ من جديد. |
 | messages: Auth.errors.email_unavailable | That address can't be used. Start again with a different address. | لا يمكن استخدام هذا العنوان. ابدأ من جديد بعنوان آخر. |
 | messages: Auth.errors.address_unavailable | The previous address can't be restored automatically. Contact support so we can help you. | لا يمكن استعادة العنوان السابق تلقائيًا. تواصل مع الدعم لنساعدك. |
+| messages: Auth.errors.invalid_governorate | Choose a governorate from the list. | اختر محافظة من القائمة. |
+| messages: Auth.errors.invalid_text | This contains characters that are not allowed. | يحتوي هذا الحقل على رموز غير مسموح بها. |
+| messages: Auth.errors.address_limit | You have reached the limit of saved addresses. Delete one first. | وصلت إلى الحد الأقصى للعناوين المحفوظة. احذف عنوانًا أولًا. |
+| messages: Auth.errors.address_not_found | That address could not be found. It may have been deleted. | تعذّر العثور على هذا العنوان. ربما تم حذفه. |
+| messages: Auth.errors.invalid_address | That address could not be found. | تعذّر العثور على هذا العنوان. |
 | messages: Auth.forgot.title | Reset your password | إعادة تعيين كلمة المرور |
 | messages: Auth.forgot.metaDescription | Request a link to reset your password. | اطلب رابطًا لإعادة تعيين كلمة المرور. |
 | messages: Auth.forgot.intro | Enter your email and we'll send a link to choose a new password, if an account exists. | أدخل بريدك الإلكتروني وسنرسل رابطًا لاختيار كلمة مرور جديدة، إذا كان الحساب موجودًا. |
@@ -584,6 +589,7 @@ run `npm run i18n:review` after adding strings (CI runs `npm run i18n:review:che
 | messages: Account.nav.overview | Overview | نظرة عامة |
 | messages: Account.nav.profile | Profile | الملف الشخصي |
 | messages: Account.nav.security | Security | الأمان |
+| messages: Account.nav.addresses | Addresses | العناوين |
 | messages: Account.overview.profileTitle | Profile | الملف الشخصي |
 | messages: Account.overview.profileBody | Your name, mobile number, date of birth and gender. | اسمك ورقم موبايلك وتاريخ ميلادك ونوعك. |
 | messages: Account.overview.profileLink | Edit profile | تعديل الملف الشخصي |
@@ -591,6 +597,9 @@ run `npm run i18n:review` after adding strings (CI runs `npm run i18n:review:che
 | messages: Account.overview.securityBody | {count, plural, one {You're signed in on # device. Change your password and review recent security activity.} other {You're signed in on # devices. Change your password and review recent security activity.}} | {count, plural, one {أنت مسجّل الدخول على جهاز واحد. غيّر كلمة المرور واطّلع على آخر نشاط أمني.} two {أنت مسجّل الدخول على جهازين. غيّر كلمة المرور واطّلع على آخر نشاط أمني.} few {أنت مسجّل الدخول على # أجهزة. غيّر كلمة المرور واطّلع على آخر نشاط أمني.} many {أنت مسجّل الدخول على # جهازًا. غيّر كلمة المرور واطّلع على آخر نشاط أمني.} other {أنت مسجّل الدخول على # جهاز. غيّر كلمة المرور واطّلع على آخر نشاط أمني.}} |
 | messages: Account.overview.securityLink | Open security | فتح الأمان |
 | messages: Account.overview.signedInAs | Signed in as <email></email>. | تم تسجيل الدخول باسم <email></email>. |
+| messages: Account.overview.addressesTitle | Addresses | العناوين |
+| messages: Account.overview.addressesBody | {count, plural, =0 {Save a delivery address so checkout is quicker.} one {You have # saved address.} other {You have # saved addresses.}} | {count, plural, =0 {احفظ عنوان توصيل ليكون إتمام الطلب أسرع.} one {لديك عنوان واحد محفوظ.} two {لديك عنوانان محفوظان.} few {لديك # عناوين محفوظة.} many {لديك # عنوانًا محفوظًا.} other {لديك # عنوان محفوظ.}} |
+| messages: Account.overview.addressesLink | Manage addresses | إدارة العناوين |
 | messages: Account.profile.title | Profile | الملف الشخصي |
 | messages: Account.profile.metaDescription | Edit your profile details. | عدّل بيانات ملفك الشخصي. |
 | messages: Account.profile.intro | Update your name, mobile number and other details. | حدّث اسمك ورقم موبايلك وبقية بياناتك. |
@@ -644,6 +653,53 @@ run `npm run i18n:review` after adding strings (CI runs `npm run i18n:review:che
 | messages: Account.security.email.change | Change email address | تغيير البريد الإلكتروني |
 | messages: Account.security.email.continue | Continue the change | متابعة التغيير |
 | messages: Account.security.email.pending | A change to {address} is waiting for its code. | هناك تغيير إلى {address} ينتظر إدخال الرمز. |
+| messages: Account.addresses.title | Addresses | العناوين |
+| messages: Account.addresses.metaDescription | Manage your delivery addresses. | إدارة عناوين التوصيل الخاصة بك. |
+| messages: Account.addresses.intro | Save the places you want orders delivered to. You can keep up to {max}. | احفظ الأماكن التي تريد توصيل طلباتك إليها. يمكنك حفظ حتى {max} عناوين. |
+| messages: Account.addresses.listLabel | Saved addresses | العناوين المحفوظة |
+| messages: Account.addresses.empty | You haven't saved an address yet. | لم تحفظ أي عنوان بعد. |
+| messages: Account.addresses.emptyHint | Add one now and it will be ready at checkout. | أضف عنوانًا الآن ليكون جاهزًا عند إتمام الطلب. |
+| messages: Account.addresses.add | Add an address | إضافة عنوان |
+| messages: Account.addresses.addFirst | Add your first address | أضف عنوانك الأول |
+| messages: Account.addresses.limitReached | You have saved the maximum of {max} addresses. Delete one to add another. | لقد وصلت إلى الحد الأقصى وهو {max} عناوين. احذف عنوانًا لتتمكن من إضافة آخر. |
+| messages: Account.addresses.defaultBadge | Default | الافتراضي |
+| messages: Account.addresses.setDefault | Set as default | تعيين كافتراضي |
+| messages: Account.addresses.edit | Edit | تعديل |
+| messages: Account.addresses.delete | Delete | حذف |
+| messages: Account.addresses.deleteQuestion | Delete this address? | هل تريد حذف هذا العنوان؟ |
+| messages: Account.addresses.deleteConfirm | Yes, delete | نعم، احذفه |
+| messages: Account.addresses.deleteCancel | Keep it | إبقاؤه |
+| messages: Account.addresses.saved | Address saved. | تم حفظ العنوان. |
+| messages: Account.addresses.added | Address added. | تمت إضافة العنوان. |
+| messages: Account.addresses.deleted | Address deleted. | تم حذف العنوان. |
+| messages: Account.addresses.defaultSet | Default address updated. | تم تحديث العنوان الافتراضي. |
+| messages: Account.addresses.failed | That didn't work. Please try again. | لم تنجح العملية. حاول مرة أخرى. |
+| messages: Account.addresses.formAddTitle | New address | عنوان جديد |
+| messages: Account.addresses.formEditTitle | Edit address | تعديل العنوان |
+| messages: Account.addresses.cancel | Cancel | إلغاء |
+| messages: Account.addresses.submitAdd | Save address | حفظ العنوان |
+| messages: Account.addresses.submitEdit | Save changes | حفظ التغييرات |
+| messages: Account.addresses.submitting | Saving… | جارٍ الحفظ… |
+| messages: Account.addresses.label | Name for this address (optional) | اسم لهذا العنوان (اختياري) |
+| messages: Account.addresses.labelHint | For example Home or Office. | مثلًا: المنزل أو العمل. |
+| messages: Account.addresses.recipientName | Recipient's full name | الاسم الكامل للمستلم |
+| messages: Account.addresses.phone | Recipient's mobile number | رقم موبايل المستلم |
+| messages: Account.addresses.governorate | Governorate | المحافظة |
+| messages: Account.addresses.governorateChoose | Choose a governorate | اختر المحافظة |
+| messages: Account.addresses.city | City or district | المدينة أو المركز |
+| messages: Account.addresses.area | Area or neighborhood | المنطقة أو الحي |
+| messages: Account.addresses.street | Street | الشارع |
+| messages: Account.addresses.building | Building name or number | اسم المبنى أو رقمه |
+| messages: Account.addresses.floor | Floor (optional) | الدور (اختياري) |
+| messages: Account.addresses.apartment | Apartment (optional) | الشقة (اختياري) |
+| messages: Account.addresses.landmark | Nearby landmark (optional) | علامة مميزة قريبة (اختياري) |
+| messages: Account.addresses.landmarkHint | Helps the courier find you, for example next to a pharmacy. | تساعد المندوب على الوصول إليك، مثلًا بجوار صيدلية. |
+| messages: Account.addresses.makeDefault | Use as my default address | استخدمه كعنواني الافتراضي |
+| messages: Account.addresses.firstIsDefault | Your first address becomes your default address. | عنوانك الأول يصبح عنوانك الافتراضي. |
+| messages: Account.addresses.floorWord | Floor | الدور |
+| messages: Account.addresses.apartmentWord | Apartment | الشقة |
+| messages: Account.addresses.landmarkWord | Landmark | علامة مميزة |
+| messages: Account.addresses.phoneWord | Mobile | موبايل |
 | messages: Account.devices.both | {browser} on {os} | {browser} على {os} |
 | messages: Account.devices.browserOnly | {browser} | {browser} |
 | messages: Account.devices.osOnly | {os} | {os} |

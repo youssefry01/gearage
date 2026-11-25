@@ -34,6 +34,7 @@ describe("auth structure (ADR 0002)", () => {
     for (const file of [
       "src/features/auth/auth.actions.ts",
       "src/features/account/account.actions.ts",
+      "src/features/account/address.actions.ts",
     ]) {
       const src = readFileSync(join(root, file), "utf8");
       const actions = src.match(/export const \w+Action = /g) ?? [];
@@ -44,10 +45,29 @@ describe("auth structure (ADR 0002)", () => {
   });
 
   it("every account action is an authedAction: the session is proved before any work runs", () => {
-    const src = readFileSync(join(root, "src/features/account/account.actions.ts"), "utf8");
-    const actions = src.match(/export const \w+Action = (\w+)/g) ?? [];
-    expect(actions.length).toBeGreaterThanOrEqual(4);
-    for (const a of actions) expect(a, a).toMatch(/= authedAction$/);
+    for (const file of [
+      "src/features/account/account.actions.ts",
+      "src/features/account/address.actions.ts",
+    ]) {
+      const src = readFileSync(join(root, file), "utf8");
+      const actions = src.match(/export const \w+Action = (\w+)/g) ?? [];
+      expect(actions.length, file).toBeGreaterThanOrEqual(4);
+      for (const a of actions) expect(a, a).toMatch(/= authedAction$/);
+    }
+  });
+
+  it("address actions never take the owner from the client, and the service scopes every query by it", () => {
+    const actions = readFileSync(join(root, "src/features/account/address.actions.ts"), "utf8");
+    expect(actions).not.toMatch(/userId\s*:\s*parsedInput/);
+    expect(actions).not.toMatch(/publicAction/);
+    const domain = readFileSync(join(root, "src/domain/address.ts"), "utf8");
+    expect(domain).not.toMatch(/userId|isDefault\s*:\s*z\./);
+    const repo = readFileSync(join(root, "src/server/repositories/address.repository.ts"), "utf8");
+    // No lookup by the address id alone: every where-clause and raw statement carries the owner.
+    expect(repo).not.toMatch(/where:\s*\{\s*id:\s*addressId\s*\}/);
+    expect(repo).not.toMatch(/WHERE "id" = \$\{addressId\}::uuid(?! AND "userId")/);
+    const svc = readFileSync(join(root, "src/server/services/address.service.ts"), "utf8");
+    expect(svc).not.toMatch(/logger\./);
   });
 
   it("the only public email-change actions are the cancel and revert links, each with its own per-IP policy", () => {

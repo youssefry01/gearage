@@ -1,0 +1,32 @@
+// The address book (M5b-2c, ADR 0029): the delivery addresses a signed-in person saves. At most MAX_ADDRESSES per
+// person (enforced by the service under a row lock) and exactly one default when there is at least one (a partial
+// unique index in the migration). The governorate is a stable CODE from `src/domain/egypt-governorates.ts`, never a
+// name. Orders (M6b) will COPY an address into the order, so editing or deleting a saved address never changes a past
+// order. Timestamps are set by code (HANDOFF "Time zones").
+
+model Address {
+  id            String   @id @default(uuid(7)) @db.Uuid
+  userId        String   @db.Uuid
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  /// Optional nickname ("Home", "Office").
+  label         String?
+  recipientName String
+  /// Egyptian mobile in E.164 (+20...), same rules as the profile.
+  phone         String
+  /// Governorate code (`cairo`, `kafr-el-sheikh`, ...).
+  governorate   String
+  city          String
+  area          String
+  street        String
+  building      String
+  floor         String?
+  apartment     String?
+  landmark      String?
+  /// At most one per user (partial unique index `address_user_default_uq`).
+  isDefault     Boolean  @default(false)
+  createdAt     DateTime
+  updatedAt     DateTime
+
+  @@index([userId, createdAt])
+  @@map("address")
+}

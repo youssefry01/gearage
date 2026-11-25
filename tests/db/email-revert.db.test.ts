@@ -400,6 +400,28 @@ describe("cancelling a pending change", () => {
     });
   });
 
+  it("leaves the undo link of an EARLIER completed change usable (the cancel link goes to the CURRENT address, which may be the attacker's)", async () => {
+    // The owner's account moved from mona@ to new@ (completed); the undo link went to mona@. Whoever now controls
+    // new@ starts ANOTHER change and presses the cancel link that arrives at new@. That must not destroy the owner's
+    // undo: a cancel only ever closes the pending request (ADR 0027, decided 2026-11-17).
+    const user = await makeAccount("mona@example.test");
+    const revertToken = await change(user, "new@example.test");
+    const moved = { id: user.id, email: "new@example.test" };
+    await start(moved, "third@example.test");
+    const [notice] = await outboxTo("new@example.test", "email-change-notice");
+    const cancelToken = decodeURIComponent(
+      (notice!.payload as { cancelUrl: string }).cancelUrl.split("#token=")[1]!,
+    );
+
+    await emailChange.cancelEmailChangeByToken(cancelToken);
+
+    expect(await db().emailChangeRevert.count({ where: { userId: user.id } })).toBe(1);
+    await expect(emailChange.revertEmailChangeByToken(revertToken)).resolves.toEqual({
+      status: "reverted",
+    });
+    expect(await emailOf(user.id)).toBe("mona@example.test");
+  });
+
   it("a dead link signs nobody out", async () => {
     const user = await makeAccount("mona@example.test");
     await expect(emailChange.cancelEmailChangeByToken("C".repeat(43))).rejects.toMatchObject({

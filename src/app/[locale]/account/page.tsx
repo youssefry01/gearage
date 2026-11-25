@@ -10,6 +10,7 @@ import { buttonStyles } from "@/components/ui/button";
 import { Link } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
 import { getProfile, listSessions } from "@/server/services/account.service";
+import { listAddresses } from "@/server/services/address.service";
 
 /** Per-visitor page: it reads the session cookie, so it is never prerendered or cached (ADR 0024). */
 export const dynamic = "force-dynamic";
@@ -29,9 +30,10 @@ export default async function AccountPage({ params }: Props) {
   const { locale } = await params;
   if (!hasLocale(routing.locales, locale)) notFound();
   const session = await requireSession(locale, routes.account);
-  const [profile, sessions] = await Promise.all([
+  const [profile, sessions, addresses] = await Promise.all([
     getProfile(session.user.id),
     listSessions(session.user.id, session.sessionId),
+    listAddresses(session.user.id),
   ]);
   const t = await getTranslations({ locale, namespace: "Auth.account" });
   const o = await getTranslations({ locale, namespace: "Account.overview" });
@@ -79,6 +81,20 @@ export default async function AccountPage({ params }: Props) {
             className={`${buttonStyles({ variant: "secondary" })} self-start`}
           >
             {o("securityLink")}
+          </Link>
+        </section>
+        <section aria-labelledby="overview-addresses" className={card}>
+          <h2 id="overview-addresses" className="text-heading font-semibold text-balance">
+            {o("addressesTitle")}
+          </h2>
+          <p className="text-small text-muted-foreground" data-testid="overview-addresses">
+            {o("addressesBody", { count: addresses.length })}
+          </p>
+          <Link
+            href={accountRoutes.addresses}
+            className={`${buttonStyles({ variant: "secondary" })} self-start`}
+          >
+            {o("addressesLink")}
           </Link>
         </section>
       </div>

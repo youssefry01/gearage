@@ -179,3 +179,18 @@ select type, "createdAt" from security_event order by "createdAt" desc limit 6;
 6. Account pages at 1280px: a column of Overview / Profile / Security with **Sign out** at its foot, the current page filled orange. At 320px (DevTools device toolbar): the same links as a wrapping row of 44px buttons above the content with **Sign out** last; nothing scrolls sideways, in English and in Arabic (`/ar/account`, mirrored).
 7. Security shows, in order: Change password, Email address (your address and **Change email address**), Where you're signed in, Recent security activity. **Change email address** opens `/en/account/email`, where **Security** is the highlighted section and **Back to Security** returns. With a change waiting for its code, the Email section says so and the button reads **Continue the change**.
 8. Phone: open the menu at 320px and in Arabic: the panel never goes past either screen edge. With the keyboard: Tab to the button, Enter opens, Tab moves into the panel, Escape closes.
+
+## 19. Address book (M5b-2c, ADR 0029)
+
+1. Signed in, open the header menu: **Addresses** is listed (also in the side menu on the account pages, current page filled orange). Signed out, `/en/account/addresses` sends you to sign-in and back.
+2. First visit: "You haven't saved an address yet." and **Add your first address**. The form is pre-filled with your name and mobile, says the first address becomes your default, and focus is on its heading. Choose a governorate, fill city, area, street, building, **Save address**: the card appears with a **Default** badge, "Address added." is shown and focus is on "Saved addresses". The overview says "You have 1 saved address."
+3. Submit an empty form: an error under each required field (and the governorate), focus on the first invalid one. A mobile like `12345` is refused with the Egyptian-mobile message. Cancel closes the form and saves nothing.
+4. Add a second address, then a third with **Use as my default address** ticked: the badge always sits on exactly one card, and the default card is always first. **Set as default** on another card moves the badge and says "Default address updated."
+5. **Edit** a card: the form holds its values; change the street and **Save changes**. The default does not change.
+6. **Delete**: "Delete this address?" with **Keep it** focused (press Enter: nothing is deleted and focus returns to Delete). Delete the default: another address becomes the default. Delete the last one: the empty state returns.
+7. Add addresses until you have 10: the add button is replaced by "You have saved the maximum of 10 addresses. Delete one to add another." and comes back after a delete.
+8. Arabic (`/ar/account/addresses`): right-to-left, governorates listed and shown in Arabic, Arabic text and Arabic digits save and show; the mobile number stays left-to-right inside its card. The same address shows "Cairo" on the English page. Check at 320px: nothing scrolls sideways, every button is comfortably tappable.
+9. With a screen reader (NVDA/VoiceOver) if you can: saving, setting the default and deleting each announce their result once; the cards are a list with a heading each.
+10. Sign in as a SECOND person in another browser: their address book is empty and never shows the first person's.
+11. Header height: on Security at 1024, 1280 and 1440px scroll down: the side menu sits one rem under the header (no overlap, no big gap), including when you resize the window with the page scrolled.
+12. Real Brevo: no email is sent for address changes (none is planned); confirm none arrives.

@@ -36,6 +36,7 @@ export const routes = {
 export const accountRoutes = {
   profile: "/account/profile",
   security: "/account/security",
+  addresses: "/account/addresses",
   /** Change the email address (M5b-2a). Needs a session. */
   email: "/account/email",
   /**
